@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "Marais Rossouw",
+    "email": "me@marais.dev",
+    "url": "https://marais.io"
+  },
+  "scripts": {
+    "test": "uvu packages \".spec.ts$\" -r tsm",
+    "format": "prettier  --write --list-different \"{*,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
+    "types": "tsc --noEmit --skipLibCheck"
+  },
+  "devDependencies": {
+    "@types/node": "16.11.9",
+    "nanospy": "^0.3.0",
+    "prettier": "^2.4.1",
+    "tsm": "^2.1.4",
+    "typescript": "4.5.2",
+    "uvu": "0.5.2"
+  }
+}
