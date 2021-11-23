@@ -58,6 +58,7 @@ export const create = (name: string, options: Options): ScopeParent => {
 		const attributes: Attributes = {};
 
 		const start = performance.now();
+		let ended = false;
 
 		return {
 			get traceparent() {
@@ -95,6 +96,8 @@ export const create = (name: string, options: Options): ScopeParent => {
 				Object.assign(attributes, attr);
 			},
 			end() {
+				if (ended) return void 0;
+
 				spans.add({
 					id: me,
 					parent,
@@ -103,6 +106,8 @@ export const create = (name: string, options: Options): ScopeParent => {
 					name,
 					attributes,
 				});
+
+				ended = true;
 			},
 		};
 	};

@@ -33,6 +33,7 @@ test('api', async () => {
 	});
 
 	scope.end();
+	scope.end(); // tests ended
 
 	await tracer.end();
 
