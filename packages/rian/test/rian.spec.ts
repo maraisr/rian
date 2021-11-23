@@ -1,6 +1,6 @@
+import { restoreAll, spy } from 'nanospy';
 import { test } from 'uvu';
 import * as assert from 'uvu/assert';
-import { spy, restoreAll } from 'nanospy';
 
 import * as rian from '../src';
 
@@ -15,7 +15,7 @@ test('exports', () => {
 test('simple', () => {
 	const agent = spy();
 	const tracer = rian.create('simple', {
-		agent: console.log,
+		collector: console.log,
 	});
 
 	const scope = tracer.fork('some-name');

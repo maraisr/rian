@@ -7,15 +7,19 @@ export type Span = {
 	parent?: Traceparent;
 	start: number;
 	end: number;
-	attributes: AllowedObject;
+	attributes: Attributes;
 };
 
-export type Agent = (spans: ReadonlySet<Span>) => any;
+export type Collector = (spans: ReadonlySet<Span>) => any;
 
-type AllowedObject = Record<string, string | number | boolean | undefined>;
+export type Attributes = {
+	error?: Error;
+} & {
+	[property: string]: string | number | boolean | undefined;
+};
 
 export type Options = {
-	agent: Agent;
+	collector: Collector;
 	traceparent?: Traceparent;
 };
 
@@ -29,7 +33,7 @@ interface Scope {
 		fn: Fn,
 	): ReturnType<Fn>;
 
-	setAttributes(tags: AllowedObject): void;
+	setAttributes(tags: Attributes): void;
 
 	end(): void;
 }
@@ -42,7 +46,7 @@ export const create = (name: string, options: Options): ScopeParent => {
 
 	const scope = (name: string, parent?: Traceparent): Scope => {
 		const me = parent ? parent.child() : make();
-		const attributes: AllowedObject = {};
+		const attributes: Attributes = {};
 
 		const start = performance.now();
 
@@ -55,10 +59,10 @@ export const create = (name: string, options: Options): ScopeParent => {
 			},
 			measure(name, cb) {
 				const scope = this.fork(name);
-				const set_error = (err: Error) => {
+
+				const set_error = (error: Error) => {
 					scope.setAttributes({
-						'error.message': err.message,
-						'error.stack': err.stack,
+						error,
 					});
 				};
 
@@ -105,7 +109,8 @@ export const create = (name: string, options: Options): ScopeParent => {
 	me.end = async () => {
 		await Promise.all(promises);
 		meEnd();
-		return options.agent(spans);
+
+		return options.collector(spans);
 	};
 
 	return me;

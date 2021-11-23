@@ -8,7 +8,7 @@
 	},
 	"scripts": {
 		"test": "uvu packages \".spec.ts$\" -r tsm",
-		"format": "prettier  --write --list-different \"{*,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
+		"format": "prettier --write --list-different \"{*,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
 		"types": "tsc --noEmit --skipLibCheck"
 	},
 	"devDependencies": {
