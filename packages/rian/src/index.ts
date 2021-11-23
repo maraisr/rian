@@ -13,9 +13,7 @@ export type Span = {
 export type Collector = (spans: ReadonlySet<Span>) => any;
 
 export type Attributes = {
-	error?: Error;
-} & {
-	[property: string]: string | number | boolean | undefined;
+	[property: string]: string | number | boolean | undefined | Error;
 };
 
 export type Options = {
@@ -31,10 +29,14 @@ type OmitScopeParam<T extends unknown[]> = T extends []
 		: [H, ...OmitScopeParam<R>]
 	: T;
 
+interface CallableScope extends Scope {
+	(cb: (scope: Omit<Scope, 'end'>) => void): ReturnType<typeof cb>;
+}
+
 export interface Scope {
 	traceparent: Traceparent;
 
-	fork(name: string, traceparent?: Traceparent): Scope;
+	fork(name: string, traceparent?: Traceparent): CallableScope;
 
 	measure<Fn extends (...args: any[]) => any, Params extends Parameters<Fn>>(
 		name: string,
@@ -42,25 +44,49 @@ export interface Scope {
 		...args: OmitScopeParam<Params>
 	): ReturnType<Fn>;
 
-	setAttributes(tags: Attributes): void;
+	setAttributes(attributes: Attributes): void;
 
 	end(): void;
 }
 
-type ScopeParent = Scope;
+interface ParentScope extends Scope {
+	end(): ReturnType<Collector>;
+}
 
-export const create = (name: string, options: Options): ScopeParent => {
+const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
+	const set_error = (error: Error) => {
+		scope.setAttributes({
+			error,
+		});
+	};
+
+	try {
+		const r = cb();
+
+		if (r instanceof Promise)
+			promises.push(r.catch(set_error).finally(() => scope.end()));
+
+		return r;
+	} catch (e) {
+		set_error(e);
+		throw e;
+	} finally {
+		scope.end();
+	}
+};
+
+export const create = (name: string, options: Options): ParentScope => {
 	const spans: Set<Span> = new Set();
 	const promises = [];
 
-	const scope = (name: string, parent?: Traceparent): Scope => {
+	const scope = (name: string, parent?: Traceparent): CallableScope => {
 		const me = parent ? parent.child() : make();
 		const attributes: Attributes = {};
 
 		const start = performance.now();
 		let ended = false;
 
-		return {
+		const $: Scope = {
 			get traceparent() {
 				return me;
 			},
@@ -70,27 +96,7 @@ export const create = (name: string, options: Options): ScopeParent => {
 			measure(name, cb, ...args) {
 				const scope = this.fork(name);
 
-				const set_error = (error: Error) => {
-					scope.setAttributes({
-						error,
-					});
-				};
-
-				try {
-					const r = cb(...args, scope);
-
-					if (r instanceof Promise)
-						promises.push(
-							r.catch(set_error).finally(() => scope.end()),
-						);
-
-					return r;
-				} catch (e) {
-					set_error(e);
-					throw e;
-				} finally {
-					scope.end();
-				}
+				return measure(() => cb(...args, scope), scope, promises);
 			},
 			setAttributes(attr) {
 				Object.assign(attributes, attr);
@@ -110,6 +116,8 @@ export const create = (name: string, options: Options): ScopeParent => {
 				ended = true;
 			},
 		};
+
+		return Object.setPrototypeOf((cb) => measure(cb, $, promises), $);
 	};
 
 	const me = scope(
@@ -118,7 +126,7 @@ export const create = (name: string, options: Options): ScopeParent => {
 			? parse(options.traceparent)
 			: options.traceparent,
 	);
-	const meEnd = me.end;
+	const meEnd = me.end.bind(me);
 
 	me.end = async () => {
 		await Promise.all(promises);

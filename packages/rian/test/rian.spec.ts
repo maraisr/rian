@@ -13,9 +13,9 @@ test('exports', () => {
 });
 
 test('api', async () => {
-	const agent = spy<rian.Collector>();
+	const collector = spy<rian.Collector>();
 	const tracer = rian.create('simple', {
-		collector: agent,
+		collector,
 	});
 
 	const scope = tracer.fork('some-name');
@@ -37,8 +37,26 @@ test('api', async () => {
 
 	await tracer.end();
 
-	assert.equal(agent.callCount, 1);
-	const items = agent.calls[0][0] as Set<rian.Span>;
+	assert.equal(collector.callCount, 1);
+	const items = collector.calls[0][0] as Set<rian.Span>;
+	assert.instance(items, Set);
+	assert.equal(items.size, 3);
+});
+
+test('allow for fn api', async () => {
+	const collector = spy<rian.Collector>();
+
+	const tracer = rian.create('simple', {
+		collector,
+	});
+
+	tracer.measure('test', spy());
+	tracer.fork('forked')(spy());
+
+	await tracer.end();
+
+	assert.equal(collector.callCount, 1);
+	const items = collector.calls[0][0] as Set<rian.Span>;
 	assert.instance(items, Set);
 	assert.equal(items.size, 3);
 });
