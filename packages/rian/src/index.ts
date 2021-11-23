@@ -1,5 +1,5 @@
-import type { Traceparent } from 'tctx';
-import { make, parse } from 'tctx';
+import type { Traceparent } from './traceparent';
+import { make, parse } from './traceparent';
 
 export type Span = {
 	name: string;
@@ -23,14 +23,23 @@ export type Options = {
 	traceparent?: Traceparent;
 };
 
-interface Scope {
+type OmitScopeParam<T extends unknown[]> = T extends []
+	? []
+	: T extends [infer H, ...infer R]
+	? H extends Scope
+		? OmitScopeParam<R>
+		: [H, ...OmitScopeParam<R>]
+	: T;
+
+export interface Scope {
 	traceparent: Traceparent;
 
 	fork(name: string, traceparent?: Traceparent): Scope;
 
-	measure<Fn extends (scope: Scope) => any>(
+	measure<Fn extends (...args: any[]) => any, Params extends Parameters<Fn>>(
 		name: string,
 		fn: Fn,
+		...args: OmitScopeParam<Params>
 	): ReturnType<Fn>;
 
 	setAttributes(tags: Attributes): void;
@@ -57,7 +66,7 @@ export const create = (name: string, options: Options): ScopeParent => {
 			fork(name) {
 				return scope(name, me);
 			},
-			measure(name, cb) {
+			measure(name, cb, ...args) {
 				const scope = this.fork(name);
 
 				const set_error = (error: Error) => {
@@ -67,7 +76,7 @@ export const create = (name: string, options: Options): ScopeParent => {
 				};
 
 				try {
-					const r = cb(scope);
+					const r = cb(...args, scope);
 
 					if (r instanceof Promise)
 						promises.push(

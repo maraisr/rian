@@ -42,7 +42,24 @@ test('api', async () => {
 	assert.equal(items.size, 3);
 });
 
-test('measure::throw', async () => {
+test('meassure :: accepts arguments', async () => {
+	const tracer = rian.create('simple', {
+		collector: spy(),
+	});
+
+	const fn = spy<(a: string, b: string) => string>();
+
+	tracer.measure('test', fn, 'arg a', 'arg b');
+
+	await tracer.end();
+
+	assert.equal(fn.callCount, 1);
+	const args = fn.calls[0];
+	args.pop();
+	assert.equal(args, ['arg a', 'arg b']);
+});
+
+test('measure :: throw', async () => {
 	const tracer = rian.create('simple', {
 		collector: spy(),
 	});
