@@ -1,35 +1,35 @@
 {
-  "name": "rian",
-  "version": "0.0.2",
-  "description": "A tracer for the edge",
-  "keywords": [
-    "TODO"
-  ],
-  "repository": "maraisr/rian",
-  "license": "MIT",
-  "author": {
-    "name": "Marais Rossouw",
-    "email": "me@marais.dev",
-    "url": "https://marais.io"
-  },
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./index.mjs",
-      "require": "./index.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "main": "./index.js",
-  "module": "./index.mjs",
-  "types": "index.d.ts",
-  "files": [
-    "index.mjs",
-    "index.js",
-    "index.d.ts"
-  ],
-  "dependencies": {
-    "tctx": "^0.0.6"
-  }
+	"name": "rian",
+	"version": "0.0.2",
+	"description": "A tracer for the edge",
+	"keywords": [
+		"TODO"
+	],
+	"repository": "maraisr/rian",
+	"license": "MIT",
+	"author": {
+		"name": "Marais Rossouw",
+		"email": "me@marais.dev",
+		"url": "https://marais.io"
+	},
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./index.mjs",
+			"require": "./index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"main": "./index.js",
+	"module": "./index.mjs",
+	"types": "index.d.ts",
+	"files": [
+		"index.mjs",
+		"index.js",
+		"index.d.ts"
+	],
+	"dependencies": {
+		"tctx": "^0.0.6"
+	}
 }

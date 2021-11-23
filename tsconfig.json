@@ -1,14 +1,14 @@
 {
-  "extends": "@marais/tsconfig",
-  "compilerOptions": {
-    "rootDir": ".",
-    "baseUrl": ".",
-    "target": "ES2019",
-    "outDir": "dist",
-    "declaration": false,
-    "removeComments": false,
-    "lib": ["DOM", "ESNext"]
-  },
-  "include": ["src/index.ts"],
-  "exclude": ["node_modules"]
+	"extends": "@marais/tsconfig",
+	"compilerOptions": {
+		"rootDir": ".",
+		"baseUrl": ".",
+		"target": "ES2019",
+		"outDir": "dist",
+		"declaration": false,
+		"removeComments": false,
+		"lib": ["DOM", "ESNext"]
+	},
+	"include": ["src/index.ts"],
+	"exclude": ["node_modules"]
 }

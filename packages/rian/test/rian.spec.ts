@@ -1,40 +1,40 @@
-import { test } from "uvu";
-import * as assert from "uvu/assert";
-import { spy, restoreAll } from "nanospy";
+import { test } from 'uvu';
+import * as assert from 'uvu/assert';
+import { spy, restoreAll } from 'nanospy';
 
-import * as rian from "../src";
+import * as rian from '../src';
 
 test.after.each(() => {
-  restoreAll();
+	restoreAll();
 });
 
-test("exports", () => {
-  assert.type(rian.create, "function");
+test('exports', () => {
+	assert.type(rian.create, 'function');
 });
 
-test("simple", () => {
-  const agent = spy();
-  const tracer = rian.create("simple", {
-    agent: console.log,
-  });
+test('simple', () => {
+	const agent = spy();
+	const tracer = rian.create('simple', {
+		agent: console.log,
+	});
 
-  const scope = tracer.fork("some-name");
+	const scope = tracer.fork('some-name');
 
-  scope.setAttributes({
-    baz: "qux",
-  });
+	scope.setAttributes({
+		baz: 'qux',
+	});
 
-  scope.measure("test", (scope) => {
-    scope.setAttributes({
-      foo: "bar",
-    });
+	scope.measure('test', (scope) => {
+		scope.setAttributes({
+			foo: 'bar',
+		});
 
-    return "test";
-  });
+		return 'test';
+	});
 
-  scope.end();
+	scope.end();
 
-  tracer.end();
+	tracer.end();
 });
 
 test.run();
