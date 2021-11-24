@@ -26,9 +26,9 @@ importers:
 
   packages/rian:
     specifiers:
-      tctx: ^0.0.6
+      tctx: ^0.0.9
     dependencies:
-      tctx: 0.0.6
+      tctx: 0.0.9
 
   packages/rian.newrelic:
     specifiers: {}
@@ -366,8 +366,8 @@ packages:
     dev: true
     optional: true
 
-  /tctx/0.0.6:
-    resolution: {integrity: sha512-VuS40qw2ulBS86n3zUDYADMjEalC89Dd1dRvacn+OyjtI6w70r5VeuBlMcXLdx7KPu/IzRCOQdT/HurfvsMg6w==}
+  /tctx/0.0.9:
+    resolution: {integrity: sha512-5EQSgDlIwHD0li3tz4tADT87k/bjDig/h50Rm03mvVc8NPQCZNlYGR1W13gfFUCkJ+c32UTC2t5G2PXkMKvUrA==}
     engines: {node: '>=14'}
     dependencies:
       '@lukeed/csprng': 1.0.1

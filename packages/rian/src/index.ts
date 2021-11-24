@@ -80,7 +80,7 @@ export const create = (name: string, options: Options): Tracer => {
 	const promises: Promise<any>[] = [];
 
 	const scope = (name: string, parent?: Traceparent): CallableScope => {
-		const me = parent ? parent.child() : make_traceparent();
+		const me = parent ? parent.child() : make_traceparent(true);
 		const attributes: Attributes = {};
 
 		const start = Date.now();
