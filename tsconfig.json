@@ -4,7 +4,6 @@
 		"rootDir": ".",
 		"baseUrl": ".",
 		"target": "esnext",
-		"module": "nodenext",
 		"declaration": false,
 		"removeComments": false,
 		"lib": ["esnext", "dom.iterable", "webworker"],

@@ -68,6 +68,7 @@ async function build(name: string) {
 			return rollup({
 				input,
 				external,
+				output: [output(true), output(false)],
 				plugins: [
 					{
 						name: 'typescript',

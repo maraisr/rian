@@ -13,7 +13,7 @@ export type Span = {
 export type Collector = (spans: ReadonlySet<Span>) => any;
 
 export type Attributes = {
-	[property: string]: string | number | boolean | undefined | Error;
+	[property: string]: any;
 };
 
 export type Options = {
@@ -49,7 +49,7 @@ export interface Scope {
 	end(): void;
 }
 
-interface ParentScope extends Scope {
+export interface Tracer extends Scope {
 	end(): ReturnType<Collector>;
 }
 
@@ -75,7 +75,7 @@ const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
 	}
 };
 
-export const create = (name: string, options: Options): ParentScope => {
+export const create = (name: string, options: Options): Tracer => {
 	const spans: Set<Span> = new Set();
 	const promises: Promise<any>[] = [];
 
@@ -83,7 +83,7 @@ export const create = (name: string, options: Options): ParentScope => {
 		const me = parent ? parent.child() : make_traceparent();
 		const attributes: Attributes = {};
 
-		const start = performance.now();
+		const start = Date.now();
 		let ended = false;
 
 		const $: Scope = {
@@ -108,7 +108,7 @@ export const create = (name: string, options: Options): ParentScope => {
 					id: me,
 					parent,
 					start,
-					end: performance.now(),
+					end: Date.now(),
 					name,
 					attributes,
 				});
