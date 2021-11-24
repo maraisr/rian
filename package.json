@@ -6,17 +6,22 @@
 		"email": "me@marais.dev",
 		"url": "https://marais.io"
 	},
+	"type": "module",
 	"scripts": {
+		"build": "tsm ./bin/index.ts",
 		"test": "uvu packages \".spec.ts$\" -r tsm",
-		"format": "prettier --write --list-different \"{*,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
+		"format": "prettier --write --list-different \"{*,bin/*,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
 		"types": "tsc --noEmit --skipLibCheck"
 	},
 	"devDependencies": {
-		"@types/node": "16.11.9",
-		"nanospy": "^0.3.0",
-		"prettier": "^2.4.1",
-		"tsm": "^2.1.4",
-		"typescript": "4.5.2",
+		"@marais/tsconfig": "0.0.1",
+		"@types/node": "16.11.10",
+		"nanospy": "0.3.0",
+		"prettier": "2.4.1",
+		"rollup": "2.60.1",
+		"rollup-plugin-dts": "4.0.1",
+		"tsm": "2.1.4",
+		"typescript": "4.6.0-dev.20211123",
 		"uvu": "0.5.2"
 	}
 }

@@ -1,5 +1,5 @@
-import type { Traceparent } from './traceparent';
-import { make, parse } from './traceparent';
+import type { Traceparent } from 'rian/tracecontext';
+import { make_traceparent, parse_traceparent } from 'rian/tracecontext';
 
 export type Span = {
 	name: string;
@@ -44,7 +44,7 @@ export interface Scope {
 		...args: OmitScopeParam<Params>
 	): ReturnType<Fn>;
 
-	setAttributes(attributes: Attributes): void;
+	set_attributes(attributes: Attributes): void;
 
 	end(): void;
 }
@@ -55,7 +55,7 @@ interface ParentScope extends Scope {
 
 const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
 	const set_error = (error: Error) => {
-		scope.setAttributes({
+		scope.set_attributes({
 			error,
 		});
 	};
@@ -77,10 +77,10 @@ const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
 
 export const create = (name: string, options: Options): ParentScope => {
 	const spans: Set<Span> = new Set();
-	const promises = [];
+	const promises: Promise<any>[] = [];
 
 	const scope = (name: string, parent?: Traceparent): CallableScope => {
-		const me = parent ? parent.child() : make();
+		const me = parent ? parent.child() : make_traceparent();
 		const attributes: Attributes = {};
 
 		const start = performance.now();
@@ -98,7 +98,7 @@ export const create = (name: string, options: Options): ParentScope => {
 
 				return measure(() => cb(...args, scope), scope, promises);
 			},
-			setAttributes(attr) {
+			set_attributes(attr) {
 				Object.assign(attributes, attr);
 			},
 			end() {
@@ -117,13 +117,13 @@ export const create = (name: string, options: Options): ParentScope => {
 			},
 		};
 
-		return Object.setPrototypeOf((cb) => measure(cb, $, promises), $);
+		return Object.setPrototypeOf((cb: any) => measure(cb, $, promises), $);
 	};
 
 	const me = scope(
 		name,
 		typeof options.traceparent === 'string'
-			? parse(options.traceparent)
+			? parse_traceparent(options.traceparent)
 			: options.traceparent,
 	);
 	const meEnd = me.end.bind(me);

@@ -20,12 +20,12 @@ test('api', async () => {
 
 	const scope = tracer.fork('some-name');
 
-	scope.setAttributes({
+	scope.set_attributes({
 		baz: 'qux',
 	});
 
 	scope.measure('test', (scope) => {
-		scope.setAttributes({
+		scope.set_attributes({
 			foo: 'bar',
 		});
 

@@ -19,15 +19,19 @@
 			"import": "./index.mjs",
 			"require": "./index.js"
 		},
+		"./tracecontext": {
+			"import": "./tracecontext.mjs",
+			"require": "./tracecontext.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"main": "./index.js",
 	"module": "./index.mjs",
 	"types": "index.d.ts",
 	"files": [
-		"index.mjs",
-		"index.js",
-		"index.d.ts"
+		"*.mjs",
+		"*.js",
+		"*.d.ts"
 	],
 	"dependencies": {
 		"tctx": "^0.0.6"

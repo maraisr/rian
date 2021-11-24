@@ -11,3 +11,8 @@ node_modules
 *.iml
 /.idea
 /.vscode
+
+# Dist
+packages/*/*.js
+packages/*/*.mjs
+packages/*/*.d.ts

@@ -3,12 +3,16 @@
 	"compilerOptions": {
 		"rootDir": ".",
 		"baseUrl": ".",
-		"target": "ES2019",
-		"outDir": "dist",
+		"target": "esnext",
+		"module": "nodenext",
 		"declaration": false,
 		"removeComments": false,
-		"lib": ["DOM", "ESNext"]
+		"lib": ["esnext", "dom.iterable", "webworker"],
+		"paths": {
+			"rian": ["./packages/rian/src/index.ts"],
+			"rian/*": ["./packages/rian/src/*"]
+		}
 	},
-	"include": ["src/index.ts"],
+	"include": ["bin/*", "packages/rian/src", "packages/rian/test"],
 	"exclude": ["node_modules"]
 }
