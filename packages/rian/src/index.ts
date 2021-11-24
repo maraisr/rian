@@ -61,9 +61,10 @@ const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
 	};
 
 	try {
-		const r = cb();
+		var r = cb(),
+			is_promise = r instanceof Promise;
 
-		if (r instanceof Promise)
+		if (is_promise)
 			promises.push(r.catch(set_error).finally(() => scope.end()));
 
 		return r;
@@ -71,7 +72,7 @@ const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
 		set_error(e);
 		throw e;
 	} finally {
-		scope.end();
+		if (is_promise !== true) scope.end();
 	}
 };
 

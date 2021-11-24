@@ -1,5 +1,5 @@
 import { restoreAll, spy } from 'nanospy';
-import { test } from 'uvu';
+import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
 import * as rian from '../src';
@@ -61,7 +61,11 @@ test('allow for fn api', async () => {
 	assert.equal(items.size, 3);
 });
 
-test('meassure :: accepts arguments', async () => {
+test.run();
+
+const measure = suite('measure');
+
+measure('accepts arguments', async () => {
 	const tracer = rian.create('simple', {
 		collector: spy(),
 	});
@@ -78,7 +82,7 @@ test('meassure :: accepts arguments', async () => {
 	assert.equal(args, ['arg a', 'arg b']);
 });
 
-test('measure :: throw', async () => {
+measure('throw context', async () => {
 	const tracer = rian.create('simple', {
 		collector: spy(),
 	});
@@ -102,4 +106,4 @@ test('measure :: throw', async () => {
 	tracer.end();
 });
 
-test.run();
+measure.run();
