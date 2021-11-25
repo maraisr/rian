@@ -19,10 +19,6 @@
 			"import": "./index.mjs",
 			"require": "./index.js"
 		},
-		"./tracecontext": {
-			"import": "./tracecontext.mjs",
-			"require": "./tracecontext.js"
-		},
 		"./package.json": "./package.json"
 	},
 	"main": "./index.js",

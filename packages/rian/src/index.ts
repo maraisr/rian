@@ -1,5 +1,5 @@
-import type { Traceparent } from 'rian/tracecontext';
-import { make_traceparent, parse_traceparent } from 'rian/tracecontext';
+import type { Traceparent } from 'tctx';
+import * as tctx from 'tctx';
 
 export type Span = {
 	name: string;
@@ -81,7 +81,7 @@ export const create = (name: string, options: Options): Tracer => {
 	const promises: Promise<any>[] = [];
 
 	const scope = (name: string, parent?: Traceparent): CallableScope => {
-		const me = parent ? parent.child() : make_traceparent(true);
+		const me = parent ? parent.child() : tctx.make(true);
 		const attributes: Attributes = {};
 
 		const start = Date.now();
@@ -124,7 +124,7 @@ export const create = (name: string, options: Options): Tracer => {
 	const me = scope(
 		name,
 		typeof options.traceparent === 'string'
-			? parse_traceparent(options.traceparent)
+			? tctx.parse(options.traceparent)
 			: options.traceparent,
 	);
 	const meEnd = me.end.bind(me);
