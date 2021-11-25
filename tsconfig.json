@@ -4,6 +4,8 @@
 		"rootDir": ".",
 		"baseUrl": ".",
 		"target": "esnext",
+		"module": "nodenext",
+		"moduleResolution": "Node",
 		"declaration": false,
 		"removeComments": false,
 		"lib": ["esnext", "dom.iterable", "webworker"],
@@ -12,6 +14,6 @@
 			"rian/*": ["./packages/rian/src/*"]
 		}
 	},
-	"include": ["bin/*", "packages/rian/src", "packages/rian/test"],
+	"include": ["bin/*", "packages/imports", "packages/rian/src", "packages/rian/test"],
 	"exclude": ["node_modules"]
 }

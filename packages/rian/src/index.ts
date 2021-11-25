@@ -1,5 +1,6 @@
-import type { Traceparent } from 'rian/tracecontext';
-import { make_traceparent, parse_traceparent } from 'rian/tracecontext';
+import * as context from "#context";
+import type { Traceparent } from "rian/tracecontext";
+import { make_traceparent, parse_traceparent } from "rian/tracecontext";
 
 export type Span = {
 	name: string;
@@ -24,13 +25,13 @@ export type Options = {
 type OmitScopeParam<T extends unknown[]> = T extends []
 	? []
 	: T extends [infer H, ...infer R]
-	? H extends Scope
-		? OmitScopeParam<R>
-		: [H, ...OmitScopeParam<R>]
-	: T;
+		? H extends Scope
+			? OmitScopeParam<R>
+			: [H, ...OmitScopeParam<R>]
+		: T;
 
 interface CallableScope extends Scope {
-	(cb: (scope: Omit<Scope, 'end'>) => void): ReturnType<typeof cb>;
+	(cb: (scope: Omit<Scope, "end">) => void): ReturnType<typeof cb>;
 }
 
 export interface Scope {
@@ -56,7 +57,7 @@ export interface Tracer extends Scope {
 const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
 	const set_error = (error: Error) => {
 		scope.set_attributes({
-			error,
+			error
 		});
 	};
 
@@ -76,6 +77,16 @@ const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
 	}
 };
 
+export const scope = (name: string) => {
+
+	return {
+		measure(name, cb) {
+			const parent = context.getParent();
+
+		}
+	}
+}
+
 export const create = (name: string, options: Options): Tracer => {
 	const spans: Set<Span> = new Set();
 	const promises: Promise<any>[] = [];
@@ -92,6 +103,10 @@ export const create = (name: string, options: Options): Tracer => {
 				return me;
 			},
 			fork(name) {
+				const parent =
+
+				console.log({ context });
+
 				return scope(name, me);
 			},
 			measure(name, cb, ...args) {
@@ -111,11 +126,11 @@ export const create = (name: string, options: Options): Tracer => {
 					start,
 					end: Date.now(),
 					name,
-					attributes,
+					attributes
 				});
 
 				ended = true;
-			},
+			}
 		};
 
 		return Object.setPrototypeOf((cb: any) => measure(cb, $, promises), $);
@@ -123,9 +138,9 @@ export const create = (name: string, options: Options): Tracer => {
 
 	const me = scope(
 		name,
-		typeof options.traceparent === 'string'
+		typeof options.traceparent === "string"
 			? parse_traceparent(options.traceparent)
-			: options.traceparent,
+			: options.traceparent
 	);
 	const meEnd = me.end.bind(me);
 

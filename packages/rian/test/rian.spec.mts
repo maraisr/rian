@@ -2,7 +2,7 @@ import { restoreAll, spy } from 'nanospy';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import * as rian from '../src';
+import * as rian from '../src/index.js';
 
 test.after.each(() => {
 	restoreAll();
@@ -61,7 +61,7 @@ test('allow for fn api', async () => {
 	assert.equal(items.size, 3);
 });
 
-test.run();
+//test.run();
 
 const measure = suite('measure');
 
@@ -106,4 +106,14 @@ measure('throw context', async () => {
 	tracer.end();
 });
 
-measure.run();
+//measure.run();
+
+const s = rian.scope('test');
+
+s.measure('test', () => {
+	const s = rian.scope('something else');
+
+	s.measure(() => {
+
+	});
+});
