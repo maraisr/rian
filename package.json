@@ -7,9 +7,10 @@
 		"url": "https://marais.io"
 	},
 	"type": "module",
+	"packageManager": "pnpm@6.14.7",
 	"scripts": {
 		"build": "tsm ./bin/index.ts",
-		"test": "uvu packages \".spec.ts$\" -r tsm",
+		"test": "node --loader tsm node_modules/uvu/bin.js packages \".spec.m?ts$\"",
 		"format": "prettier --write --list-different \"{*,bin/*,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
 		"types": "tsc --noEmit --skipLibCheck"
 	},

@@ -2,7 +2,7 @@ import { restoreAll, spy } from 'nanospy';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import * as rian from '../src';
+import * as rian from '../src/index.js';
 
 test.after.each(() => {
 	restoreAll();
