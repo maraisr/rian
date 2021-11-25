@@ -43,7 +43,11 @@ test('api', async () => {
 	assert.equal(items.size, 3);
 });
 
-test('allow for fn api', async () => {
+test.run();
+
+const fn = suite('fn mode');
+
+fn('api', async () => {
 	const collector = spy<rian.Collector>();
 
 	const tracer = rian.create('simple', {
@@ -61,7 +65,7 @@ test('allow for fn api', async () => {
 	assert.equal(items.size, 3);
 });
 
-test.run();
+fn.run();
 
 const measure = suite('measure');
 

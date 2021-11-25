@@ -18,7 +18,7 @@ export type Attributes = {
 
 export type Options = {
 	collector: Collector;
-	traceparent?: Traceparent;
+	traceparent?: string;
 };
 
 type OmitScopeParam<T extends unknown[]> = T extends []
@@ -125,7 +125,7 @@ export const create = (name: string, options: Options): Tracer => {
 		name,
 		typeof options.traceparent === 'string'
 			? tctx.parse(options.traceparent)
-			: options.traceparent,
+			: undefined,
 	);
 	const meEnd = me.end.bind(me);
 
