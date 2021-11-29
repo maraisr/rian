@@ -17,8 +17,8 @@
 	"devDependencies": {
 		"@marais/tsconfig": "0.0.1",
 		"@types/node": "16.11.10",
-		"nanospy": "0.3.0",
-		"prettier": "2.4.1",
+		"nanospy": "0.4.0",
+		"prettier": "2.5.0",
 		"rollup": "2.60.1",
 		"rollup-plugin-dts": "4.0.1",
 		"tsm": "2.1.4",

@@ -6,8 +6,8 @@ importers:
     specifiers:
       '@marais/tsconfig': 0.0.1
       '@types/node': 16.11.10
-      nanospy: 0.3.0
-      prettier: 2.4.1
+      nanospy: 0.4.0
+      prettier: 2.5.0
       rollup: 2.60.1
       rollup-plugin-dts: 4.0.1
       tsm: 2.1.4
@@ -16,8 +16,8 @@ importers:
     devDependencies:
       '@marais/tsconfig': 0.0.1
       '@types/node': 16.11.10
-      nanospy: 0.3.0
-      prettier: 2.4.1
+      nanospy: 0.4.0
+      prettier: 2.5.0
       rollup: 2.60.1
       rollup-plugin-dts: 4.0.1_03b4d00976111ccf1b2e119877f0b205
       tsm: 2.1.4
@@ -26,9 +26,9 @@ importers:
 
   packages/rian:
     specifiers:
-      tctx: ^0.0.9
+      tctx: ^0.0.10
     dependencies:
-      tctx: 0.0.9
+      tctx: 0.0.10
 
   packages/rian.newrelic:
     specifiers: {}
@@ -314,13 +314,13 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /nanospy/0.3.0:
-    resolution: {integrity: sha512-QOfbUEwCz52nJKXZzePg8ARzYTmhEeebWFX1UqDWdhIPaVjr3s2kH1TAxuZrLH0UoO/GTwaHMD/gh5w5q4yo4w==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+  /nanospy/0.4.0:
+    resolution: {integrity: sha512-PUdss1inwE0/ti+X9FKuEBLLWQusaHnLBuwYn0cjJNM446DafMS3tbTWV9C9T/NEnD+BPL0zHdnNF/FWvHelvw==}
+    engines: {node: ^8.0.0 || ^10.0.0 || ^12.0.0 || ^14.0.0 || >=16.0.0}
     dev: true
 
-  /prettier/2.4.1:
-    resolution: {integrity: sha512-9fbDAXSBcc6Bs1mZrDYb3XKzDLm4EXXL9sC1LqKP5rZkT6KRr/rf9amVUcODVXgguK/isJz0d0hP72WeaKWsvA==}
+  /prettier/2.5.0:
+    resolution: {integrity: sha512-FM/zAKgWTxj40rH03VxzIPdXmj39SwSjwG0heUcNFwI+EMZJnY93yAiKXM3dObIKAM5TA88werc8T/EwhB45eg==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
@@ -366,8 +366,8 @@ packages:
     dev: true
     optional: true
 
-  /tctx/0.0.9:
-    resolution: {integrity: sha512-5EQSgDlIwHD0li3tz4tADT87k/bjDig/h50Rm03mvVc8NPQCZNlYGR1W13gfFUCkJ+c32UTC2t5G2PXkMKvUrA==}
+  /tctx/0.0.10:
+    resolution: {integrity: sha512-q3k1hdqFZIwGJvb4Ox8EE8ZSF7CSZZLhJd2g9Y6y6Nh88iI/PWO2x6zJUssT3ZtxgDoTdUCYReFt7yXGVe0jQw==}
     engines: {node: '>=14'}
     dependencies:
       '@lukeed/csprng': 1.0.1

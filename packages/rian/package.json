@@ -1,6 +1,6 @@
 {
 	"name": "rian",
-	"version": "0.0.2-alpha.9",
+	"version": "0.0.2-alpha.10",
 	"description": "A tracer for the edge",
 	"keywords": [
 		"TODO"
@@ -30,6 +30,6 @@
 		"*.d.ts"
 	],
 	"dependencies": {
-		"tctx": "^0.0.9"
+		"tctx": "^0.0.10"
 	}
 }
