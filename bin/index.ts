@@ -69,6 +69,7 @@ async function build(name: string) {
 				input,
 				external,
 				output: [output(true), output(false)],
+				preserveEntrySignatures: 'strict',
 				plugins: [
 					{
 						name: 'typescript',
