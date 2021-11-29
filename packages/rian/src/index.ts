@@ -88,7 +88,7 @@ export const create = (name: string, options: Options): Tracer => {
 	const spans: Set<Span> = new Set();
 	const promises: Promise<any>[] = [];
 
-	const scope = (name: string, parent?: Traceparent): CallableScope => {
+	const span = (name: string, parent?: Traceparent): CallableScope => {
 		const id = parent ? parent.child() : tctx.make(true);
 		let context: Context = {};
 
@@ -99,9 +99,9 @@ export const create = (name: string, options: Options): Tracer => {
 		const $: CallableScope = (cb: any) => measure(cb, $, promises)();
 
 		$.traceparent = id;
-		$.fork = (name) => scope(name, id);
+		$.fork = (name) => span(name, id);
 		$.measure = (name, cb, ...args) =>
-			measure(cb, scope(name, id), promises)(...args);
+			measure(cb, span(name, id), promises)(...args);
 		$.set_context = (ctx) => {
 			if (typeof ctx === 'function') return void (context = ctx(context));
 			Object.assign(context, ctx);
@@ -124,20 +124,20 @@ export const create = (name: string, options: Options): Tracer => {
 		return $;
 	};
 
-	const me = scope(
+	const root = span(
 		name,
 		typeof options.traceparent === 'string'
 			? tctx.parse(options.traceparent)
 			: undefined,
 	);
-	const meEnd = me.end.bind(me);
+	const meEnd = root.end.bind(root);
 
-	me.end = async () => {
-		await Promise.all(promises);
+	root.end = async () => {
 		meEnd();
+		await Promise.all(promises);
 
 		return options.collector(spans);
 	};
 
-	return me;
+	return root;
 };
