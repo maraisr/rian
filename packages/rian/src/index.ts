@@ -7,12 +7,12 @@ export type Span = {
 	parent?: Traceparent;
 	start: number;
 	end: number;
-	attributes: Attributes;
+	context: Context;
 };
 
 export type Collector = (spans: ReadonlySet<Span>) => any;
 
-export type Attributes = {
+export type Context = {
 	[property: string]: any;
 };
 
@@ -40,11 +40,13 @@ export interface Scope {
 
 	measure<Fn extends (...args: any[]) => any, Params extends Parameters<Fn>>(
 		name: string,
-		fn: Fn,
+		fn: Fn, // TODO Fix types here
 		...args: OmitScopeParam<Params>
 	): ReturnType<Fn>;
 
-	set_attributes(attributes: Attributes): void;
+	set_context(contextFn: (context: Context) => Context): void;
+
+	set_context(context: Context): void;
 
 	end(): void;
 }
@@ -55,7 +57,7 @@ export interface Tracer extends Scope {
 
 const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
 	const set_error = (error: Error) => {
-		scope.set_attributes({
+		scope.set_context({
 			error,
 		});
 	};
@@ -81,37 +83,39 @@ export const create = (name: string, options: Options): Tracer => {
 	const promises: Promise<any>[] = [];
 
 	const scope = (name: string, parent?: Traceparent): CallableScope => {
-		const me = parent ? parent.child() : tctx.make(true);
-		const attributes: Attributes = {};
+		const id = parent ? parent.child() : tctx.make(true);
+		let context: Context = {};
 
 		const start = Date.now();
 		let ended = false;
 
 		const $: Scope = {
 			get traceparent() {
-				return me;
+				return id;
 			},
 			fork(name) {
-				return scope(name, me);
+				return scope(name, id);
 			},
 			measure(name, cb, ...args) {
 				const scope = this.fork(name);
 
 				return measure(() => cb(...args, scope), scope, promises);
 			},
-			set_attributes(attr) {
-				Object.assign(attributes, attr);
+			set_context(attr) {
+				if (typeof attr === 'function')
+					return void (context = attr(context));
+				Object.assign(context, attr);
 			},
 			end() {
 				if (ended) return void 0;
 
 				spans.add({
-					id: me,
+					id,
 					parent,
 					start,
 					end: Date.now(),
 					name,
-					attributes,
+					context,
 				});
 
 				ended = true;

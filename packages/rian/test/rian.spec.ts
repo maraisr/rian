@@ -20,12 +20,12 @@ test('api', async () => {
 
 	const scope = tracer.fork('some-name');
 
-	scope.set_attributes({
+	scope.set_context({
 		baz: 'qux',
 	});
 
 	scope.measure('test', (scope) => {
-		scope.set_attributes({
+		scope.set_context({
 			foo: 'bar',
 		});
 
@@ -41,6 +41,33 @@ test('api', async () => {
 	const items = collector.calls[0][0] as Set<rian.Span>;
 	assert.instance(items, Set);
 	assert.equal(items.size, 3);
+});
+
+test('context', async () => {
+	const collector = spy<rian.Collector>();
+	const tracer = rian.create('simple', {
+		collector,
+	});
+
+	tracer.set_context({
+		one: 'one',
+	});
+
+	tracer.set_context((ctx) => ({ [ctx.one]: 'two' }));
+
+	tracer.set_context({
+		three: 'three',
+	});
+
+	await tracer.end();
+
+	const items = collector.calls[0][0] as Set<rian.Span>;
+	assert.instance(items, Set);
+	assert.equal(items.size, 1);
+	assert.equal(Array.from(items)[0].context, {
+		one: 'two',
+		three: 'three',
+	});
 });
 
 test.run();
