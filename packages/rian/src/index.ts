@@ -55,27 +55,33 @@ export interface Tracer extends Scope {
 	end(): ReturnType<Collector>;
 }
 
-const measure = (cb: () => any, scope: Scope, promises: Promise<any>[]) => {
+const measure = (
+	cb: (...args: any[]) => any,
+	scope: Scope,
+	promises: Promise<any>[],
+) => {
 	const set_error = (error: Error) => {
 		scope.set_context({
 			error,
 		});
 	};
 
-	try {
-		var r = cb(),
-			is_promise = r instanceof Promise;
+	return (...args: any[]) => {
+		try {
+			var r = cb(...args, scope),
+				is_promise = r instanceof Promise;
 
-		if (is_promise)
-			promises.push(r.catch(set_error).finally(() => scope.end()));
+			if (is_promise)
+				promises.push(r.catch(set_error).finally(() => scope.end()));
 
-		return r;
-	} catch (e) {
-		set_error(e);
-		throw e;
-	} finally {
-		if (is_promise !== true) scope.end();
-	}
+			return r;
+		} catch (e) {
+			set_error(e);
+			throw e;
+		} finally {
+			if (is_promise !== true) scope.end();
+		}
+	};
 };
 
 export const create = (name: string, options: Options): Tracer => {
@@ -89,40 +95,33 @@ export const create = (name: string, options: Options): Tracer => {
 		const start = Date.now();
 		let ended = false;
 
-		const $: Scope = {
-			get traceparent() {
-				return id;
-			},
-			fork(name) {
-				return scope(name, id);
-			},
-			measure(name, cb, ...args) {
-				const scope = this.fork(name);
+		// @ts-ignore
+		const $: CallableScope = (cb: any) => measure(cb, $, promises)();
 
-				return measure(() => cb(...args, scope), scope, promises);
-			},
-			set_context(attr) {
-				if (typeof attr === 'function')
-					return void (context = attr(context));
-				Object.assign(context, attr);
-			},
-			end() {
-				if (ended) return void 0;
+		$.traceparent = id;
+		$.fork = (name) => scope(name, id);
+		$.measure = (name, cb, ...args) =>
+			measure(cb, scope(name, id), promises)(...args);
+		$.set_context = (ctx) => {
+			if (typeof ctx === 'function') return void (context = ctx(context));
+			Object.assign(context, ctx);
+		};
+		$.end = () => {
+			if (ended) return void 0;
 
-				spans.add({
-					id,
-					parent,
-					start,
-					end: Date.now(),
-					name,
-					context,
-				});
+			spans.add({
+				id,
+				parent,
+				start,
+				end: Date.now(),
+				name,
+				context,
+			});
 
-				ended = true;
-			},
+			ended = true;
 		};
 
-		return Object.setPrototypeOf((cb: any) => measure(cb, $, promises), $);
+		return $;
 	};
 
 	const me = scope(
