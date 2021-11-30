@@ -1,23 +1,97 @@
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
 
+/**
+ * Spans are units within a distributed trace. Spans encapsulate mainly 3 pieces of information, a
+ * {@link Span.name|name}, and a {@link Span.start|start} and {@link Span.end|end} time.
+ *
+ * Each span should be named, not too vague, and not too precise. For example, "resolve_user_ids"
+ * and not "resolver_user_ids[1,2,3]" nor "resolve".
+ *
+ * A span forms part of a wider trace, and can be visualized like:
+ *
+ * ```plain
+ *  [Span A················································(2ms)]
+ *    [Span B·········································(1.7ms)]
+ *       [Span D···············(0.8ms)]  [Span C......(0.6ms)]
+ * ```
+ *
+ * ---
+ *
+ * Spans are aimed to interoperate with
+ * {@link https://github.com/opentracing/specification/blob/master/specification.md|OpenTracing's Spans}, albeit not entirely api compatible — they do share principles.
+ */
 export type Span = {
+	/**
+	 * A human-readable name for this span. For example the function name, the name of a subtask,
+	 * or stage of the larger stack.
+	 *
+	 * @example
+	 * "resolve_user_ids"
+	 * "[POST] /api"
+	 */
 	name: string;
+
+	/**
+	 * A w3c trace context compatible id for this span. Will .toString() into an injectable header.
+	 *
+	 * @see https://www.w3.org/TR/trace-context/#traceparent-header
+	 * @see https://github.com/maraisr/tctx
+	 */
 	id: Traceparent;
+
+	/**
+	 * Is the id of rhe parent if this is not the parent {@link Span}.
+	 *
+	 * @see {@link Span.id}
+	 */
 	parent?: Traceparent;
+
+	/**
+	 * The time represented as a UNIX epoch timestamp in milliseconds when this span was created.
+	 * Typically, via
+	 * {@link Scope.fork|tracer.fork()}.
+	 */
 	start: number;
+
+	/**
+	 * The UNIX epoch timestamp in milliseconds when the span ended, or undefined if ending was not
+	 * captured during the current trace. Time should then be assumed as current time.
+	 */
 	end?: number;
+
+	/**
+	 * An arbitrary context object useful for storing information during a trace.
+	 *
+	 * Usually following a convention such as `tag.*`, `http.*` or any of the
+	 * {@link https://github.com/opentracing/specification/blob/master/semantic_conventions.md|Semantic Conventions outlined by OpenTracing}.
+	 */
 	context: Context;
 };
 
+/**
+ * A collector is a method called when the parent scope ends, gets given a Set of all spans traced
+ * during this execution.
+ */
 export type Collector = (spans: ReadonlySet<Span>) => any;
 
+/**
+ * @borrows {@link Span.context}
+ */
 export type Context = {
 	[property: string]: any;
 };
 
 export type Options = {
+	/**
+	 * @borrows {@link Collector}
+	 */
 	collector: Collector;
+
+	/**
+	 * @deprecated
+	 * TODO: doublecheck this is the api we want
+	 */
 	traceparent?: string;
 };
 
