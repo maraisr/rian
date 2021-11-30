@@ -1,4 +1,4 @@
-import { restoreAll, spy } from 'nanospy';
+import { restoreAll, spy, spyOn } from 'nanospy';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
@@ -33,7 +33,6 @@ test('api', async () => {
 	});
 
 	scope.end();
-	scope.end(); // tests ended
 
 	await tracer.end();
 
@@ -68,6 +67,29 @@ test('context', async () => {
 		one: 'two',
 		three: 'three',
 	});
+});
+
+test('has start and end times', async () => {
+	let called = -1;
+	spyOn(Date, 'now', () => ++called);
+
+	let spans: ReadonlySet<rian.Span>;
+	const tracer = rian.create('simple', {
+		collector: (x) => (spans = x),
+	});
+
+	tracer.fork('test').end();
+
+	await tracer.end();
+
+	assert.equal(spans.size, 2);
+	const arr = Array.from(spans);
+
+	// 2 spans, parent starts first, and ends last, 2 calls per span
+	assert.equal(arr[0].start, 0);
+	assert.equal(arr[0].end, 3);
+	assert.equal(arr[1].start, 1);
+	assert.equal(arr[1].end, 2);
 });
 
 test.run();

@@ -6,7 +6,7 @@ export type Span = {
 	id: Traceparent;
 	parent?: Traceparent;
 	start: number;
-	end: number;
+	end?: number;
 	context: Context;
 };
 
@@ -90,10 +90,18 @@ export const create = (name: string, options: Options): Tracer => {
 
 	const span = (name: string, parent?: Traceparent): CallableScope => {
 		const id = parent ? parent.child() : tctx.make(true);
-		let context: Context = {};
 
 		const start = Date.now();
-		let ended = false;
+
+		const span_obj: Span = {
+			id,
+			parent,
+			start,
+			name,
+			context: {},
+		};
+
+		spans.add(span_obj);
 
 		// @ts-ignore
 		const $: CallableScope = (cb: any) => measure(cb, $, promises)();
@@ -103,22 +111,14 @@ export const create = (name: string, options: Options): Tracer => {
 		$.measure = (name, cb, ...args) =>
 			measure(cb, span(name, id), promises)(...args);
 		$.set_context = (ctx) => {
-			if (typeof ctx === 'function') return void (context = ctx(context));
-			Object.assign(context, ctx);
+			if (typeof ctx === 'function')
+				return void (span_obj.context = ctx(span_obj.context));
+			Object.assign(span_obj.context, ctx);
 		};
 		$.end = () => {
-			if (ended) return void 0;
+			if (span_obj.end) return void 0;
 
-			spans.add({
-				id,
-				parent,
-				start,
-				end: Date.now(),
-				name,
-				context,
-			});
-
-			ended = true;
+			span_obj.end = Date.now();
 		};
 
 		return $;
