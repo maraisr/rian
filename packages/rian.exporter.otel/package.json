@@ -1,5 +1,5 @@
 {
-	"name": "rian.exporter.opentelemetry",
+	"name": "rian.exporter.otel",
 	"version": "0.0.2",
 	"description": "A tracer for the edge",
 	"keywords": [

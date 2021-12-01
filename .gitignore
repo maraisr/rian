@@ -16,3 +16,5 @@ node_modules
 packages/*/*.js
 packages/*/*.mjs
 packages/*/*.d.ts
+
+/sample
