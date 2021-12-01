@@ -21,7 +21,7 @@ import * as tctx from 'tctx';
  * Spans are aimed to interoperate with
  * {@link https://github.com/opentracing/specification/blob/master/specification.md|OpenTracing's Spans}, albeit not entirely api compatible — they do share principles.
  */
-export type Span = {
+export interface Span {
 	/**
 	 * A human-readable name for this span. For example the function name, the name of a subtask,
 	 * or stage of the larger stack.
@@ -67,33 +67,35 @@ export type Span = {
 	 * {@link https://github.com/opentracing/specification/blob/master/semantic_conventions.md|Semantic Conventions outlined by OpenTracing}.
 	 */
 	context: Context;
-};
+}
 
 /**
  * An exporter is a method called when the parent scope ends, gets given a Set of all spans traced
  * during this execution.
  */
-export type Exporter = (spans: ReadonlySet<Span>) => any;
+export type Exporter = (spans: ReadonlySet<Span>, context: Context) => any;
 
 /**
  * @borrows {@link Span.context}
  */
-export type Context = {
+export interface Context {
 	[property: string]: any;
-};
+}
 
-export type Options = {
+export interface Options {
 	/**
 	 * @borrows {@link Exporter}
 	 */
 	exporter: Exporter;
+
+	context?: Context;
 
 	/**
 	 * @deprecated
 	 * TODO: doublecheck this is the api we want
 	 */
 	traceparent?: string;
-};
+}
 
 type OmitScopeParam<T extends unknown[]> = T extends []
 	? []
@@ -210,7 +212,7 @@ export const create = (name: string, options: Options): Tracer => {
 		meEnd();
 		await Promise.all(promises);
 
-		return options.exporter(spans);
+		return options.exporter(spans, options.context || {});
 	};
 
 	return root;

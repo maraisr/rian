@@ -1,5 +1,5 @@
 {
-	"name": "rian.newrelic",
+	"name": "rian.exporter.opentelemetry",
 	"version": "0.0.2",
 	"description": "A tracer for the edge",
 	"keywords": [
@@ -28,5 +28,11 @@
 		"index.mjs",
 		"index.js",
 		"index.d.ts"
-	]
+	],
+	"devDependencies": {
+		"rian": "workspace:*"
+	},
+	"peerDependencies": {
+		"rian": "workspace:*"
+	}
 }

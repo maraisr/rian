@@ -1,6 +1,7 @@
 // @ts-check
 
-import { readdir } from 'node:fs/promises';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { readdir, stat } from 'node:fs/promises';
 import { builtinModules } from 'node:module';
 import { join } from 'node:path';
 
@@ -27,6 +28,7 @@ async function build(name: string) {
 	const files = await readdir(join(pkg_dir, 'src'));
 
 	const external = [
+		/^rian\/?/,
 		pkg.name,
 		...builtinModules,
 		...Object.keys(pkg.dependencies || {}),
@@ -40,13 +42,14 @@ async function build(name: string) {
 		let file = files[i],
 			key = '';
 
+		const input = join(pkg_dir, 'src', file);
+		if (!(await stat(input)).isFile()) continue;
+
 		if (!key && file === 'index.ts') key = '.';
 		else if (!key) key = './' + file.replace(/\.ts$/, '');
 
 		const entry = pkg.exports[key];
 		if (!entry) return bail(`Missing "exports" entry: ${key}`);
-
-		const input = join(pkg_dir, 'src', file);
 
 		const bundle = async () => {
 			const output = (is_esm: boolean): OutputOptions => {
@@ -68,9 +71,13 @@ async function build(name: string) {
 			return rollup({
 				input,
 				external,
+				context: pkg_dir,
 				output: [output(true), output(false)],
 				preserveEntrySignatures: 'strict',
 				plugins: [
+					nodeResolve({
+						extensions: ['.mts', '.ts', '.mjs', '.js'],
+					}),
 					{
 						name: 'typescript',
 						transform(code, file) {
@@ -112,4 +119,4 @@ async function build(name: string) {
 	await Promise.all(tasks);
 }
 
-Promise.all([build('rian')]);
+Promise.all([build('rian'), build('rian.exporter.opentelemetry')]);
