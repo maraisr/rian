@@ -70,10 +70,10 @@ export type Span = {
 };
 
 /**
- * A collector is a method called when the parent scope ends, gets given a Set of all spans traced
+ * An exporter is a method called when the parent scope ends, gets given a Set of all spans traced
  * during this execution.
  */
-export type Collector = (spans: ReadonlySet<Span>) => any;
+export type Exporter = (spans: ReadonlySet<Span>) => any;
 
 /**
  * @borrows {@link Span.context}
@@ -84,9 +84,9 @@ export type Context = {
 
 export type Options = {
 	/**
-	 * @borrows {@link Collector}
+	 * @borrows {@link Exporter}
 	 */
-	collector: Collector;
+	exporter: Exporter;
 
 	/**
 	 * @deprecated
@@ -126,7 +126,7 @@ export interface Scope {
 }
 
 export interface Tracer extends Scope {
-	end(): ReturnType<Collector>;
+	end(): ReturnType<Exporter>;
 }
 
 const measure = (
@@ -210,7 +210,7 @@ export const create = (name: string, options: Options): Tracer => {
 		meEnd();
 		await Promise.all(promises);
 
-		return options.collector(spans);
+		return options.exporter(spans);
 	};
 
 	return root;

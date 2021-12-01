@@ -13,9 +13,9 @@ test('exports', () => {
 });
 
 test('api', async () => {
-	const collector = spy<rian.Collector>();
+	const exporter = spy<rian.Exporter>();
 	const tracer = rian.create('simple', {
-		collector,
+		exporter,
 	});
 
 	const scope = tracer.fork('some-name');
@@ -36,16 +36,16 @@ test('api', async () => {
 
 	await tracer.end();
 
-	assert.equal(collector.callCount, 1);
-	const items = collector.calls[0][0] as Set<rian.Span>;
+	assert.equal(exporter.callCount, 1);
+	const items = exporter.calls[0][0] as Set<rian.Span>;
 	assert.instance(items, Set);
 	assert.equal(items.size, 3);
 });
 
 test('context', async () => {
-	const collector = spy<rian.Collector>();
+	const exporter = spy<rian.Exporter>();
 	const tracer = rian.create('simple', {
-		collector,
+		exporter,
 	});
 
 	tracer.set_context({
@@ -60,7 +60,7 @@ test('context', async () => {
 
 	await tracer.end();
 
-	const items = collector.calls[0][0] as Set<rian.Span>;
+	const items = exporter.calls[0][0] as Set<rian.Span>;
 	assert.instance(items, Set);
 	assert.equal(items.size, 1);
 	assert.equal(Array.from(items)[0].context, {
@@ -75,7 +75,7 @@ test('has start and end times', async () => {
 
 	let spans: ReadonlySet<rian.Span>;
 	const tracer = rian.create('simple', {
-		collector: (x) => (spans = x),
+		exporter: (x) => (spans = x),
 	});
 
 	tracer.fork('test').end();
@@ -97,10 +97,10 @@ test.run();
 const fn = suite('fn mode');
 
 fn('api', async () => {
-	const collector = spy<rian.Collector>();
+	const exporter = spy<rian.Exporter>();
 
 	const tracer = rian.create('simple', {
-		collector,
+		exporter,
 	});
 
 	tracer.measure('test', spy());
@@ -108,8 +108,8 @@ fn('api', async () => {
 
 	await tracer.end();
 
-	assert.equal(collector.callCount, 1);
-	const items = collector.calls[0][0] as Set<rian.Span>;
+	assert.equal(exporter.callCount, 1);
+	const items = exporter.calls[0][0] as Set<rian.Span>;
 	assert.instance(items, Set);
 	assert.equal(items.size, 3);
 });
@@ -120,7 +120,7 @@ const measure = suite('measure');
 
 measure('accepts arguments', async () => {
 	const tracer = rian.create('simple', {
-		collector: spy(),
+		exporter: spy(),
 	});
 
 	const fn = spy<(a: string, b: string) => string>();
@@ -137,7 +137,7 @@ measure('accepts arguments', async () => {
 
 measure('throw context', async () => {
 	const tracer = rian.create('simple', {
-		collector: spy(),
+		exporter: spy(),
 	});
 
 	assert.throws(() =>
