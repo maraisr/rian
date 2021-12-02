@@ -33,12 +33,16 @@ export const exporter =
 			delete span.context.kind;
 
 			if ('error' in span.context) {
-				const error = span.context.error as Error;
-				span.context.error = {
-					name: error.name,
-					message: error.message,
-					stack: error.stack,
-				};
+				const error = span.context.error;
+				if ('message' in error) {
+					span.context.error = {
+						name: error.name,
+						message: error.message,
+						stack: error.stack,
+					};
+				} else {
+					span.context.error = true;
+				}
 			}
 
 			zipkin.push({

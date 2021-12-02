@@ -6,12 +6,15 @@ const set_error = (scope: Scope, error: Error) => {
 	});
 };
 
-export const measure = (
-	cb: (...args: any[]) => any,
+export const measure = <
+	Fn extends (...args: any[]) => any,
+	Params extends Parameters<Fn>,
+>(
+	cb: Fn,
 	scope: Scope,
 	promises: Promise<any>[],
-	...args: any[]
-) => {
+	...args: Params
+): ReturnType<Fn> => {
 	try {
 		var r = cb(...args, scope),
 			is_promise = r instanceof Promise;

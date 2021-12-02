@@ -129,6 +129,7 @@ export interface Options {
 	traceparent?: string;
 }
 
+// @ts-ignore
 type OmitScopeParam<T extends unknown[]> = T extends []
 	? []
 	: T extends [infer H, ...infer R]
@@ -149,7 +150,7 @@ export interface Scope {
 	measure<Fn extends (...args: any[]) => any, Params extends Parameters<Fn>>(
 		name: string,
 		fn: Fn, // TODO Fix types here
-		...args: OmitScopeParam<Params>
+		...args: Params
 	): ReturnType<Fn>;
 
 	set_context(contextFn: (context: Context) => Context): void;
@@ -244,7 +245,7 @@ export const create = (options: Options): Tracer => {
 	return {
 		span: (name) => span(name, root_id),
 		measure: (name, cb, ...args) =>
-			measure(cb, span(name, root_id), promises)(...args),
+			measure(cb, span(name, root_id), promises, ...args),
 		async end() {
 			await Promise.all(promises);
 

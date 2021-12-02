@@ -3,7 +3,7 @@ import { is_sampled, make } from 'tctx';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import * as rian from '../src/index.js';
+import * as rian from '../src/index';
 
 const noop = () => {};
 
@@ -125,26 +125,11 @@ fn.run();
 
 const measure = suite('measure');
 
-measure('accepts arguments', async () => {
-	const tracer = rian.create({
-		exporter: spy(),
-	});
-
-	const fn = spy<(a: string, b: string) => string>();
-
-	tracer.measure('test', fn, 'arg a', 'arg b');
-
-	await tracer.end();
-
-	assert.equal(fn.callCount, 1);
-	const args = fn.calls[0];
-	args.pop();
-	assert.equal(args, ['arg a', 'arg b']);
-});
-
 measure('throw context', async () => {
+	const exporter = spy<rian.Exporter>();
+
 	const tracer = rian.create({
-		exporter: spy(),
+		exporter,
 	});
 
 	assert.throws(() =>
@@ -153,17 +138,14 @@ measure('throw context', async () => {
 		}),
 	);
 
-	// TODO: Replace with assert.rejects
-	try {
-		const prom = tracer.measure('test', () => Promise.reject('test'));
-		assert.instance(prom, Promise);
-		await prom;
-		assert.unreachable('promise should throw');
-	} catch (e) {
-		assert.ok('promise throw');
-	}
+	await tracer.end();
 
-	tracer.end();
+	assert.equal(exporter.callCount, 1);
+	const items = exporter.calls[0][0] as Set<rian.Span>;
+	assert.instance(items, Set);
+	assert.equal(items.size, 1);
+
+	assert.instance(Array.from(items)[0].context.error, Error);
 });
 
 measure.run();

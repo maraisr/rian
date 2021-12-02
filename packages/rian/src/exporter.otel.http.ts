@@ -127,13 +127,12 @@ export const exporter =
 			if ('error' in span.context) {
 				status = {
 					code: SpanStatusCode_ERROR,
-					// @ts-ignore
-					name: (span.context.error as Error).name,
-					// @ts-ignore
-					stack: (span.context.error as Error).stack,
-					// @ts-ignore
-					message: (span.context.error as Error).message,
 				};
+
+				if ('message' in (span.context.error as Error)) {
+					status.message = span.context.error.message;
+				}
+
 				delete span.context.error;
 			}
 
