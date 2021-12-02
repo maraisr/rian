@@ -17,11 +17,11 @@ test('exports', () => {
 
 test('api', async () => {
 	const exporter = spy<rian.Exporter>();
-	const tracer = rian.create('simple', {
+	const tracer = rian.create({
 		exporter,
 	});
 
-	const scope = tracer.fork('some-name');
+	const scope = tracer.span('some-name');
 
 	scope.set_context({
 		baz: 'qux',
@@ -42,24 +42,28 @@ test('api', async () => {
 	assert.equal(exporter.callCount, 1);
 	const items = exporter.calls[0][0] as Set<rian.Span>;
 	assert.instance(items, Set);
-	assert.equal(items.size, 3);
+	assert.equal(items.size, 2);
 });
 
 test('context', async () => {
 	const exporter = spy<rian.Exporter>();
-	const tracer = rian.create('simple', {
+	const tracer = rian.create({
 		exporter,
 	});
 
-	tracer.set_context({
+	const span = tracer.span('context');
+
+	span.set_context({
 		one: 'one',
 	});
 
-	tracer.set_context((ctx) => ({ [ctx.one]: 'two' }));
+	span.set_context((ctx) => ({ [ctx.one]: 'two' }));
 
-	tracer.set_context({
+	span.set_context({
 		three: 'three',
 	});
+
+	span.end();
 
 	await tracer.end();
 
@@ -77,18 +81,18 @@ test('has start and end times', async () => {
 	spyOn(Date, 'now', () => ++called);
 
 	let spans: ReadonlySet<rian.Span>;
-	const tracer = rian.create('simple', {
+	const tracer = rian.create({
 		exporter: (x) => (spans = x),
 	});
 
-	tracer.fork('test').end();
+	tracer.span('test')((s) => s.fork('test2').end());
 
 	await tracer.end();
 
 	assert.equal(spans.size, 2);
 	const arr = Array.from(spans);
 
-	// 2 spans, parent starts first, and ends last, 2 calls per span
+	// 2 spans, 2 calls per span
 	assert.equal(arr[0].start, 0);
 	assert.equal(arr[0].end, 3);
 	assert.equal(arr[1].start, 1);
@@ -102,19 +106,19 @@ const fn = suite('fn mode');
 fn('api', async () => {
 	const exporter = spy<rian.Exporter>();
 
-	const tracer = rian.create('simple', {
+	const tracer = rian.create({
 		exporter,
 	});
 
 	tracer.measure('test', spy());
-	tracer.fork('forked')(spy());
+	tracer.span('forked')(spy());
 
 	await tracer.end();
 
 	assert.equal(exporter.callCount, 1);
 	const items = exporter.calls[0][0] as Set<rian.Span>;
 	assert.instance(items, Set);
-	assert.equal(items.size, 3);
+	assert.equal(items.size, 2);
 });
 
 fn.run();
@@ -122,7 +126,7 @@ fn.run();
 const measure = suite('measure');
 
 measure('accepts arguments', async () => {
-	const tracer = rian.create('simple', {
+	const tracer = rian.create({
 		exporter: spy(),
 	});
 
@@ -139,7 +143,7 @@ measure('accepts arguments', async () => {
 });
 
 measure('throw context', async () => {
-	const tracer = rian.create('simple', {
+	const tracer = rian.create({
 		exporter: spy(),
 	});
 
@@ -168,18 +172,18 @@ const sampled = suite('sampling');
 
 sampled('default :: no parent should be sampled', async () => {
 	const exporter = spy<rian.Exporter>();
-	const tracer = rian.create('test', {
+	const tracer = rian.create({
 		exporter,
 	});
 
-	tracer.fork('test')(noop);
+	tracer.span('test')(noop);
 
 	await tracer.end();
 
 	assert.equal(exporter.callCount, 1);
 
 	const spans: Set<rian.Span> = exporter.calls[0][0];
-	assert.equal(spans.size, 2);
+	assert.equal(spans.size, 1);
 	assert.ok(
 		Array.from(spans).every((i) => is_sampled(i.id)),
 		'every id should be sampled',
@@ -188,19 +192,19 @@ sampled('default :: no parent should be sampled', async () => {
 
 sampled('default :: should obey parent', async () => {
 	const exporter = spy<rian.Exporter>();
-	const tracer = rian.create('test', {
+	const tracer = rian.create({
 		exporter,
 		traceparent: String(make(false)),
 	});
 
-	tracer.fork('test')(noop);
+	tracer.span('test')(noop);
 
 	await tracer.end();
 
 	assert.equal(exporter.callCount, 1);
 
 	const spans: Set<rian.Span> = exporter.calls[0][0];
-	assert.equal(spans.size, 2);
+	assert.equal(spans.size, 1);
 	assert.not.ok(
 		Array.from(spans).every((i) => is_sampled(i.id)),
 		'every id should not be sampled',

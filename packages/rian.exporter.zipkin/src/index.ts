@@ -12,16 +12,13 @@ export const exporter =
 		const zipkin: Span[] = [];
 
 		for (let span of spans) {
-			const kind = span.context.kind;
-			delete span.context.kind;
-
 			zipkin.push({
 				id: span.id.parent_id,
 				traceId: span.id.trace_id,
 				parentId: span.parent?.parent_id,
 
 				name: span.name,
-				kind: kind || 'INTERNAL',
+				kind: span.kind === 'INTERNAL' ? undefined : span.kind,
 
 				timestamp: span.start * 1000,
 
