@@ -67,11 +67,7 @@ export interface Span {
 	 * {@link https://github.com/opentracing/specification/blob/master/semantic_conventions.md|Semantic Conventions outlined by OpenTracing}.
 	 */
 	context: Context;
-
-	kind: Kind;
 }
-
-export type Kind = 'INTERNAL' | 'SERVER' | 'CLIENT' | 'PRODUCER' | 'CONSUMER';
 
 /**
  * An exporter is a method called when the parent scope ends, gets given a Set of all spans traced
@@ -153,7 +149,7 @@ interface CallableScope extends Scope {
 export interface Scope {
 	traceparent: Traceparent;
 
-	fork(name: string, kind?: Kind): CallableScope;
+	fork(name: string): CallableScope;
 
 	measure<Fn extends (...args: any[]) => any, Params extends Parameters<Fn>>(
 		name: string,
@@ -215,11 +211,7 @@ export const create = (options: Options): Tracer => {
 	const spans: Set<Span> = new Set();
 	const promises: Promise<any>[] = [];
 
-	const span = (
-		name: string,
-		kind?: Kind,
-		parent?: Traceparent,
-	): CallableScope => {
+	const span = (name: string, parent?: Traceparent): CallableScope => {
 		const should_sample = (options.sampler || defaultSampler)(
 			name,
 			parent,
@@ -236,7 +228,6 @@ export const create = (options: Options): Tracer => {
 			parent,
 			start,
 			name,
-			kind: kind || 'INTERNAL',
 			context: {},
 		};
 
@@ -245,10 +236,9 @@ export const create = (options: Options): Tracer => {
 		const $: CallableScope = (cb: any) => measure(cb, $, promises)();
 
 		$.traceparent = id;
-		$.fork = (name, kind) => span(name, kind, id);
+		$.fork = (name) => span(name, id);
 		$.measure = (name, cb, ...args) =>
-			// TODO: Should all measures be internal?
-			measure(cb, span(name, 'INTERNAL', id), promises)(...args);
+			measure(cb, span(name, id), promises)(...args);
 		$.set_context = (ctx) => {
 			if (typeof ctx === 'function')
 				return void (span_obj.context = ctx(span_obj.context));
@@ -269,10 +259,9 @@ export const create = (options: Options): Tracer => {
 			: undefined;
 
 	return {
-		span: (name, kind) => span(name, kind, root_id),
+		span: (name) => span(name, root_id),
 		measure: (name, cb, ...args) =>
-			// TODO: Should all measures be internal?
-			measure(cb, span(name, 'INTERNAL', root_id), promises)(...args),
+			measure(cb, span(name, root_id), promises)(...args),
 		async end() {
 			await Promise.all(promises);
 

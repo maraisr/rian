@@ -5,11 +5,6 @@ import { convert_object_to_kv } from './internal/helpers';
 
 import {
 	type Span,
-	SpanKind_CLIENT,
-	SpanKind_CONSUMER,
-	SpanKind_INTERNAL,
-	SpanKind_PRODUCER,
-	SpanKind_SERVER,
 	SpanStatusCode_ERROR,
 	SpanStatusCode_UNSET,
 	type Status,
@@ -19,19 +14,25 @@ export interface Config {
 	onRequest(payload: any): void;
 }
 
-const map_kind = (kind: rian.Kind): Span['kind'] => {
+// https://github.com/open-telemetry/opentelemetry-proto/blob/b43e9b18b76abf3ee040164b55b9c355217151f3/opentelemetry/proto/trace/v1/trace.proto#L127-L155
+const map_kind = (kind: any): number => {
 	switch (kind) {
-		case 'CLIENT':
-			return SpanKind_CLIENT;
-		case 'SERVER':
-			return SpanKind_SERVER;
-		case 'CONSUMER':
-			return SpanKind_CONSUMER;
-		case 'PRODUCER':
-			return SpanKind_PRODUCER;
 		default:
-		case 'INTERNAL':
-			return SpanKind_INTERNAL;
+		case 'INTERNAL': {
+			return 1;
+		}
+		case 'SERVER': {
+			return 2;
+		}
+		case 'CLIENT': {
+			return 3;
+		}
+		case 'PRODUCER': {
+			return 4;
+		}
+		case 'CONSUMER': {
+			return 5;
+		}
 	}
 };
 
@@ -41,8 +42,10 @@ export const exporter =
 		const otel_spans: Span[] = [];
 
 		for (let span of spans) {
-			let status: Status;
+			const kind = span.context.kind;
+			//	delete span.context.kind;
 
+			let status: Status;
 			if ('error' in span.context) {
 				status = {
 					code: SpanStatusCode_ERROR,
@@ -57,7 +60,7 @@ export const exporter =
 				parentSpanId: span.parent?.parent_id,
 
 				name: span.name,
-				kind: map_kind(span.kind),
+				kind: map_kind(kind || 'INTERNAL'),
 
 				startTimeUnixNano: span.start * 1000000,
 				endTimeUnixNano: span.end ? span.end * 1000000 : undefined,

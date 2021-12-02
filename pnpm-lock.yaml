@@ -40,7 +40,10 @@ importers:
 
   packages/rian.exporter.zipkin:
     specifiers:
+      flattie: ^1.1.0
       rian: workspace:*
+    dependencies:
+      flattie: 1.1.0
     devDependencies:
       rian: link:../rian
 
@@ -339,6 +342,11 @@ packages:
 
   /estree-walker/1.0.1:
     resolution: {integrity: sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==}
+    dev: false
+
+  /flattie/1.1.0:
+    resolution: {integrity: sha512-xU99gDEnciIwJdGcBmNHnzTJ/w5AT+VFJOu6sTB6WM8diOYNA3Sa+K1DiEBQ7XH4QikQq3iFW1U+jRVcotQnBw==}
+    engines: {node: '>=8'}
     dev: false
 
   /fsevents/2.3.2:

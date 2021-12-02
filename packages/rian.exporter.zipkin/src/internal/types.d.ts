@@ -10,4 +10,8 @@ export interface Span {
 	duration?: number;
 
 	tags?: Record<string, string | number | boolean | null>;
+
+	localEndpoint?: {
+		serviceName: string;
+	};
 }

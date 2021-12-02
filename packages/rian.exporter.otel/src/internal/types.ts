@@ -32,12 +32,6 @@ export type Status = {
 	message?: string;
 };
 
-export const SpanKind_INTERNAL = 0;
-export const SpanKind_SERVER = 1;
-export const SpanKind_CLIENT = 2;
-export const SpanKind_PRODUCER = 3;
-export const SpanKind_CONSUMER = 4;
-
 export interface Span {
 	traceId: string;
 	spanId: string;
@@ -46,12 +40,7 @@ export interface Span {
 	traceState?: string;
 
 	name?: string;
-	kind?:
-		| typeof SpanKind_INTERNAL
-		| typeof SpanKind_SERVER
-		| typeof SpanKind_CLIENT
-		| typeof SpanKind_PRODUCER
-		| typeof SpanKind_CONSUMER;
+	kind?: number;
 
 	startTimeUnixNano?: number;
 	endTimeUnixNano?: number;
