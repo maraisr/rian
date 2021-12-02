@@ -1,5 +1,6 @@
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
+import { measure } from './internal/measure';
 
 /**
  * Spans are units within a distributed trace. Spans encapsulate mainly 3 pieces of information, a
@@ -65,6 +66,15 @@ export interface Span {
 	 *
 	 * Usually following a convention such as `tag.*`, `http.*` or any of the
 	 * {@link https://github.com/opentracing/specification/blob/master/semantic_conventions.md|Semantic Conventions outlined by OpenTracing}.
+	 *
+	 * ### Note!
+	 *
+	 * There are a few keys with "powers"
+	 *
+	 * - `kind` when set will coerce into the exports scheme, aka INTERNAL in zipkin will be
+	 * `"INTERNAL"`, or `1` in otel
+	 * - `error` when set, will be assumed to be an `Error` instance, and thus its `.message` wil
+	 * exist as `error.message` in zipkin, and `status: 2` in otel.
 	 */
 	context: Context;
 }
@@ -96,21 +106,6 @@ export type Sampler = (
 	parentId?: Traceparent,
 	context?: Context,
 ) => boolean;
-
-/**
- * The default sampler;
- *
- * If no parent
- * ~> sample
- * if parent was off
- * ~> never sample
- * if parent was on
- * ~> always sample
- */
-const defaultSampler: Sampler = (_name, parentId) => {
-	if (!parentId) return true;
-	return tctx.is_sampled(parentId);
-};
 
 export interface Options {
 	/**
@@ -178,33 +173,21 @@ export interface Tracer {
 	end(): ReturnType<Exporter>;
 }
 
-const measure = (
-	cb: (...args: any[]) => any,
-	scope: Scope,
-	promises: Promise<any>[],
-) => {
-	const set_error = (error: Error) => {
-		scope.set_context({
-			error,
-		});
-	};
+// ==> impl
 
-	return (...args: any[]) => {
-		try {
-			var r = cb(...args, scope),
-				is_promise = r instanceof Promise;
-
-			if (is_promise)
-				promises.push(r.catch(set_error).finally(() => scope.end()));
-
-			return r;
-		} catch (e) {
-			set_error(e);
-			throw e;
-		} finally {
-			if (is_promise !== true) scope.end();
-		}
-	};
+/**
+ * The default sampler;
+ *
+ * If no parent
+ * ~> sample
+ * if parent was off
+ * ~> never sample
+ * if parent was on
+ * ~> always sample
+ */
+const defaultSampler: Sampler = (_name, parentId) => {
+	if (!parentId) return true;
+	return tctx.is_sampled(parentId);
 };
 
 export const create = (options: Options): Tracer => {
@@ -233,12 +216,12 @@ export const create = (options: Options): Tracer => {
 
 		spans.add(span_obj);
 
-		const $: CallableScope = (cb: any) => measure(cb, $, promises)();
+		const $: CallableScope = (cb: any) => measure(cb, $, promises);
 
 		$.traceparent = id;
 		$.fork = (name) => span(name, id);
 		$.measure = (name, cb, ...args) =>
-			measure(cb, span(name, id), promises)(...args);
+			measure(cb, span(name, id), promises, ...args);
 		$.set_context = (ctx) => {
 			if (typeof ctx === 'function')
 				return void (span_obj.context = ctx(span_obj.context));
