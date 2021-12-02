@@ -19,6 +19,14 @@
 			"import": "./index.mjs",
 			"require": "./index.js"
 		},
+		"./exporter.otel.http": {
+			"import": "./exporter.otel.http.mjs",
+			"require": "./exporter.otel.http.js"
+		},
+		"./exporter.zipkin": {
+			"import": "./exporter.zipkin.mjs",
+			"require": "./exporter.zipkin.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"main": "./index.js",
@@ -30,6 +38,7 @@
 		"*.d.ts"
 	],
 	"dependencies": {
+		"flattie": "^1.1.0",
 		"tctx": "^0.0.10"
 	}
 }

@@ -119,8 +119,4 @@ async function build(name: string) {
 	await Promise.all(tasks);
 }
 
-Promise.all([
-	build('rian'),
-	build('rian.exporter.zipkin'),
-	build('rian.exporter.otel'),
-]);
+Promise.all([build('rian')]);

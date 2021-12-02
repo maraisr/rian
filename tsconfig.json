@@ -7,6 +7,7 @@
 		"lib": ["esnext", "dom.iterable", "webworker"],
 		"paths": {
 			"rian": ["./packages/rian/src/index.ts"],
+			"rian/package.json": ["./packages/rian/package.json"],
 			"rian/*": ["./packages/rian/src/*"]
 		}
 	},

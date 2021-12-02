@@ -28,24 +28,11 @@ importers:
 
   packages/rian:
     specifiers:
+      flattie: ^1.1.0
       tctx: ^0.0.10
     dependencies:
-      tctx: 0.0.10
-
-  packages/rian.exporter.otel:
-    specifiers:
-      rian: workspace:*
-    devDependencies:
-      rian: link:../rian
-
-  packages/rian.exporter.zipkin:
-    specifiers:
-      flattie: ^1.1.0
-      rian: workspace:*
-    dependencies:
       flattie: 1.1.0
-    devDependencies:
-      rian: link:../rian
+      tctx: 0.0.10
 
 packages:
 
