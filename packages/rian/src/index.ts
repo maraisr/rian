@@ -1,6 +1,10 @@
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
-import { measure } from './internal/measure';
+import {
+	measure,
+	type MeasureFn,
+	type RealMeasureFnParams,
+} from './internal/measure';
 
 /**
  * Spans are units within a distributed trace. Spans encapsulate mainly 3 pieces of information, a
@@ -129,15 +133,6 @@ export interface Options {
 	traceparent?: string;
 }
 
-// @ts-ignore
-type OmitScopeParam<T extends unknown[]> = T extends []
-	? []
-	: T extends [infer H, ...infer R]
-	? H extends Scope
-		? OmitScopeParam<R>
-		: [H, ...OmitScopeParam<R>]
-	: T;
-
 interface CallableScope extends Scope {
 	(cb: (scope: Omit<Scope, 'end'>) => void): ReturnType<typeof cb>;
 }
@@ -147,10 +142,10 @@ export interface Scope {
 
 	fork(name: string): CallableScope;
 
-	measure<Fn extends (...args: any[]) => any, Params extends Parameters<Fn>>(
+	measure<Fn extends MeasureFn>(
 		name: string,
-		fn: Fn, // TODO Fix types here
-		...args: Params
+		fn: Fn, // TODO: fn doesnt see scope correctly
+		...args: RealMeasureFnParams<Parameters<Fn>>
 	): ReturnType<Fn>;
 
 	set_context(contextFn: (context: Context) => Context): void;

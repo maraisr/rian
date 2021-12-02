@@ -1,5 +1,3 @@
-// @ts-check
-
 import { spy } from 'nanospy';
 import { test, suite } from 'uvu';
 import * as assert from 'uvu/assert';
