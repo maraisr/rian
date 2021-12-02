@@ -1,8 +1,11 @@
 import { restoreAll, spy, spyOn } from 'nanospy';
+import { is_sampled, make } from 'tctx';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
 import * as rian from '../src/index.js';
+
+const noop = () => {};
 
 test.after.each(() => {
 	restoreAll();
@@ -160,3 +163,48 @@ measure('throw context', async () => {
 });
 
 measure.run();
+
+const sampled = suite('sampling');
+
+sampled('default :: no parent should be sampled', async () => {
+	const exporter = spy<rian.Exporter>();
+	const tracer = rian.create('test', {
+		exporter,
+	});
+
+	tracer.fork('test')(noop);
+
+	await tracer.end();
+
+	assert.equal(exporter.callCount, 1);
+
+	const spans: Set<rian.Span> = exporter.calls[0][0];
+	assert.equal(spans.size, 2);
+	assert.ok(
+		Array.from(spans).every((i) => is_sampled(i.id)),
+		'every id should be sampled',
+	);
+});
+
+sampled('default :: should obey parent', async () => {
+	const exporter = spy<rian.Exporter>();
+	const tracer = rian.create('test', {
+		exporter,
+		traceparent: String(make(false)),
+	});
+
+	tracer.fork('test')(noop);
+
+	await tracer.end();
+
+	assert.equal(exporter.callCount, 1);
+
+	const spans: Set<rian.Span> = exporter.calls[0][0];
+	assert.equal(spans.size, 2);
+	assert.not.ok(
+		Array.from(spans).every((i) => is_sampled(i.id)),
+		'every id should not be sampled',
+	);
+});
+
+sampled.run();

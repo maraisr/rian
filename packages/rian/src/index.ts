@@ -82,17 +82,54 @@ export interface Context {
 	[property: string]: any;
 }
 
+/**
+ * Should return true when you want to sample the span, this is ran before the span is traced — so
+ * decisions is made preemptively.
+ *
+ * The Span itself will still be included in the {@link Options.exporter|exporter}, and can be
+ * filtered out there.
+ *
+ * Sampling does impact the traceparent, for injection — and is encoded there.
+ */
+export type Sampler = (
+	name: string,
+	parentId?: Traceparent,
+	context?: Context,
+) => boolean;
+
+/**
+ * The default sampler;
+ *
+ * If no parent
+ * ~> sample
+ * if parent was off
+ * ~> never sample
+ * if parent was on
+ * ~> always sample
+ */
+const defaultSampler: Sampler = (_name, parentId) => {
+	if (!parentId) return true;
+	return tctx.is_sampled(parentId);
+};
+
 export interface Options {
 	/**
 	 * @borrows {@link Exporter}
 	 */
 	exporter: Exporter;
 
+	/**
+	 * @borrows {@link Sampler}
+	 */
+	sampler?: Sampler;
+
 	context?: Context;
 
 	/**
-	 * @deprecated
-	 * TODO: doublecheck this is the api we want
+	 * A root, or extracted w3c traceparent stringed header.
+	 *
+	 * If the id is malformed, the {@link create} method will throw an exception. If no root is
+	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules.
 	 */
 	traceparent?: string;
 }
@@ -165,7 +202,14 @@ export const create = (name: string, options: Options): Tracer => {
 	const promises: Promise<any>[] = [];
 
 	const span = (name: string, parent?: Traceparent): CallableScope => {
-		const id = parent ? parent.child() : tctx.make(true);
+		const should_sample = (options.sampler || defaultSampler)(
+			name,
+			parent,
+			options.context,
+		);
+		const id = parent
+			? parent.child(should_sample)
+			: tctx.make(should_sample);
 
 		const start = Date.now();
 
