@@ -27,6 +27,10 @@
 			"import": "./exporter.zipkin.mjs",
 			"require": "./exporter.zipkin.js"
 		},
+		"./exporter.console": {
+			"import": "./exporter.console.mjs",
+			"require": "./exporter.console.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"main": "./index.js",

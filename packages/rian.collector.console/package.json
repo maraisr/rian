@@ -1,0 +1,46 @@
+{
+	"name": "rian.collector.console",
+	"version": "0.0.2",
+	"description": "A tracer for the edge",
+	"keywords": [
+		"TODO"
+	],
+	"repository": "maraisr/rian/packages/rian.collector.console",
+	"license": "MIT",
+	"author": {
+		"name": "Marais Rossouw",
+		"email": "me@marais.dev",
+		"url": "https://marais.io"
+	},
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./index.mjs",
+			"require": "./index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"main": "./index.js",
+	"module": "./index.mjs",
+	"types": "index.d.ts",
+	"files": [
+		"index.mjs",
+		"index.js",
+		"index.d.ts"
+	],
+	"peerDependencies": {
+		"rian": "workspace:^"
+	},
+	"peerDependenciesMeta": {
+		"rian": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"tctx": "^0.0.9"
+	},
+	"dependencies": {
+		"kleur": "^4.1.4"
+	}
+}
