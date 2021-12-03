@@ -14,8 +14,7 @@
 	"include": [
 		"bin/*",
 		"packages/rian/src",
-		"packages/rian/test",
-		"examples/*/**"
+		"packages/rian/test"
 	],
 	"exclude": ["node_modules"]
 }
