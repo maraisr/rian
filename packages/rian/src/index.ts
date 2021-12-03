@@ -156,7 +156,7 @@ export interface Scope {
 	end(): void;
 }
 
-export interface Tracer {
+export interface Tracer extends Pick<Scope, 'traceparent'> {
 	/**
 	 * @borrows {@link Scope.fork}
 	 */
@@ -246,6 +246,7 @@ export const create = (name: string, options: Options): Tracer => {
 	);
 
 	return {
+		traceparent: root.traceparent,
 		span: root.fork.bind(root),
 		measure: root.measure.bind(root),
 		async end() {
