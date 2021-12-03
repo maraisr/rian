@@ -1,3 +1,4 @@
+import { name as rian_name, version as rian_version } from 'rian/package.json';
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
 import {
@@ -186,7 +187,12 @@ const defaultSampler: Sampler = (_name, parentId) => {
 	return tctx.is_sampled(parentId);
 };
 
-export const create = (options: Options): Tracer => {
+const sdk_object = {
+	'telemetry.sdk.name': rian_name,
+	'telemetry.sdk.version': rian_version,
+};
+
+export const create = (name: string, options: Options): Tracer => {
 	const spans: Set<Span> = new Set();
 	const promises: Promise<any>[] = [];
 
@@ -232,21 +238,25 @@ export const create = (options: Options): Tracer => {
 		return $;
 	};
 
-	const root_id =
+	const root = span(
+		name,
 		typeof options.traceparent === 'string'
 			? tctx.parse(options.traceparent)
-			: undefined;
-
-	// TODO: We actually do need to create a root span
+			: undefined,
+	);
 
 	return {
-		span: (name) => span(name, root_id),
-		measure: (name, cb, ...args) =>
-			measure(cb, span(name, root_id), promises, ...args),
+		span: root.fork.bind(root),
+		measure: root.measure.bind(root),
 		async end() {
+			root.end();
+
 			await Promise.all(promises);
 
-			return options.exporter(spans, options.context || {});
+			return options.exporter(
+				spans,
+				Object.assign(options.context || {}, sdk_object),
+			);
 		},
 	};
 };
