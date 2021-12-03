@@ -1,0 +1,21 @@
+name = "rian-example"
+type = "javascript"
+
+workers_dev = true
+
+account_id = '<fillme>'
+
+compatibility_date = "2021-11-22"
+
+kv_namespaces = [
+	{ binding = "DATA", id = "<fillme>" }
+]
+
+[build]
+command = "pnpm worktop build worker.ts"
+
+[build.upload]
+format = "modules"
+dir = "build"
+main = "./index.mjs"
+

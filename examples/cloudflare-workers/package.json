@@ -1,0 +1,9 @@
+{
+	"devDependencies": {
+		"@cloudflare/workers-types": "^3.2.0",
+		"worktop.build": "^0.0.4"
+	},
+	"dependencies": {
+		"rian": "^0.0.2-alpha.13"
+	}
+}

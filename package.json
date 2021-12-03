@@ -11,7 +11,7 @@
 	"scripts": {
 		"build": "tsm ./bin/index.ts",
 		"test": "node --loader tsm node_modules/uvu/bin.js packages \".spec.m?ts$\"",
-		"format": "prettier --write --list-different \"{*,bin/*,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
+		"format": "prettier --write --list-different \"{*,bin/*,examples/*/**,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
 		"typecheck": "tsc --noEmit --skipLibCheck"
 	},
 	"dependencies": {
