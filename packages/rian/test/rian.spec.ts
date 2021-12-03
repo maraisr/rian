@@ -21,7 +21,7 @@ test('api', async () => {
 		exporter,
 	});
 
-	const scope = tracer.span('some-name');
+	const scope = tracer.fork('some-name');
 
 	scope.set_context({
 		baz: 'qux',
@@ -51,7 +51,7 @@ test('context', async () => {
 		exporter,
 	});
 
-	const span = tracer.span('context');
+	const span = tracer.fork('context');
 
 	span.set_context({
 		one: 'one',
@@ -85,7 +85,7 @@ test('has start and end times', async () => {
 		exporter: (x) => (spans = x),
 	});
 
-	tracer.span('test')(spy());
+	tracer.fork('test')(spy());
 
 	await tracer.end();
 
@@ -111,7 +111,7 @@ fn('api', async () => {
 	});
 
 	tracer.measure('test', spy());
-	tracer.span('forked')(spy());
+	tracer.fork('forked')(spy());
 
 	await tracer.end();
 
@@ -158,7 +158,7 @@ sampled('default :: no parent should be sampled', async () => {
 		exporter,
 	});
 
-	tracer.span('test')(noop);
+	tracer.fork('test')(noop);
 
 	await tracer.end();
 
@@ -180,7 +180,7 @@ sampled.skip('default :: should obey parent', async () => {
 		traceparent: String(make(false)),
 	});
 
-	tracer.span('test')(noop);
+	tracer.fork('test')(noop);
 
 	await tracer.end();
 

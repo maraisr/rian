@@ -156,17 +156,7 @@ export interface Scope {
 	end(): void;
 }
 
-export interface Tracer extends Pick<Scope, 'traceparent'> {
-	/**
-	 * @borrows {@link Scope.fork}
-	 */
-	span: Scope['fork'];
-
-	/**
-	 * @borrows {@link Scope.measure}
-	 */
-	measure: Scope['measure'];
-
+export interface Tracer extends Omit<Scope, 'end'> {
 	end(): ReturnType<Exporter>;
 }
 
@@ -245,19 +235,17 @@ export const create = (name: string, options: Options): Tracer => {
 			: undefined,
 	);
 
-	return {
-		traceparent: root.traceparent,
-		span: root.fork.bind(root),
-		measure: root.measure.bind(root),
-		async end() {
-			root.end();
+	const endRoot = root.end.bind(root);
 
-			await Promise.all(promises);
+	root.end = async () => {
+		endRoot();
+		await Promise.all(promises);
 
-			return options.exporter(
-				spans,
-				Object.assign(options.context || {}, sdk_object),
-			);
-		},
+		return options.exporter(
+			spans,
+			Object.assign(options.context || {}, sdk_object),
+		);
 	};
+
+	return root;
 };
