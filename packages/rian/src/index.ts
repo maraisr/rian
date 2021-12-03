@@ -210,7 +210,7 @@ export const create = (options: Options): Tracer => {
 			context: {},
 		};
 
-		spans.add(span_obj);
+		if (should_sample) spans.add(span_obj);
 
 		const $: CallableScope = (cb: any) => measure(cb, $, promises);
 
@@ -236,6 +236,8 @@ export const create = (options: Options): Tracer => {
 		typeof options.traceparent === 'string'
 			? tctx.parse(options.traceparent)
 			: undefined;
+
+	// TODO: We actually do need to create a root span
 
 	return {
 		span: (name) => span(name, root_id),
