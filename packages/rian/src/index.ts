@@ -139,20 +139,44 @@ interface CallableScope extends Scope {
 }
 
 export interface Scope {
+	/**
+	 * A W3C traceparent. One can .toString() this if you want to cross a network.
+	 */
 	traceparent: Traceparent;
 
+	/**
+	 * Forks the span into a new child span.
+	 */
 	fork(name: string): CallableScope;
 
+	/**
+	 * With a passed function — will start a span, and run the function, when the function finishes
+	 * the span finishes.
+	 *
+	 * The measure method will return whatever the function is, so if it's a promise, it returns a
+	 * promise and so on. Any error is caught and re thrown, and automatically tracked in the
+	 * context under the `error` property.
+	 *
+	 * All promises are tracked, and awaited on a `tracer.end`
+	 */
 	measure<Fn extends MeasureFn>(
 		name: string,
 		fn: Fn, // TODO: fn doesnt see scope correctly
 		...args: RealMeasureFnParams<Parameters<Fn>>
 	): ReturnType<Fn>;
 
-	set_context(contextFn: (context: Context) => Context): void;
+	/**
+	 * Allows the span's context to be set. Passing an object will be `Object.assign`ed into the
+	 * current context.
+	 *
+	 * Passing a function will be available to return a new context.
+	 */
+	set_context(contextFn: Context | ((context: Context) => Context)): void;
 
-	set_context(context: Context): void;
-
+	/**
+	 * Ends the current span — setting its `end` timestamp. Not calling this, will have its `end`
+	 * timestamp nulled out — when the tracer ends.
+	 */
 	end(): void;
 }
 
@@ -186,22 +210,19 @@ export const create = (name: string, options: Options): Tracer => {
 	const spans: Set<Span> = new Set();
 	const promises: Promise<any>[] = [];
 
+	const sampler = options.sampler || defaultSampler;
+
 	const span = (name: string, parent?: Traceparent): CallableScope => {
-		const should_sample = (options.sampler || defaultSampler)(
-			name,
-			parent,
-			options.context,
-		);
+		const should_sample = sampler(name, parent, options.context);
+
 		const id = parent
 			? parent.child(should_sample)
 			: tctx.make(should_sample);
 
-		const start = Date.now();
-
 		const span_obj: Span = {
 			id,
 			parent,
-			start,
+			start: Date.now(),
 			name,
 			context: {},
 		};
