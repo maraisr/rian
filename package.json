@@ -7,11 +7,10 @@
 		"url": "https://marais.io"
 	},
 	"type": "module",
-	"packageManager": "pnpm@6.14.7",
 	"scripts": {
 		"build": "tsm ./bin/index.ts",
-		"test": "node --loader tsm node_modules/uvu/bin.js packages \".spec.m?ts$\"",
 		"format": "prettier --write --list-different \"{*,bin/*,examples/*/**,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
+		"test": "node --loader tsm node_modules/uvu/bin.js packages \".spec.m?ts$\"",
 		"typecheck": "tsc --noEmit --skipLibCheck"
 	},
 	"dependencies": {
@@ -26,6 +25,7 @@
 		"typescript": "4.6.0-dev.20211123",
 		"uvu": "0.5.2"
 	},
+	"packageManager": "pnpm@6.14.7",
 	"volta": {
 		"node": "17.2.0"
 	}
