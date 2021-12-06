@@ -1,5 +1,5 @@
 import { spy } from 'nanospy';
-import { test, suite } from 'uvu';
+import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
 import { measure } from '../src/internal/measure';
