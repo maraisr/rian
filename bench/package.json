@@ -1,0 +1,12 @@
+{
+	"private": true,
+	"dependencies": {
+		"@opentelemetry/api": "^1.0.3",
+		"@opentelemetry/sdk-trace-base": "^1.0.1",
+		"@opentelemetry/sdk-trace-node": "^1.0.1",
+		"@types/benchmark": "2.1.1",
+		"benchmark": "2.1.4",
+		"opentracing": "^0.14.5",
+		"rian": "workspace:*"
+	}
+}

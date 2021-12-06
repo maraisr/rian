@@ -231,8 +231,28 @@ const tracer = create('example', {
 > via the [`/bench`](/bench) directory with Node v17.2.0
 
 ```
-TODO
+Validation :: single span
+✔ rian
+✔ opentelemetry
+✔ opentracing
+
+Benchmark :: single span
+  rian                   x 120,560 ops/sec ±4.66% (80 runs sampled)
+  opentelemetry          x 111,461 ops/sec ±12.16% (74 runs sampled)
+  opentracing            x  30,413 ops/sec ±23.40% (90 runs sampled)
+
+Validation :: child span
+✔ rian
+✔ opentelemetry
+✔ opentracing
+
+Benchmark :: child span
+  rian                   x 72,947 ops/sec ±4.79% (79 runs sampled)
+  opentelemetry          x 66,298 ops/sec ±8.65% (80 runs sampled)
+  opentracing            x 15,582 ops/sec ±16.64% (77 runs sampled)
 ```
+
+> And please... I know these results are anything but the full story. But it's a number and point on comparison.
 
 ## License
 
