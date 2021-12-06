@@ -57,6 +57,10 @@ const tracer = create('GET ~> /data', {
 
 // Let us trace
 
+tracer.set_context({
+  user: request_context.user_id,
+});
+
 // ~> Wrap any method and be timed 🕺🏻
 const data = await tracer.measure('db::read', get_data);
 
@@ -208,7 +212,7 @@ Firstly, what is `rian`?
 [_ trace_ in Irish is `rian`](https://translate.google.com/?sl=en&tl=ga&text=trace&op=translate&hl=en) .
 
 In efforts to be better observant citizens, we generally reach for the — NewRelic, LightStep, DataDog's. Which, and in
-no offence to them, is bloated and HUGE! Where they more often than not do way too much or and relatively speaking, ship
+no offence to them, is bloated and slow! Where they more often than not do way too much or and relatively speaking, ship
 useless traces. Which ramp up your bill — see... every span you trace, costs.
 
 And here we are, introducing **rian** — a lightweight, fast effective tracer. Inspired by the giants in the industry,
