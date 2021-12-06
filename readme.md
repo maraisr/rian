@@ -110,6 +110,16 @@ Exports the spans created using the zipkin protocol and leaves the shipping up t
 > });
 > ```
 >
+> Both of these are functionally equivalent. `service.name` will be used if no `localEndpoint.serviceName` is set.
+>
+> ```ts
+> const tracer = create('example', {
+>   context: {
+>     'service.name': 'my-service',
+>   },
+> });
+> ```
+>
 > </details>
 
 #### Module: [`rian/exporter.otel.http`](./packages/rian/src/exporter.otel.http.ts)
@@ -153,12 +163,9 @@ const newrelic = exporter((payload) =>
 
 const tracer = create('example', {
   context: {
-    localEndpoint: {
-      serviceName: 'my-service', // 👈 important part
-    },
-    'service.name': 'my-service', // 👈 important part — or this to follow semantic conventions
+    'service.name': 'my-service', // 👈 important part
   },
-  exporter: lightstep,
+  exporter: newrelic,
 });
 ```
 
@@ -198,7 +205,7 @@ const tracer = create('example', {
 ## 🤔 Motivation
 
 Firstly, what is `rian`?
-[_trace_ in Irish is `rian`](https://translate.google.com/?sl=en&tl=ga&text=trace&op=translate&hl=en).
+[_ trace_ in Irish is `rian`](https://translate.google.com/?sl=en&tl=ga&text=trace&op=translate&hl=en).
 
 In efforts to be better observant citizens, we generally reach for the — NewRelic, LightStep, DataDog's. Which, and in
 no offence to them, is bloated and HUGE! Where they more often than not do way too much or and relatively speaking, ship
