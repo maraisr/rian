@@ -2,10 +2,6 @@ import type * as rian from 'rian';
 
 import { name as rian_name, version as rian_version } from 'rian/package.json';
 
-export interface Config {
-	onRequest(payload: any): void;
-}
-
 type KeyValue = {
 	key: string;
 	value: AnyValue;
@@ -115,7 +111,7 @@ const map_kind = (kind: any): number => {
 };
 
 export const exporter =
-	(config: Config): rian.Exporter =>
+	(request: (payload: any) => any): rian.Exporter =>
 	(spans, context) => {
 		const otel_spans: Span[] = [];
 
@@ -154,7 +150,7 @@ export const exporter =
 			});
 		}
 
-		return config.onRequest({
+		return request({
 			resourceSpans: [
 				{
 					resource: {

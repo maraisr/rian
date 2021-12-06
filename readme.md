@@ -41,14 +41,12 @@ import { create } from 'rian';
 import { exporter } from 'rian/exporter.otel.http';
 
 // ~> Where to send the spans.
-const otel_endpoint = exporter({
-  onRequest(payload) {
-    return fetch('/traces/otlp', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-  },
-});
+const otel_endpoint = exporter((payload) =>
+  fetch('/traces/otlp', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
+);
 
 // ~> Create a tracer — typically "per request" or "per operation"
 const tracer = create('GET ~> /data', {

@@ -1,10 +1,6 @@
 import { flattie } from 'flattie';
 import type * as rian from 'rian';
 
-export interface Config {
-	onRequest(payload: any): void;
-}
-
 interface Span {
 	id: string;
 	traceId: string;
@@ -24,7 +20,7 @@ interface Span {
 }
 
 export const exporter =
-	(config: Config): rian.Exporter =>
+	(request: (payload: any) => any): rian.Exporter =>
 	(spans, context) => {
 		const zipkin: Span[] = [];
 
@@ -62,5 +58,5 @@ export const exporter =
 			});
 		}
 
-		return config.onRequest(zipkin);
+		return request(zipkin);
 	};
