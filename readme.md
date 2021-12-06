@@ -192,3 +192,11 @@ TODO
 ## License
 
 MIT © [Marais Rossouw](https://marais.io)
+
+##### Disclaimer
+
+<sup>- NewRelic is a registred trademark of https://newrelic.com/ and not affiliated with this project.</sup>
+<br />
+<sup>- DataDog is a registred trademark of https://www.datadoghq.com/ and not affiliated with this project.</sup>
+<br />
+<sup>- LightStep is a registred trademark of https://lightstep.com/ and not affiliated with this project.</sup>
