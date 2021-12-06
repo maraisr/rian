@@ -120,20 +120,17 @@ export const exporter =
 		const otel_spans: Span[] = [];
 
 		for (let span of spans) {
-			const kind = span.context.kind;
-			delete span.context.kind;
+			const { kind, error, ...span_ctx } = span.context;
 
 			let status: Status;
-			if ('error' in span.context) {
+			if (error) {
 				status = {
 					code: SpanStatusCode_ERROR,
 				};
 
-				if ('message' in (span.context.error as Error)) {
-					status.message = span.context.error.message;
+				if ('message' in (error as Error)) {
+					status.message = error.message;
 				}
-
-				delete span.context.error;
 			}
 
 			otel_spans.push({
@@ -151,7 +148,7 @@ export const exporter =
 				droppedEventsCount: 0,
 				droppedLinksCount: 0,
 
-				attributes: convert_object_to_kv(span.context),
+				attributes: convert_object_to_kv(span_ctx),
 
 				status: status || { code: SpanStatusCode_UNSET },
 			});

@@ -29,19 +29,17 @@ export const exporter =
 		const zipkin: Span[] = [];
 
 		for (let span of spans) {
-			const kind = span.context.kind;
-			delete span.context.kind;
+			const { kind, error, ...span_ctx } = span.context;
 
-			if ('error' in span.context) {
-				const error = span.context.error;
+			if (error) {
 				if ('message' in error) {
-					span.context.error = {
+					span_ctx.error = {
 						name: error.name,
 						message: error.message,
 						stack: error.stack,
 					};
 				} else {
-					span.context.error = true;
+					span_ctx.error = true;
 				}
 			}
 
@@ -60,11 +58,7 @@ export const exporter =
 
 				localEndpoint: context.localEndpoint,
 
-				tags: flattie(
-					Object.assign({}, context, span.context),
-					'.',
-					true,
-				),
+				tags: flattie(Object.assign({}, context, span_ctx), '.', true),
 			});
 		}
 

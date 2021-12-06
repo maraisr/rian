@@ -88,7 +88,10 @@ export interface Span {
  * An exporter is a method called when the parent scope ends, gets given a Set of all spans traced
  * during this execution.
  */
-export type Exporter = (spans: ReadonlySet<Span>, context: Context) => any;
+export type Exporter = (
+	spans: ReadonlySet<Readonly<Span>>,
+	context: Context,
+) => any;
 
 /**
  * @borrows {@link Span.context}
