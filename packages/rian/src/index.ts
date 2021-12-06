@@ -82,6 +82,67 @@ export interface Span {
 	 * exist as `error.message` in zipkin, and `status: 2` in otel.
 	 */
 	context: Context;
+
+	/**
+	 * Events are user-defined timestamped annotations of "events" that happened during the
+	 * lifetime of a span. Consisting of a textual message, and optional attributes.
+	 *
+	 * As a rule-of-thumb use events to attach verbose information about a span, than an entirely
+	 * new span.
+	 */
+	events: { name: string; timestamp: number; attributes: Context }[];
+}
+
+export interface Scope {
+	/**
+	 * A W3C traceparent. One can .toString() this if you want to cross a network.
+	 */
+	traceparent: Traceparent;
+
+	/**
+	 * Forks the span into a new child span.
+	 */
+	fork(name: string): CallableScope;
+
+	/**
+	 * With a passed function — will start a span, and run the function, when the function finishes
+	 * the span finishes.
+	 *
+	 * The measure method will return whatever the function is, so if it's a promise, it returns a
+	 * promise and so on. Any error is caught and re thrown, and automatically tracked in the
+	 * context under the `error` property.
+	 *
+	 * All promises are tracked, and awaited on a `tracer.end`
+	 */
+	measure<Fn extends MeasureFn>(
+		name: string,
+		fn: Fn, // TODO: fn doesnt see scope correctly
+		...args: RealMeasureFnParams<Parameters<Fn>>
+	): ReturnType<Fn>;
+
+	/**
+	 * Allows the span's context to be set. Passing an object will be `Object.assign`ed into the
+	 * current context.
+	 *
+	 * Passing a function will be available to return a new context.
+	 */
+	set_context(contextFn: Context | ((context: Context) => Context)): void;
+
+	/**
+	 * Adds a new event to the span. As a rule-of-thumb use events to attach verbose information
+	 * about a span, than an entirely new span.
+	 */
+	add_event(name: string, attributes?: Record<string, any>): void;
+
+	/**
+	 * Ends the current span — setting its `end` timestamp. Not calling this, will have its `end`
+	 * timestamp nulled out — when the tracer ends.
+	 */
+	end(): void;
+}
+
+export interface Tracer extends Omit<Scope, 'end'> {
+	end(): ReturnType<Exporter>;
 }
 
 /**
@@ -141,52 +202,6 @@ interface CallableScope extends Scope {
 	(cb: (scope: Omit<Scope, 'end'>) => void): ReturnType<typeof cb>;
 }
 
-export interface Scope {
-	/**
-	 * A W3C traceparent. One can .toString() this if you want to cross a network.
-	 */
-	traceparent: Traceparent;
-
-	/**
-	 * Forks the span into a new child span.
-	 */
-	fork(name: string): CallableScope;
-
-	/**
-	 * With a passed function — will start a span, and run the function, when the function finishes
-	 * the span finishes.
-	 *
-	 * The measure method will return whatever the function is, so if it's a promise, it returns a
-	 * promise and so on. Any error is caught and re thrown, and automatically tracked in the
-	 * context under the `error` property.
-	 *
-	 * All promises are tracked, and awaited on a `tracer.end`
-	 */
-	measure<Fn extends MeasureFn>(
-		name: string,
-		fn: Fn, // TODO: fn doesnt see scope correctly
-		...args: RealMeasureFnParams<Parameters<Fn>>
-	): ReturnType<Fn>;
-
-	/**
-	 * Allows the span's context to be set. Passing an object will be `Object.assign`ed into the
-	 * current context.
-	 *
-	 * Passing a function will be available to return a new context.
-	 */
-	set_context(contextFn: Context | ((context: Context) => Context)): void;
-
-	/**
-	 * Ends the current span — setting its `end` timestamp. Not calling this, will have its `end`
-	 * timestamp nulled out — when the tracer ends.
-	 */
-	end(): void;
-}
-
-export interface Tracer extends Omit<Scope, 'end'> {
-	end(): ReturnType<Exporter>;
-}
-
 // ==> impl
 
 /**
@@ -227,6 +242,7 @@ export const create = (name: string, options: Options): Tracer => {
 			parent,
 			start: Date.now(),
 			name,
+			events: [],
 			context: {},
 		};
 
@@ -242,6 +258,13 @@ export const create = (name: string, options: Options): Tracer => {
 			if (typeof ctx === 'function')
 				return void (span_obj.context = ctx(span_obj.context));
 			Object.assign(span_obj.context, ctx);
+		};
+		$.add_event = (name, attributes) => {
+			span_obj.events.push({
+				name,
+				timestamp: Date.now(),
+				attributes: attributes || {},
+			});
 		};
 		$.end = () => {
 			if (span_obj.end) return void 0;

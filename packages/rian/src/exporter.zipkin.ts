@@ -17,6 +17,8 @@ interface Span {
 	localEndpoint?: {
 		serviceName: string;
 	};
+
+	annotations?: { value: string; timestamp: number }[];
 }
 
 export const exporter =
@@ -55,6 +57,11 @@ export const exporter =
 				localEndpoint: context.localEndpoint,
 
 				tags: flattie(Object.assign({}, context, span_ctx), '.', true),
+
+				annotations: span.events.map((i) => ({
+					value: `${i.name} :: ${JSON.stringify(i.attributes)}`,
+					timestamp: i.timestamp * 1000,
+				})),
 			});
 		}
 

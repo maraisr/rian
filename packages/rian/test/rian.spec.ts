@@ -195,3 +195,29 @@ sampled.skip('default :: should obey parent', async () => {
 });
 
 sampled.run();
+
+const events = suite('events');
+
+events('api', async () => {
+	const exporter = spy<rian.Exporter>();
+	const tracer = rian.create('test', {
+		exporter,
+	});
+
+	tracer.add_event('work');
+	tracer.add_event('work', {
+		foo: 'bar',
+	});
+
+	await tracer.end();
+
+	assert.equal(exporter.callCount, 1);
+
+	const spans: Array<rian.Span> = Array.from(exporter.calls[0][0]);
+	assert.equal(spans.length, 1);
+	assert.equal(spans[0].events.length, 2);
+	assert.equal(spans[0].events[0].attributes, {});
+	assert.equal(spans[0].events[1].attributes, { foo: 'bar' });
+});
+
+events.run();

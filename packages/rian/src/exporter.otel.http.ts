@@ -52,6 +52,13 @@ interface Span {
 
 	status?: Status;
 
+	events?: {
+		timeUnixNano: number;
+		name: string;
+		droppedAttributesCount: number;
+		attributes?: KeyValue[];
+	}[];
+
 	droppedAttributesCount: number;
 	droppedEventsCount: number;
 	droppedLinksCount: number;
@@ -147,6 +154,13 @@ export const exporter =
 				attributes: convert_object_to_kv(span_ctx),
 
 				status: status || { code: SpanStatusCode_UNSET },
+
+				events: span.events.map((i) => ({
+					name: i.name,
+					attributes: convert_object_to_kv(i.attributes),
+					droppedAttributesCount: 0,
+					timeUnixNano: i.timestamp * 1000000,
+				})),
 			});
 		}
 

@@ -64,6 +64,7 @@ const data = await tracer.measure('db::read', get_data);
 const span = tracer.span('process records');
 
 for (let row of data) {
+  span.add_event('doing stuff', { id: row.id });
   do_stuff(row);
 }
 
@@ -83,8 +84,8 @@ And we end up with something like this in our reporting tool:
 
 ## 🤔 Motivation
 
-Firstly, what is `rian`? I'm not Irish, but
-[_ trace_ in Irish is `rian`](https://translate.google.com/?sl=en&tl=ga&text=trace&op=translate&hl=en).
+Firstly, what is `rian`?
+[_trace_ in Irish is `rian`](https://translate.google.com/?sl=en&tl=ga&text=trace&op=translate&hl=en).
 
 In efforts to be better observant citizens, we generally reach for the — NewRelic, LightStep, DataDog's. Which, and in
 no offence to them, is bloated and HUGE! Where they more often than not do way too much or and relatively speaking, ship
