@@ -112,7 +112,19 @@ export interface Scope {
 	 * promise and so on. Any error is caught and re thrown, and automatically tracked in the
 	 * context under the `error` property.
 	 *
-	 * All promises are tracked, and awaited on a `tracer.end`
+	 * All promises are tracked, and awaited on a `tracer.end`.
+	 *
+	 * @example
+	 *
+	 * ```text
+	 * const data = await scope.measure('name', get_data, 'user_id_123');
+	 *        ^                           ^        ^          ^
+	 *        |                           |        |          |
+	 *        |                           |        |          the first argument to get_data
+	 *        |                           |        function to be called
+	 *        |                           the name of the sub scope
+	 *        return value from get_data
+	 * ```
 	 */
 	measure<Fn extends MeasureFn>(
 		name: string,
