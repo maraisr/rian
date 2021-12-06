@@ -13,10 +13,10 @@
 	<img src="https://badgen.net/npm/dw/rian?labelColor=black&color=black&cache=600" alt="downloads"/>
 </a>
 <a href="https://packagephobia.com/result?p=rian">
-		<img src="https://badgen.net/packagephobia/install/rian?labelColor=black&color=black" alt="size"/>
+	<img src="https://badgen.net/packagephobia/install/rian?labelColor=black&color=black" alt="size"/>
 </a>
 <a href="https://bundlephobia.com/result?p=rian">
-		<img src="https://badgen.net/bundlephobia/minzip/rian?labelColor=black&color=black" alt="size"/>
+	<img src="https://badgen.net/bundlephobia/minzip/rian?labelColor=black&color=black" alt="size"/>
 </a>
 </span>
 
@@ -195,8 +195,6 @@ MIT © [Marais Rossouw](https://marais.io)
 
 ##### Disclaimer
 
-<sup>- NewRelic is a registred trademark of https://newrelic.com/ and not affiliated with this project.</sup>
-<br />
-<sup>- DataDog is a registred trademark of https://www.datadoghq.com/ and not affiliated with this project.</sup>
-<br />
-<sup>- LightStep is a registred trademark of https://lightstep.com/ and not affiliated with this project.</sup>
+<sup>- NewRelic is a registered trademark of https://newrelic.com/ and not affiliated with this project.</sup> <br />
+<sup>- DataDog is a registered trademark of https://www.datadoghq.com/ and not affiliated with this project.</sup>
+<br /> <sup>- LightStep is a registered trademark of https://lightstep.com/ and not affiliated with this project.</sup>

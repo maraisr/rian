@@ -74,7 +74,7 @@ returns('sync', () => {
 	assert.instance(
 		measure(() => new Error('test'), scope as any, []),
 		Error,
-		'error wasnt thrown, so should just return',
+		'error want thrown, so should just return',
 	);
 });
 
@@ -96,7 +96,7 @@ returns('async', async () => {
 	assert.instance(
 		await measure(async () => new Error('test'), scope as any, []),
 		Error,
-		'error wasnt thrown, so should just return',
+		'error want thrown, so should just return',
 	);
 });
 

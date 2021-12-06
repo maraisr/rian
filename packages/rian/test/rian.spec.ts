@@ -172,7 +172,7 @@ sampled('default :: no parent should be sampled', async () => {
 	);
 });
 
-// TODO: We don't add spans when we shouldnt sample, so there is no span to test against
+// TODO: We don't add spans when we shouldn't sample, so there is no span to test against
 sampled.skip('default :: should obey parent', async () => {
 	const exporter = spy<rian.Exporter>();
 	const tracer = rian.create('test', {
