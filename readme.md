@@ -24,14 +24,61 @@
 
 ## ⚡ Features
 
-- **A** — B
+- 🤔 **Familiar** — looks very much like OpenTracing.
+
+- ✅ **Simple** — `create` a tracer, and `.end()` a tracer, done.
+
+- 🏎 **Performant** — check the [benchmarks](#-benchmark).
+
+- 🪶 **Lightweight** — a mere 1Kb and next to no [dependencies](https://npm.anvaka.com/#/view/2d/rian/).
 
 ## 🚀 Usage
 
 > Visit [/examples](/examples) for more info!
 
 ```ts
-TODO;
+import { create } from 'rian';
+import { exporter } from 'rian/exporter.otel.http';
+
+// ~> Where to send the spans.
+const otel_endpoint = exporter({
+  onRequest(payload) {
+    return fetch('/traces/otlp', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+});
+
+// ~> Create a tracer — typically "per request" or "per operation"
+const tracer = create('GET ~> /data', {
+  exporter: otel_endpoint,
+});
+
+// Let us trace
+
+// ~> Wrap any method and be timed 🕺🏻
+const data = await tracer.measure('db::read', get_data);
+
+// ~> Maybe have some in-flow spanning
+const span = tracer.span('process records');
+
+for (let row of data) {
+  do_stuff(row);
+}
+
+span.end();
+
+// ~> And finally let's export — will also end the root span.
+await tracer.end();
+
+/*
+And we end up with something like this in our reporting tool:
+
+[ GET ~> /data .................................... (1.2ms) ]
+   [ db::read .... (0.5ms) ]
+                           [ process records .... (0.5ms) ]
+ */
 ```
 
 ## 🔎 API
