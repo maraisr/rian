@@ -249,9 +249,9 @@ Validation :: single span
 ✔ opentracing
 
 Benchmark :: single span
-  rian                   x 120,560 ops/sec ±4.66% (80 runs sampled)
-  opentelemetry          x 111,461 ops/sec ±12.16% (74 runs sampled)
-  opentracing            x  30,413 ops/sec ±23.40% (90 runs sampled)
+  rian                   x 137,181 ops/sec ±2.82% (82 runs sampled)
+  opentelemetry          x 114,197 ops/sec ±11.37% (75 runs sampled)
+  opentracing            x  33,363 ops/sec ±1.27% (89 runs sampled)
 
 Validation :: child span
 ✔ rian
@@ -259,9 +259,10 @@ Validation :: child span
 ✔ opentracing
 
 Benchmark :: child span
-  rian                   x 72,947 ops/sec ±4.79% (79 runs sampled)
-  opentelemetry          x 66,298 ops/sec ±8.65% (80 runs sampled)
-  opentracing            x 15,582 ops/sec ±16.64% (77 runs sampled)
+  rian                   x 75,567 ops/sec ±7.95% (77 runs sampled)
+  opentelemetry          x 65,618 ops/sec ±8.45% (82 runs sampled)
+  opentracing            x 15,452 ops/sec ±15.35% (77 runs sampled)
+
 ```
 
 > And please... I know these results are anything but the full story. But it's a number and point on comparison.
