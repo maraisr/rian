@@ -265,10 +265,10 @@ export const create = (name: string, options: Options): Tracer => {
 		endRoot();
 		await Promise.all(promises);
 
-		return options.exporter(
-			spans,
-			Object.assign(options.context || {}, sdk_object),
-		);
+		return options.exporter(spans, {
+			...(options.context || {}),
+			...sdk_object,
+		});
 	};
 
 	return root;
