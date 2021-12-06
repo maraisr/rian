@@ -117,6 +117,70 @@ Rian is still in active development, but ready for production!
 
 TODO
 
+## 🧑‍🍳 Exporter Recipes
+
+<details><summary>NewRelic</summary>
+
+```ts
+import { create } from 'rian';
+import { exporter } from 'rian/exporter.zipkin';
+
+const newrelic = exporter((payload) =>
+  fetch('https://trace-api.newrelic.com/trace/v1', {
+    method: 'POST',
+    headers: {
+      'api-key': '<your api key>',
+      'content-type': 'application/json',
+      'data-format': 'zipkin',
+      'data-format-version': '2',
+    },
+    body: JSON.stringify(payload),
+  }),
+);
+
+const tracer = create('example', {
+  context: {
+    localEndpoint: {
+      serviceName: 'my-service', // 👈 important part
+    },
+  },
+  exporter: lightstep,
+});
+```
+
+[learn more](https://docs.newrelic.com/docs/distributed-tracing/trace-api/introduction-trace-api/)
+
+</details>
+
+<details><summary>LightStep</summary>
+
+```ts
+import { create } from 'rian';
+import { exporter } from 'rian/exporter.otel.http';
+
+const lightstep = exporter((payload) =>
+  fetch('https://ingest.lightstep.com/traces/otlp/v0.6', {
+    method: 'POST',
+    headers: {
+      'lightstep-access-token': '<your api key>',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  }),
+);
+
+const tracer = create('example', {
+  context: {
+    'service.name': 'my-service', // 👈 important part
+  },
+  exporter: lightstep,
+});
+```
+
+[learn more](https://opentelemetry.lightstep.com/tracing/)
+
+</details>
+
 ## 💨 Benchmark
 
 > via the [`/bench`](/bench) directory with Node v17.2.0
