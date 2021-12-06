@@ -156,6 +156,7 @@ const tracer = create('example', {
     localEndpoint: {
       serviceName: 'my-service', // 👈 important part
     },
+    'service.name': 'my-service', // 👈 important part — or this to follow semantic conventions
   },
   exporter: lightstep,
 });

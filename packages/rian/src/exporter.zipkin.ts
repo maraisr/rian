@@ -54,9 +54,18 @@ export const exporter =
 
 				duration: span.end ? (span.end - span.start) * 1000 : undefined,
 
-				localEndpoint: context.localEndpoint,
+				localEndpoint: context.localEndpoint || {
+					serviceName: span_ctx['service.name'],
+				},
 
-				tags: flattie(Object.assign({}, context, span_ctx), '.', true),
+				tags: flattie(
+					{
+						...context,
+						...span_ctx,
+					},
+					'.',
+					true,
+				),
 
 				annotations: span.events.map((i) => ({
 					value: `${i.name} :: ${JSON.stringify(i.attributes)}`,
