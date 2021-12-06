@@ -1,25 +1,27 @@
-<img src="logo.svg" alt="rian">
+<div align="right">
+<img src="files/logo-light.svg#gh-light-mode-only" alt="rian light mode logo" width="200px">
+<img src="files/logo-dark.svg#gh-dark-mode-only" alt="rian dark mode logo" width="200px">
 <br />
 <br />
 
-<div align="right">
-	<p><code>npm add rian</code> doesn't overcomplicate tracing</p>
-	<span>
-		<a href="https://github.com/maraisr/rian/actions/workflows/ci.yml">
-			<img src="https://github.com/maraisr/rian/actions/workflows/ci.yml/badge.svg"/>
-		</a>
-		<a href="https://npm-stat.com/charts.html?package=rian">
-    		<img src="https://badgen.net/npm/dw/rian?labelColor=black&color=black&cache=600" alt="downloads"/>
-		</a>
-		<a href="https://packagephobia.com/result?p=rian">
-				<img src="https://badgen.net/packagephobia/install/rian?labelColor=black&color=black" alt="size"/>
-		</a>
-		<a href="https://bundlephobia.com/result?p=rian">
-				<img src="https://badgen.net/bundlephobia/minzip/rian?labelColor=black&color=black" alt="size"/>
-		</a>
-	</span>
-  <br />
-  <br />
+<p><code>npm add rian</code> doesn't overcomplicate tracing</p>
+<span>
+<a href="https://github.com/maraisr/rian/actions/workflows/ci.yml">
+	<img src="https://github.com/maraisr/rian/actions/workflows/ci.yml/badge.svg"/>
+</a>
+<a href="https://npm-stat.com/charts.html?package=rian">
+	<img src="https://badgen.net/npm/dw/rian?labelColor=black&color=black&cache=600" alt="downloads"/>
+</a>
+<a href="https://packagephobia.com/result?p=rian">
+		<img src="https://badgen.net/packagephobia/install/rian?labelColor=black&color=black" alt="size"/>
+</a>
+<a href="https://bundlephobia.com/result?p=rian">
+		<img src="https://badgen.net/bundlephobia/minzip/rian?labelColor=black&color=black" alt="size"/>
+</a>
+</span>
+
+<br />
+<br />
 </div>
 
 ## ⚡ Features
