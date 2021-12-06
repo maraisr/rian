@@ -8,7 +8,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.0.6
       '@types/node': 16.11.11
       nanospy: 0.4.0
-      prettier: 2.5.0
+      prettier: 2.5.1
       rollup: 2.60.2
       rollup-plugin-dts: 4.0.1
       tsm: 2.2.1
@@ -19,7 +19,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.0.6_rollup@2.60.2
       '@types/node': 16.11.11
       nanospy: 0.4.0
-      prettier: 2.5.0
+      prettier: 2.5.1
       rollup: 2.60.2
       rollup-plugin-dts: 4.0.1_2f9d4449dfb9becedbec21c61c07f73b
       tsm: 2.2.1
@@ -406,8 +406,8 @@ packages:
     engines: {node: '>=8.6'}
     dev: false
 
-  /prettier/2.5.0:
-    resolution: {integrity: sha512-FM/zAKgWTxj40rH03VxzIPdXmj39SwSjwG0heUcNFwI+EMZJnY93yAiKXM3dObIKAM5TA88werc8T/EwhB45eg==}
+  /prettier/2.5.1:
+    resolution: {integrity: sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: false
