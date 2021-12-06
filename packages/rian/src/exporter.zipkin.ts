@@ -46,7 +46,7 @@ export const exporter =
 			zipkin.push({
 				id: span.id.parent_id,
 				traceId: span.id.trace_id,
-				parentId: span.parent?.parent_id,
+				parentId: span.parent ? span.parent.parent_id : undefined,
 
 				name: span.name,
 
