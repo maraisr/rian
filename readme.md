@@ -84,7 +84,7 @@ And we end up with something like this in our reporting tool:
 ## 🤔 Motivation
 
 Firstly, what is `rian`? I'm not Irish, but
-[_trace_ in Irish is `rian`](https://translate.google.com/?sl=en&tl=ga&text=trace&op=translate&hl=en).
+[_ trace_ in Irish is `rian`](https://translate.google.com/?sl=en&tl=ga&text=trace&op=translate&hl=en).
 
 In efforts to be better observant citizens, we generally reach for the — NewRelic, LightStep, DataDog's. Which, and in
 no offence to them, is bloated and HUGE! Where they more often than not do way too much or and relatively speaking, ship
@@ -100,9 +100,9 @@ allows consumers to ship those spans to the vendor of their choosing. OpenTracin
 please do go checkout their documentation's, to help decide.
 
 Rian does not intend to align or compete with them. rian's intent is to be used to instrument your application and
-**only** your application. Rian is primed in that critical business paths — where you don't care "which handlers MongoDB
-ran", or how many network calls your ORM made. Cardinality will destroy you. Although rian can scale to support those as
-well. But the reality is; there are profiler tools far more capable — "right tool for the job".
+**only** your application. Rian is primed in that critical business paths — where you don't care " which handlers
+MongoDB ran", or how many network calls your ORM made. Cardinality will destroy you. Although rian can scale to support
+those as well. But the reality is; there are profiler tools far more capable — "right tool for the job".
 
 Rian is simply a tracer you can use to see what your application is doing, have better insight into why something failed
 and stitch it with your logs. It starts by capturing a [`w3c trace-context`](https://www.w3.org/TR/trace-context/),
@@ -115,7 +115,51 @@ Rian is still in active development, but ready for production!
 
 ## 🔎 API
 
-TODO
+#### Module: [`rian`](./packages/rian/src/index.ts)
+
+The main and _default_ module responsible for creating and provisioning spans.
+
+> 💡 Note ~> when providing span context values, please stick to
+> [Semantic Conventions](https://github.com/opentracing/specification/blob/master/semantic_conventions.md), but won't be
+> enforced.
+
+#### Module: [`rian/exporter.zipkin`](./packages/rian/src/exporter.zipkin.ts)
+
+Exports the spans created using the zipkin protocol and leaves the shipping up to you.
+
+> 💡 Note ~> with the nature of zipkin, the `localEndpoint` must be set in your span context.
+>
+> <details><summary>Example</summary>
+>
+> ```ts
+> const tracer = create('example', {
+>   context: {
+>     localEndpoint: {
+>       serviceName: 'my-service', // 👈 important part
+>     },
+>   },
+> });
+> ```
+>
+> </details>
+
+#### Module: [`rian/exporter.otel.http`](./packages/rian/src/exporter.otel.http.ts)
+
+Implements the OpenTelemetry protocol for use with http transports.
+
+> 💡 Note ~> services require a `service.name` context value.
+>
+> <details><summary>Example</summary>
+>
+> ```ts
+> const tracer = create('example', {
+>   context: {
+>     'service.name': 'my-service', // 👈 important part
+>   },
+> });
+> ```
+>
+> </details>
 
 ## 🧑‍🍳 Exporter Recipes
 
