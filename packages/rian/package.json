@@ -1,9 +1,19 @@
 {
 	"name": "rian",
 	"version": "0.0.2-alpha.14",
-	"description": "A tracer for the edge",
+	"description": "Effective tracing for the edge and origins",
 	"keywords": [
-		"TODO"
+		"opentelemetry",
+		"trace-context",
+		"opentracing",
+		"traceparent",
+		"measure",
+		"monitor",
+		"observe",
+		"tracing",
+		"zipkin",
+		"tracer",
+		"trace"
 	],
 	"repository": "maraisr/rian",
 	"license": "MIT",
