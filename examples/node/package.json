@@ -6,6 +6,6 @@
 		"tsm": "^2.2.1"
 	},
 	"dependencies": {
-		"rian": "^0.0.2-alpha.13"
+		"rian": "*"
 	}
 }
