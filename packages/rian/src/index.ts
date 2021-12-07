@@ -244,7 +244,9 @@ export const create = (name: string, options: Options): Tracer => {
 	const sampler_callable = typeof sampler !== 'boolean';
 
 	const span = (name: string, parent?: Traceparent): CallableScope => {
-		const should_sample = sampler_callable ? sampler(name, parent, options.context) : sampler;
+		const should_sample = sampler_callable
+			? sampler(name, parent, options.context)
+			: sampler;
 
 		const id = parent
 			? parent.child(should_sample)
@@ -299,8 +301,7 @@ export const create = (name: string, options: Options): Tracer => {
 
 	root.end = async () => {
 		endRoot();
-		if (promises.length)
-			await Promise.all(promises);
+		if (promises.length) await Promise.all(promises);
 
 		return options.exporter(spans, {
 			...(options.context || {}),

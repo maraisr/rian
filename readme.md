@@ -208,8 +208,7 @@ const tracer = create('example', {
 
 ## 🤔 Motivation
 
-Firstly, what is `rian`?
-[_ trace_ in Irish is `rian`](https://translate.google.com/?sl=en&tl=ga&text=trace&op=translate&hl=en) .
+Firstly, what is `rian`? _trace_ in Irish is `rian`.
 
 In efforts to be better observant citizens, we generally reach for the — NewRelic, LightStep, DataDog's. Which, and in
 no offence to them, is bloated and slow! Where they more often than not do way too much or and relatively speaking, ship
@@ -273,6 +272,6 @@ MIT © [Marais Rossouw](https://marais.io)
 
 ##### Disclaimer
 
-<sup>- NewRelic is a registered trademark of https://newrelic.com/ and not affiliated with this project.</sup> <br />
-<sup>- DataDog is a registered trademark of https://www.datadoghq.com/ and not affiliated with this project.</sup>
-<br /> <sup>- LightStep is a registered trademark of https://lightstep.com/ and not affiliated with this project.</sup>
+<sup>- NewRelic is a registered trademark of https://newrelic.com/ and not affiliated with this project.</sup><br />
+<sup>- DataDog is a registered trademark of https://www.datadoghq.com/ and not affiliated with this project.</sup><br />
+<sup>- LightStep is a registered trademark of https://lightstep.com/ and not affiliated with this project.</sup>
