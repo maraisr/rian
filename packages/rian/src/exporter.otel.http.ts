@@ -77,7 +77,8 @@ const convert_value_to_anyvalue = (value: any) => {
 		any_value.arrayValue = {
 			values: value.map((i) => convert_value_to_anyvalue(i)),
 		};
-	else any_value.kvlistValue = { values: convert_object_to_kv(value) };
+	else if (value)
+		any_value.kvlistValue = { values: convert_object_to_kv(value) };
 
 	return any_value;
 };
