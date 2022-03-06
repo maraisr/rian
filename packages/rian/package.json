@@ -37,6 +37,10 @@
 			"import": "./exporter.zipkin.mjs",
 			"require": "./exporter.zipkin.js"
 		},
+		"./utils": {
+			"import": "./utils.mjs",
+			"require": "./utils.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"main": "./index.js",

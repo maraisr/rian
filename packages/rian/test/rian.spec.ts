@@ -4,6 +4,7 @@ import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
 import * as rian from '../src/index';
+import * as utils from '../src/utils';
 
 const noop = () => {};
 
@@ -27,22 +28,20 @@ test('api', async () => {
 		baz: 'qux',
 	});
 
-	scope.measure('test', (scope) => {
-		scope.set_context({
+	scope((span) => {
+		span.set_context({
 			foo: 'bar',
 		});
 
 		return 'test';
 	});
 
-	scope.end();
-
 	await tracer.end();
 
 	assert.equal(exporter.callCount, 1);
 	const items = exporter.calls[0][0] as Set<rian.Span>;
 	assert.instance(items, Set);
-	assert.equal(items.size, 3);
+	assert.equal(items.size, 2);
 });
 
 test('context', async () => {
@@ -110,7 +109,6 @@ fn('api', async () => {
 		exporter,
 	});
 
-	tracer.measure('test', spy());
 	tracer.fork('forked')(spy());
 
 	await tracer.end();
@@ -118,7 +116,7 @@ fn('api', async () => {
 	assert.equal(exporter.callCount, 1);
 	const items = exporter.calls[0][0] as Set<rian.Span>;
 	assert.instance(items, Set);
-	assert.equal(items.size, 3);
+	assert.equal(items.size, 2);
 });
 
 fn.run();
@@ -133,7 +131,7 @@ measure('throw context', async () => {
 	});
 
 	assert.throws(() =>
-		tracer.measure('test', () => {
+		utils.measure(tracer.fork('test'), () => {
 			throw new Error('test');
 		}),
 	);
@@ -147,8 +145,6 @@ measure('throw context', async () => {
 
 	assert.instance(Array.from(items)[1].context.error, Error);
 });
-
-measure.run();
 
 const sampled = suite('sampling');
 

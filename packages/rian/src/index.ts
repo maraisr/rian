@@ -1,11 +1,8 @@
 import { name as rian_name, version as rian_version } from 'rian/package.json';
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
-import {
-	measure,
-	type MeasureFn,
-	type RealMeasureFnParams,
-} from './internal/measure';
+import { promises } from './internal/promises';
+import { measure } from './utils';
 
 /**
  * Spans are units within a distributed trace. Spans encapsulate mainly 3 pieces of information, a
@@ -103,34 +100,6 @@ export interface Scope {
 	 * Forks the span into a new child span.
 	 */
 	fork(name: string): CallableScope;
-
-	/**
-	 * With a passed function — will start a span, and run the function, when the function finishes
-	 * the span finishes.
-	 *
-	 * The measure method will return whatever the function is, so if it's a promise, it returns a
-	 * promise and so on. Any error is caught and re thrown, and automatically tracked in the
-	 * context under the `error` property.
-	 *
-	 * All promises are tracked, and awaited on a `tracer.end`.
-	 *
-	 * @example
-	 *
-	 * ```text
-	 * const data = await scope.measure('name', get_data, 'user_id_123');
-	 *        ^                           ^        ^          ^
-	 *        |                           |        |          |
-	 *        |                           |        |          the first argument to get_data
-	 *        |                           |        function to be called
-	 *        |                           the name of the sub scope
-	 *        return value from get_data
-	 * ```
-	 */
-	measure<Fn extends MeasureFn>(
-		name: string,
-		fn: Fn, // TODO: fn doesnt see scope correctly
-		...args: RealMeasureFnParams<Parameters<Fn>>
-	): ReturnType<Fn>;
 
 	/**
 	 * Allows the span's context to be set. Passing an object will be `Object.assign`ed into the
@@ -238,7 +207,6 @@ const sdk_object = {
 
 export const create = (name: string, options: Options): Tracer => {
 	const spans: Set<Span> = new Set();
-	const promises: Promise<any>[] = [];
 
 	const sampler = options.sampler || defaultSampler;
 	const sampler_callable = typeof sampler !== 'boolean';
@@ -263,12 +231,10 @@ export const create = (name: string, options: Options): Tracer => {
 
 		if (should_sample) spans.add(span_obj);
 
-		const $: CallableScope = (cb: any) => measure(cb, $, promises);
+		const $: CallableScope = (cb: any) => measure($, cb);
 
 		$.traceparent = id;
 		$.fork = (name) => span(name, id);
-		$.measure = (name, cb, ...args) =>
-			measure(cb, span(name, id), promises, ...args);
 		$.set_context = (ctx) => {
 			if (typeof ctx === 'function')
 				return void (span_obj.context = ctx(span_obj.context));
@@ -301,7 +267,7 @@ export const create = (name: string, options: Options): Tracer => {
 
 	root.end = async () => {
 		endRoot();
-		if (promises.length) await Promise.all(promises);
+		if (promises.has(root)) await Promise.all(promises.get(root));
 
 		return options.exporter(spans, {
 			...(options.context || {}),
