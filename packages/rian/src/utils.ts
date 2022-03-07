@@ -32,9 +32,11 @@ const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
 
 		return r;
 	} catch (e) {
-		set_error(scope, e);
+		if (e instanceof Error)
+			set_error(scope, e);
 		throw e;
 	} finally {
+		// @ts-expect-error TS2454
 		if (is_promise !== true) scope.end();
 	}
 };

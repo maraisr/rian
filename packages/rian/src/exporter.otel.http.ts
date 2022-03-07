@@ -154,6 +154,7 @@ export const exporter =
 
 				attributes: convert_object_to_kv(span_ctx),
 
+				// @ts-expect-error TS2454
 				status: status || { code: SpanStatusCode_UNSET },
 
 				events: span.events.map((i) => ({

@@ -1,7 +1,7 @@
 import { name as rian_name, version as rian_version } from 'rian/package.json';
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
-import { measure } from './utils';
+import { measure } from './utils.js';
 
 /**
  * Spans are units within a distributed trace. Spans encapsulate mainly 3 pieces of information, a
@@ -193,7 +193,7 @@ export const PROMISES = new WeakMap<Scope, Promise<any>[]>();
  * @internal
  */
 export const ADD_PROMISE = (scope: Scope, promise: Promise<any>) => {
-	if (PROMISES.has(scope)) PROMISES.get(scope).push(promise);
+	if (PROMISES.has(scope)) PROMISES.get(scope)!.push(promise);
 	else PROMISES.set(scope, [promise]);
 };
 
@@ -247,6 +247,7 @@ export const create = (name: string, options: Options): Tracer => {
 
 		$.traceparent = id;
 		$.fork = (name) => span(name, id);
+		// @ts-expect-error TS7030 its always undefined ts :eye-roll:
 		$.set_context = (ctx) => {
 			if (typeof ctx === 'function')
 				return void (span_obj.context = ctx(span_obj.context));
@@ -260,9 +261,8 @@ export const create = (name: string, options: Options): Tracer => {
 			});
 		};
 		$.end = () => {
-			if (span_obj.end) return void 0;
-
-			span_obj.end = Date.now();
+			if (span_obj.end == null)
+				span_obj.end = Date.now();
 		};
 
 		return $;
@@ -279,7 +279,7 @@ export const create = (name: string, options: Options): Tracer => {
 
 	root.end = async () => {
 		endRoot();
-		if (PROMISES.has(root)) await Promise.all(PROMISES.get(root));
+		if (PROMISES.has(root)) await Promise.all(PROMISES.get(root)!);
 
 		return options.exporter(spans, {
 			...(options.context || {}),

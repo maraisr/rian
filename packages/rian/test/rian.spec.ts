@@ -3,8 +3,8 @@ import { is_sampled, make } from 'tctx';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import * as rian from '../src/index';
-import * as utils from '../src/utils';
+import * as rian from '../src/index.js';
+import * as utils from '../src/utils.js';
 
 const noop = () => {};
 
@@ -88,7 +88,9 @@ test('has start and end times', async () => {
 
 	await tracer.end();
 
+	// @ts-expect-error TS2454
 	assert.equal(spans.size, 2);
+	// @ts-expect-error TS2454
 	const arr = Array.from(spans);
 
 	// 2 spans, 2 calls per span

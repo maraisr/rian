@@ -2,7 +2,7 @@ import { spy } from 'nanospy';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import { measure } from '../src/utils';
+import { measure } from '../src/utils.js';
 
 const mock_scope = () => ({
 	end: spy(),
