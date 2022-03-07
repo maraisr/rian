@@ -61,6 +61,8 @@ async function build(name: string) {
 				return {
 					format: is_esm ? 'esm' : 'cjs',
 					file: output,
+					minifyInternalExports: true,
+					hoistTransitiveImports: true,
 					preferConst: true,
 					esModule: false,
 					freeze: false,

@@ -1,5 +1,5 @@
 import { type Scope } from 'rian';
-import { add, promises } from './internal/promises';
+import { ADD_PROMISE, PROMISES } from 'rian';
 
 export type MeasureFn =
 	| ((...args: [...args: any[]]) => any)
@@ -15,6 +15,28 @@ const set_error = (scope: Scope, error: Error) => {
 	scope.set_context({
 		error,
 	});
+};
+
+const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
+	try {
+		var r = fn(...args, scope),
+			is_promise = r instanceof Promise;
+
+		if (is_promise && PROMISES.has(scope))
+			ADD_PROMISE(
+				scope,
+				r
+					.catch((e: Error): void => void set_error(scope, e))
+					.finally(() => scope.end()),
+			);
+
+		return r;
+	} catch (e) {
+		set_error(scope, e);
+		throw e;
+	} finally {
+		if (is_promise !== true) scope.end();
+	}
 };
 
 /**
@@ -42,24 +64,26 @@ export const measure = <Fn extends MeasureFn>(
 	scope: Scope,
 	fn: Fn, // TODO: fn doesnt see scope correctly
 	...args: RealMeasureFnParams<Parameters<Fn>>
-): ReturnType<Fn> => {
-	try {
-		var r = fn(...args, scope),
-			is_promise = r instanceof Promise;
+): ReturnType<Fn> => measureFn(scope, fn, ...args);
 
-		if (is_promise && promises.has(scope))
-			add(
-				scope,
-				r
-					.catch((e: Error): void => void set_error(scope, e))
-					.finally(() => scope.end()),
-			);
-
-		return r;
-	} catch (e) {
-		set_error(scope, e);
-		throw e;
-	} finally {
-		if (is_promise !== true) scope.end();
-	}
-};
+/**
+ * Wraps any function with a measured scoped function. Useful for when defer function execution
+ * till a later time.
+ *
+ * @example
+ *
+ * ```js
+ * const wrapped = wrap(scope, my_function);
+ *
+ * // ... lots of things, where the access to `scope` is lost.
+ *
+ * wrapped();
+ * ```
+ */
+export const wrap = <Fn extends MeasureFn>(
+	scope: Scope,
+	fn: Fn, // TODO: fn doesnt see scope correctly
+): Fn =>
+	function () {
+		return measureFn(scope, fn, ...arguments);
+	} as Fn;

@@ -1,7 +1,6 @@
 import { name as rian_name, version as rian_version } from 'rian/package.json';
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
-import { promises } from './internal/promises';
 import { measure } from './utils';
 
 /**
@@ -186,6 +185,19 @@ interface CallableScope extends Scope {
 // ==> impl
 
 /**
+ * @internal
+ */
+export const PROMISES = new WeakMap<Scope, Promise<any>[]>();
+
+/**
+ * @internal
+ */
+export const ADD_PROMISE = (scope: Scope, promise: Promise<any>) => {
+	if (PROMISES.has(scope)) PROMISES.get(scope).push(promise);
+	else PROMISES.set(scope, [promise]);
+};
+
+/**
  * The default sampler;
  *
  * If no parent
@@ -267,7 +279,7 @@ export const create = (name: string, options: Options): Tracer => {
 
 	root.end = async () => {
 		endRoot();
-		if (promises.has(root)) await Promise.all(promises.get(root));
+		if (PROMISES.has(root)) await Promise.all(PROMISES.get(root));
 
 		return options.exporter(spans, {
 			...(options.context || {}),

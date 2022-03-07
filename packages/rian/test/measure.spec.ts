@@ -48,7 +48,7 @@ test('args', () => {
 	assert.equal(sum.calls[0][1], 2);
 });
 
-test.skip('should retain `this` context', async () => {
+test('should retain `this` context', async () => {
 	const scope = mock_scope();
 
 	const fn = {
@@ -58,7 +58,7 @@ test.skip('should retain `this` context', async () => {
 		},
 	};
 
-	const result = measure(scope as any, fn.run);
+	const result = measure(scope as any, fn.run.bind(fn));
 	assert.equal(result, 'foobar');
 });
 
