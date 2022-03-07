@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { create, type Exporter } from 'rian';
+import { measure } from 'rian/utils';
 
 const consoleExporter: Exporter = (spans) => {
 	console.log(...spans);
@@ -31,10 +32,12 @@ const server = createServer((req, res) => {
 		});
 
 		// ~> Lets check how long it takes to get db data
-		tracer.measure('db::read', get_data, 'hello world').then((data) => {
-			res.write(JSON.stringify(data));
-			res.end();
-		});
+		measure(tracer.fork('db::read'), get_data, 'hello world').then(
+			(data) => {
+				res.write(JSON.stringify(data));
+				res.end();
+			},
+		);
 	} else {
 		res.writeHead(200, {
 			'content-type': 'application/json',

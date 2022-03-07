@@ -1,6 +1,7 @@
 ///<reference path="node_modules/@cloudflare/workers-types/index.d.ts"/>
 
 import { create, type Exporter } from 'rian';
+import { measure } from 'rian/utils';
 
 const consoleExporter: Exporter = (spans) => {
 	console.log(...spans);
@@ -28,8 +29,8 @@ const fetchHandler: ExportedHandlerFetchHandler<{
 	let response: Response;
 	if (url.pathname === '/') {
 		// ~> Lets see how long KV took to get the data
-		const payload = await tracer.measure(
-			'retrieve_hello_world',
+		const payload = await measure(
+			tracer.fork('retrieve_hello_world'),
 			async (span) => {
 				const kv_key = 'example';
 

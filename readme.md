@@ -40,6 +40,7 @@
 
 ```ts
 import { create } from 'rian';
+import { measure } from 'rian/utils';
 import { exporter } from 'rian/exporter.otel.http';
 
 // ~> Where to send the spans.
@@ -62,7 +63,7 @@ tracer.set_context({
 });
 
 // ~> Wrap any method and be timed 🕺🏻
-const data = await tracer.measure('db::read', get_data);
+const data = await measure(tracer.fork('db::read'), get_data);
 
 // ~> Maybe have some in-flow spanning
 const span = tracer.span('process records');
