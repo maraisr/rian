@@ -133,7 +133,7 @@ measure('throw context', async () => {
 	});
 
 	assert.throws(() =>
-		utils.measure(tracer.fork('test'), () => {
+		utils.measure(tracer, 'test', () => {
 			throw new Error('test');
 		}),
 	);

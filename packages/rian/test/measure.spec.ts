@@ -5,6 +5,7 @@ import * as assert from 'uvu/assert';
 import { measure } from '../src/utils.js';
 
 const mock_scope = () => ({
+	fork: mock_scope,
 	end: spy(),
 	set_context: spy(),
 });
@@ -13,34 +14,18 @@ test('exports', () => {
 	assert.type(measure, 'function');
 });
 
-test('api', () => {
-	const scope = mock_scope();
-	measure(scope as any, () => {});
-
-	assert.equal(scope.set_context.callCount, 0);
-
-	assert.throws(() => {
-		measure(scope as any, () => {
-			throw new Error('test');
-		});
-	});
-
-	assert.equal(scope.set_context.callCount, 1);
-	assert.instance(scope.set_context.calls[0][0].error, Error);
-});
-
 test('args', () => {
 	const scope = mock_scope();
 
 	const sum_base = (a: number, b: number) => a + b;
 
-	measure(scope as any, sum_base, 1, 2);
+	measure(scope as any, 'test', sum_base, 1, 2);
 
 	// @ts-expect-error
-	measure(scope as any, sum_base, 'test'); // tests typescript
+	measure(scope as any, 'test', sum_base, 'test'); // tests typescript
 
 	const sum = spy(sum_base);
-	const r = measure(scope as any, sum, 1, 2);
+	const r = measure(scope as any, 'test', sum, 1, 2);
 
 	assert.equal(r, 3);
 	assert.equal(sum.callCount, 1);
@@ -58,7 +43,7 @@ test('should retain `this` context', async () => {
 		},
 	};
 
-	const result = measure(scope as any, fn.run.bind(fn));
+	const result = measure(scope as any, 'test', fn.run.bind(fn));
 	assert.equal(result, 'foobar');
 });
 
@@ -70,19 +55,19 @@ returns('sync', () => {
 	const scope = mock_scope();
 
 	assert.equal(
-		measure(scope as any, () => 'test'),
+		measure(scope as any, 'test', () => 'test'),
 		'test',
 	);
 	assert.equal(
-		measure(scope as any, () => 1),
+		measure(scope as any, 'test', () => 1),
 		1,
 	);
 	assert.equal(
-		measure(scope as any, () => false),
+		measure(scope as any, 'test', () => false),
 		false,
 	);
 	assert.instance(
-		measure(scope as any, () => new Error('test')),
+		measure(scope as any, 'test', () => new Error('test')),
 		Error,
 		'error want thrown, so should just return',
 	);
@@ -92,19 +77,22 @@ returns('async', async () => {
 	const scope = mock_scope();
 
 	assert.instance(
-		measure(scope as any, async () => {}),
+		measure(scope as any, 'test', async () => {}),
 		Promise,
 	);
 
 	assert.not.equal(
-		measure(scope as any, async () => 'test'),
+		measure(scope as any, 'test', async () => 'test'),
 		'test',
 	);
-	assert.equal(await measure(scope as any, async () => 'test'), 'test');
-	assert.equal(await measure(scope as any, async () => 1), 1);
-	assert.equal(await measure(scope as any, async () => false), false);
+	assert.equal(
+		await measure(scope as any, 'test', async () => 'test'),
+		'test',
+	);
+	assert.equal(await measure(scope as any, 'test', async () => 1), 1);
+	assert.equal(await measure(scope as any, 'test', async () => false), false);
 	assert.instance(
-		await measure(scope as any, async () => new Error('test')),
+		await measure(scope as any, 'test', async () => new Error('test')),
 		Error,
 		'error want thrown, so should just return',
 	);
@@ -118,7 +106,7 @@ errors('sync', () => {
 	const scope = mock_scope();
 
 	assert.throws(() => {
-		measure(scope as any, () => {
+		measure(scope as any, 'test', () => {
 			throw new Error('test');
 		});
 	});
@@ -128,7 +116,7 @@ errors('async', async () => {
 	const scope = mock_scope();
 
 	try {
-		await measure(scope as any, async () => {
+		await measure(scope as any, 'test', async () => {
 			return new Promise((_resolve, rejects) => {
 				rejects('test');
 			});
@@ -139,7 +127,7 @@ errors('async', async () => {
 	}
 
 	try {
-		await measure(scope as any, async () => {
+		await measure(scope as any, 'test', async () => {
 			throw new Error('test');
 		});
 		assert.unreachable();

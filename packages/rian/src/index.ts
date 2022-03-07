@@ -1,7 +1,7 @@
 import { name as rian_name, version as rian_version } from 'rian/package.json';
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
-import { measure } from './utils.js';
+import { measureFn } from 'rian/utils';
 
 /**
  * Spans are units within a distributed trace. Spans encapsulate mainly 3 pieces of information, a
@@ -243,7 +243,7 @@ export const create = (name: string, options: Options): Tracer => {
 
 		if (should_sample) spans.add(span_obj);
 
-		const $: CallableScope = (cb: any) => measure($, cb);
+		const $: CallableScope = (cb: any) => measureFn($, cb);
 
 		$.traceparent = id;
 		$.fork = (name) => span(name, id);
@@ -261,8 +261,7 @@ export const create = (name: string, options: Options): Tracer => {
 			});
 		};
 		$.end = () => {
-			if (span_obj.end == null)
-				span_obj.end = Date.now();
+			if (span_obj.end == null) span_obj.end = Date.now();
 		};
 
 		return $;

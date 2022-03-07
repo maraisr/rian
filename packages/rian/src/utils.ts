@@ -17,7 +17,10 @@ const set_error = (scope: Scope, error: Error) => {
 	});
 };
 
-const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
+/**
+ * @internal
+ */
+export const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
 	try {
 		var r = fn(...args, scope),
 			is_promise = r instanceof Promise;
@@ -32,8 +35,7 @@ const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
 
 		return r;
 	} catch (e) {
-		if (e instanceof Error)
-			set_error(scope, e);
+		if (e instanceof Error) set_error(scope, e);
 		throw e;
 	} finally {
 		// @ts-expect-error TS2454
@@ -54,19 +56,23 @@ const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
  * @example
  *
  * ```text
- * const data = await measure(scope, get_data, 'user_id_123');
- *        ^                           ^        ^
- *        |                           |        |
- *        |                           |        the first argument to get_data
- *        |                           function to be called
- *        return value from get_data
+ * const data = await measure(scope, 'name', get_data, 'user_id_123');
+ *        ^                    ^      ^       ^          ^
+ *        |                    |      |       |          |
+ *        |                    |      |       |          the first argument to get_data
+ *        |                    |      |       function to be called
+ *        |                    |      the name of the sub scope
+ *        |                    |
+ *        |                    the parent scope
+ *         return value from get_data
  * ```
  */
 export const measure = <Fn extends MeasureFn>(
 	scope: Scope,
+	name: string,
 	fn: Fn, // TODO: fn doesnt see scope correctly
 	...args: RealMeasureFnParams<Parameters<Fn>>
-): ReturnType<Fn> => measureFn(scope, fn, ...args);
+): ReturnType<Fn> => measureFn(scope.fork(name), fn, ...args);
 
 /**
  * Wraps any function with a measured scoped function. Useful for when defer function execution
@@ -75,7 +81,7 @@ export const measure = <Fn extends MeasureFn>(
  * @example
  *
  * ```js
- * const wrapped = wrap(scope, my_function);
+ * const wrapped = wrap(scope, "run something", my_function);
  *
  * // ... lots of things, where the access to `scope` is lost.
  *
@@ -84,8 +90,9 @@ export const measure = <Fn extends MeasureFn>(
  */
 export const wrap = <Fn extends MeasureFn>(
 	scope: Scope,
+	name: string,
 	fn: Fn, // TODO: fn doesnt see scope correctly
 ): Fn =>
 	function () {
-		return measureFn(scope, fn, ...arguments);
+		return measureFn(scope.fork(name), fn, ...arguments);
 	} as Fn;
