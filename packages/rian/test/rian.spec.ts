@@ -6,6 +6,8 @@ import * as assert from 'uvu/assert';
 import * as rian from '../src/index.js';
 import * as utils from '../src/utils.js';
 
+import type { Exporter, Span } from 'rian';
+
 const noop = () => {};
 
 test.after.each(() => {
@@ -17,7 +19,7 @@ test('exports', () => {
 });
 
 test('api', async () => {
-	const exporter = spy<rian.Exporter>();
+	const exporter = spy<Exporter>();
 	const tracer = rian.create('test', {
 		exporter,
 	});
@@ -39,13 +41,13 @@ test('api', async () => {
 	await tracer.end();
 
 	assert.equal(exporter.callCount, 1);
-	const items = exporter.calls[0][0] as Set<rian.Span>;
+	const items = exporter.calls[0][0] as Set<Span>;
 	assert.instance(items, Set);
 	assert.equal(items.size, 2);
 });
 
 test('context', async () => {
-	const exporter = spy<rian.Exporter>();
+	const exporter = spy<Exporter>();
 	const tracer = rian.create('test', {
 		exporter,
 	});
@@ -66,7 +68,7 @@ test('context', async () => {
 
 	await tracer.end();
 
-	const items = exporter.calls[0][0] as Set<rian.Span>;
+	const items = exporter.calls[0][0] as Set<Span>;
 	assert.instance(items, Set);
 	assert.equal(items.size, 2);
 	assert.equal(Array.from(items)[1].context, {
@@ -79,7 +81,7 @@ test('has start and end times', async () => {
 	let called = -1;
 	spyOn(Date, 'now', () => ++called);
 
-	let spans: ReadonlySet<rian.Span>;
+	let spans: ReadonlySet<Span>;
 	const tracer = rian.create('test', {
 		exporter: (x) => (spans = x),
 	});
@@ -105,7 +107,7 @@ test.run();
 const fn = suite('fn mode');
 
 fn('api', async () => {
-	const exporter = spy<rian.Exporter>();
+	const exporter = spy<Exporter>();
 
 	const tracer = rian.create('test', {
 		exporter,
@@ -116,7 +118,7 @@ fn('api', async () => {
 	await tracer.end();
 
 	assert.equal(exporter.callCount, 1);
-	const items = exporter.calls[0][0] as Set<rian.Span>;
+	const items = exporter.calls[0][0] as Set<Span>;
 	assert.instance(items, Set);
 	assert.equal(items.size, 2);
 });
@@ -126,7 +128,7 @@ fn.run();
 const measure = suite('measure');
 
 measure('throw context', async () => {
-	const exporter = spy<rian.Exporter>();
+	const exporter = spy<Exporter>();
 
 	const tracer = rian.create('test', {
 		exporter,
@@ -141,7 +143,7 @@ measure('throw context', async () => {
 	await tracer.end();
 
 	assert.equal(exporter.callCount, 1);
-	const items = exporter.calls[0][0] as Set<rian.Span>;
+	const items = exporter.calls[0][0] as Set<Span>;
 	assert.instance(items, Set);
 	assert.equal(items.size, 2);
 
@@ -151,7 +153,7 @@ measure('throw context', async () => {
 const sampled = suite('sampling');
 
 sampled('default :: no parent should be sampled', async () => {
-	const exporter = spy<rian.Exporter>();
+	const exporter = spy<Exporter>();
 	const tracer = rian.create('test', {
 		exporter,
 	});
@@ -162,7 +164,7 @@ sampled('default :: no parent should be sampled', async () => {
 
 	assert.equal(exporter.callCount, 1);
 
-	const spans: Set<rian.Span> = exporter.calls[0][0];
+	const spans: Set<Span> = exporter.calls[0][0];
 	assert.equal(spans.size, 2);
 	assert.ok(
 		Array.from(spans).every((i) => is_sampled(i.id)),
@@ -172,7 +174,7 @@ sampled('default :: no parent should be sampled', async () => {
 
 // TODO: We don't add spans when we shouldn't sample, so there is no span to test against
 sampled.skip('default :: should obey parent', async () => {
-	const exporter = spy<rian.Exporter>();
+	const exporter = spy<Exporter>();
 	const tracer = rian.create('test', {
 		exporter,
 		traceparent: String(make(false)),
@@ -184,7 +186,7 @@ sampled.skip('default :: should obey parent', async () => {
 
 	assert.equal(exporter.callCount, 1);
 
-	const spans: Set<rian.Span> = exporter.calls[0][0];
+	const spans: Set<Span> = exporter.calls[0][0];
 	assert.equal(spans.size, 2);
 	assert.not.ok(
 		Array.from(spans).every((i) => is_sampled(i.id)),
@@ -197,7 +199,7 @@ sampled.run();
 const events = suite('events');
 
 events('api', async () => {
-	const exporter = spy<rian.Exporter>();
+	const exporter = spy<Exporter>();
 	const tracer = rian.create('test', {
 		exporter,
 	});
@@ -211,7 +213,7 @@ events('api', async () => {
 
 	assert.equal(exporter.callCount, 1);
 
-	const spans: Array<rian.Span> = Array.from(exporter.calls[0][0]);
+	const spans: Array<Span> = Array.from(exporter.calls[0][0]);
 	assert.equal(spans.length, 1);
 	assert.equal(spans[0].events.length, 2);
 	assert.equal(spans[0].events[0].attributes, {});

@@ -17,4 +17,7 @@ packages/*/*.js
 packages/*/*.mjs
 packages/*/*.d.ts
 
+packages/*/exporter*
+packages/*/utils/*
+
 /sample

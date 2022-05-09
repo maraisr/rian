@@ -1,6 +1,6 @@
 {
 	"name": "rian",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"description": "Effective tracing for the edge and origins",
 	"keywords": [
 		"opentelemetry",
@@ -30,16 +30,16 @@
 			"require": "./index.js"
 		},
 		"./exporter.otel.http": {
-			"import": "./exporter.otel.http.mjs",
-			"require": "./exporter.otel.http.js"
+			"import": "./exporter.otel.http/index.mjs",
+			"require": "./exporter.otel.http/index.js"
 		},
 		"./exporter.zipkin": {
-			"import": "./exporter.zipkin.mjs",
-			"require": "./exporter.zipkin.js"
+			"import": "./exporter.zipkin/index.mjs",
+			"require": "./exporter.zipkin/index.js"
 		},
 		"./utils": {
-			"import": "./utils.mjs",
-			"require": "./utils.js"
+			"import": "./utils/index.mjs",
+			"require": "./utils/index.js"
 		},
 		"./package.json": "./package.json"
 	},
@@ -49,10 +49,18 @@
 	"files": [
 		"*.mjs",
 		"*.js",
-		"*.d.ts"
+		"*.d.ts",
+		"exporter.*/*",
+		"utils/*"
 	],
+	"scripts": {
+		"build": "bundt"
+	},
 	"dependencies": {
 		"flattie": "^1.1.0",
 		"tctx": "^0.0.10"
+	},
+	"devDependencies": {
+		"bundt": "2.0.0-next.5"
 	}
 }
