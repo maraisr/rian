@@ -4,15 +4,15 @@ import type * as rian from 'rian';
 interface Span {
 	id: string;
 	traceId: string;
-	parentId?: string;
+	parentId: string | undefined;
 
 	name?: string;
 	kind?: string;
 
 	timestamp: number;
-	duration?: number;
+	duration: number | undefined;
 
-	tags?: Record<string, string | number | boolean | null>;
+	tags: Record<string, string | number | boolean | null> | undefined;
 
 	localEndpoint?: {
 		serviceName: string;

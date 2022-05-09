@@ -39,7 +39,7 @@ type Status = {
 interface Span {
 	traceId: string;
 	spanId: string;
-	parentSpanId?: string;
+	parentSpanId: string | undefined;
 
 	traceState?: string;
 
@@ -47,7 +47,7 @@ interface Span {
 	kind?: number;
 
 	startTimeUnixNano?: number;
-	endTimeUnixNano?: number;
+	endTimeUnixNano: number | undefined;
 	attributes?: KeyValue[] | Record<string, any>;
 
 	status?: Status;

@@ -1,4 +1,4 @@
-import { type Scope } from 'rian';
+import type { Scope } from 'rian';
 import { ADD_PROMISE, PROMISES } from 'rian';
 
 export type MeasureFn =

@@ -47,7 +47,7 @@ export interface Span {
 	 *
 	 * @see {@link Span.id}
 	 */
-	parent?: Traceparent;
+	parent: Traceparent | undefined;
 
 	/**
 	 * The time represented as a UNIX epoch timestamp in milliseconds when this span was created.
