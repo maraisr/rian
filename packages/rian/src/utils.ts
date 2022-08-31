@@ -7,7 +7,7 @@ export const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
 		var r = fn(...args, scope),
 			is_promise = r instanceof Promise;
 
-		if (is_promise && PROMISES.has(scope))
+		if (is_promise && !PROMISES.has(scope))
 			ADD_PROMISE(
 				scope,
 				r
