@@ -1,4 +1,5 @@
 import { spy } from 'nanospy';
+import { PROMISES } from 'rian';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
@@ -45,6 +46,28 @@ test('should retain `this` context', async () => {
 
 	const result = measure(scope as any, 'test', fn.run.bind(fn));
 	assert.equal(result, 'foobar');
+});
+
+test('should call .end()', async () => {
+	const scope = mock_scope();
+	scope.fork = () => scope; // keep the current scope so we can assert it
+
+	assert.equal(
+		measure(scope as any, 'test', () => 'hello'),
+		'hello',
+	);
+	assert.equal(scope.end.callCount, 1);
+
+	assert.equal(
+		await measure(
+			scope as any,
+			'test',
+			() => new Promise((res) => setTimeout(() => res('hello'))),
+		),
+		'hello',
+	);
+	await Promise.all(PROMISES.get(scope as any) ?? []);
+	assert.equal(scope.end.callCount, 2);
 });
 
 test.run();
