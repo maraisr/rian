@@ -26,18 +26,22 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"types": "./index.d.ts",
 			"import": "./index.mjs",
 			"require": "./index.js"
 		},
 		"./exporter.otel.http": {
+			"types": "./exporter.otel.http/index.d.ts",
 			"import": "./exporter.otel.http/index.mjs",
 			"require": "./exporter.otel.http/index.js"
 		},
 		"./exporter.zipkin": {
+			"types": "./exporter.zipkin/index.d.ts",
 			"import": "./exporter.zipkin/index.mjs",
 			"require": "./exporter.zipkin/index.js"
 		},
 		"./utils": {
+			"types": "./utils/index.d.ts",
 			"import": "./utils/index.mjs",
 			"require": "./utils/index.js"
 		},

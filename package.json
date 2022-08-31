@@ -19,12 +19,11 @@
 	"dependencies": {
 		"@marais/tsconfig": "0.0.3",
 		"nanospy": "0.5.0",
-		"prettier": "2.6.2",
-		"tsm": "2.2.1",
-		"typescript": "4.8.0-dev.20220509",
-		"uvu": "0.5.3"
+		"prettier": "2.7.1",
+		"tsm": "2.2.2",
+		"typescript": "4.8.2",
+		"uvu": "0.5.6"
 	},
-	"packageManager": "pnpm@7.0.0",
 	"volta": {
 		"node": "17.2.0"
 	}
