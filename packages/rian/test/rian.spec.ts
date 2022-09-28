@@ -3,8 +3,8 @@ import { is_sampled, make } from 'tctx';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import * as rian from '../src/index.js';
-import * as utils from '../src/utils.js';
+import * as rian from 'rian';
+import * as utils from 'rian/utils';
 
 import type { Exporter, Span } from 'rian';
 
