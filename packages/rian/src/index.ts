@@ -1,7 +1,8 @@
-import { name as rian_name, version as rian_version } from 'rian/package.json';
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
 import { measureFn } from 'rian/utils';
+
+declare const RIAN_VERSION: string;
 
 import type {
 	Scope,
@@ -36,8 +37,8 @@ const defaultSampler: Sampler = (_name, parentId) => {
 };
 
 const sdk_object = {
-	'telemetry.sdk.name': rian_name,
-	'telemetry.sdk.version': rian_version,
+	'telemetry.sdk.name': 'rian',
+	'telemetry.sdk.version': RIAN_VERSION,
 };
 
 export const create = (name: string, options: Options): Tracer => {

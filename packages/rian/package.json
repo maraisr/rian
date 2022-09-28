@@ -58,7 +58,7 @@
 		"utils/*"
 	],
 	"scripts": {
-		"build": "bundt"
+		"build": "bundt --minify"
 	},
 	"dependencies": {
 		"flattie": "^1.1.0",
