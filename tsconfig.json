@@ -6,11 +6,11 @@
 		"removeComments": false,
 		"lib": ["esnext", "dom.iterable", "webworker"],
 		"paths": {
-			"rian": ["./packages/rian/src/index.d.ts"],
-			"rian/*": ["./packages/rian/src/*.d.ts"],
-			"rian/package.json": ["./packages/rian/package.json"]
+			"rian": ["./src/index.d.ts"],
+			"rian/*": ["./src/*.d.ts"],
+			"rian/package.json": ["./package.json"]
 		}
 	},
-	"include": ["packages/rian/src", "packages/rian/test"],
+	"include": ["src", "test"],
 	"exclude": ["node_modules"]
 }
