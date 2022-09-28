@@ -13,11 +13,11 @@ node_modules
 /.vscode
 
 # Dist
-packages/*/*.js
-packages/*/*.mjs
-packages/*/*.d.ts
+/*.js
+/*.mjs
+/*.d.ts
 
-packages/*/exporter*
-packages/*/utils/*
+/exporter*
+/utils/*
 
 /sample

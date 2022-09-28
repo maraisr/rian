@@ -1,29 +1,81 @@
 {
-	"name": "rian-repo",
-	"private": true,
+	"name": "rian",
+	"version": "0.2.2",
+	"description": "Effective tracing for the edge and origins",
+	"keywords": [
+		"opentelemetry",
+		"trace-context",
+		"opentracing",
+		"traceparent",
+		"measure",
+		"monitor",
+		"observe",
+		"tracing",
+		"zipkin",
+		"tracer",
+		"trace"
+	],
+	"repository": "maraisr/rian",
 	"license": "MIT",
-	"author": {
-		"name": "Marais Rossouw",
-		"email": "me@marais.dev",
-		"url": "https://marais.io"
-	},
+	"author": "Marais Rossow <me@marais.dev> (https://marais.io)",
+	"sideEffects": false,
 	"type": "module",
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"import": "./index.mjs",
+			"require": "./index.js"
+		},
+		"./exporter.otel.http": {
+			"types": "./exporter.otel.http/index.d.ts",
+			"import": "./exporter.otel.http/index.mjs",
+			"require": "./exporter.otel.http/index.js"
+		},
+		"./exporter.zipkin": {
+			"types": "./exporter.zipkin/index.d.ts",
+			"import": "./exporter.zipkin/index.mjs",
+			"require": "./exporter.zipkin/index.js"
+		},
+		"./utils": {
+			"types": "./utils/index.d.ts",
+			"import": "./utils/index.mjs",
+			"require": "./utils/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"main": "./index.js",
+	"module": "./index.mjs",
+	"types": "index.d.ts",
+	"files": [
+		"*.mjs",
+		"*.js",
+		"*.d.ts",
+		"exporter.*/*",
+		"utils/*"
+	],
 	"scripts": {
 		"bench": "node -r tsm bench/index.ts",
-		"build": "pnpm run -r build",
-		"format": "prettier --write --list-different \"{*,bin/*,examples/*/**,packages/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
+		"build": "bundt --minify",
+		"format": "prettier --write \"{*,{src,test}/**/*,examples/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
 		"pretest": "pnpm run build",
-		"test": "node --loader tsm node_modules/uvu/bin.js packages \".spec.m?ts$\"",
+		"test": "uvu -r tsm test \".spec.m?ts$\"",
 		"typecheck": "tsc --noEmit --skipLibCheck"
 	},
 	"dependencies": {
+		"flattie": "^1.1.0",
+		"tctx": "^0.0.10"
+	},
+	"devDependencies": {
+		"@marais/prettier": "0.0.1",
 		"@marais/tsconfig": "0.0.3",
+		"bundt": "2.0.0-next.5",
 		"nanospy": "0.5.0",
 		"prettier": "2.7.1",
 		"tsm": "2.2.2",
 		"typescript": "4.8.2",
 		"uvu": "0.5.6"
 	},
+	"prettier": "@marais/prettier",
 	"volta": {
 		"node": "17.2.0"
 	}
