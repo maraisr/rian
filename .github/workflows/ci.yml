@@ -18,7 +18,7 @@ jobs:
       - name: (env) setup pnpm
         uses: pnpm/action-setup@v2.0.1
         with:
-          version: 7.0.0
+          version: 7.11.0
 
       - name: (env) setup node v${{ matrix.node }}
         uses: actions/setup-node@main
