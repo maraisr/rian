@@ -1,24 +1,20 @@
 import type { Scope } from 'rian';
 import type { MeasureFn, RealMeasureFnParams } from 'rian/utils';
-import { ADD_PROMISE, PROMISES } from 'rian';
 
 export const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
 	try {
 		var r = fn(...args, scope),
 			is_promise = r instanceof Promise;
 
-		if (is_promise && !PROMISES.has(scope))
-			ADD_PROMISE(
-				scope,
-				r
-					.catch(
-						(e: Error): void =>
-							void scope.set_context({
-								error: e,
-							}),
-					)
-					.finally(() => scope.end()),
-			);
+		if (is_promise) {
+			scope.__add_promise(r);
+			r.catch(
+				(e: Error): void =>
+					void scope.set_context({
+						error: e,
+					}),
+			).finally(() => scope.end());
+		}
 
 		return r;
 	} catch (e) {

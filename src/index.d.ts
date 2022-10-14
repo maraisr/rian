@@ -114,6 +114,11 @@ export interface Scope {
 	 * timestamp nulled out — when the tracer ends.
 	 */
 	end(): void;
+
+	/**
+	 * @internal
+	 */
+	__add_promise: (p: Promise<any>) => void;
 }
 
 export interface Tracer extends Omit<Scope, 'end'> {

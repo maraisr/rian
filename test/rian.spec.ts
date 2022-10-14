@@ -102,6 +102,21 @@ test('has start and end times', async () => {
 	assert.equal(arr[1].end, 2);
 });
 
+test('promise returns', async () => {
+	let spans: ReadonlySet<Span>;
+	const tracer = rian.create('test', {
+		exporter: (x) => (spans = x),
+	});
+
+	const prom = new Promise((resolve) => setTimeout(resolve, 0));
+
+	await tracer.fork('test')(() => prom);
+
+	await tracer.end();
+
+	assert.equal(spans!.size, 2);
+});
+
 test.run();
 
 const fn = suite('fn mode');

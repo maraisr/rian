@@ -1,5 +1,4 @@
 import { spy } from 'nanospy';
-import { PROMISES } from 'rian';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
@@ -9,6 +8,7 @@ const mock_scope = () => ({
 	fork: mock_scope,
 	end: spy(),
 	set_context: spy(),
+	__add_promise: spy(),
 });
 
 test('exports', () => {
@@ -66,7 +66,9 @@ test('should call .end()', async () => {
 		),
 		'hello',
 	);
-	await Promise.all(PROMISES.get(scope as any) ?? []);
+
+	assert.equal(scope.__add_promise.callCount, 1);
+	await scope.__add_promise.calls[0];
 	assert.equal(scope.end.callCount, 2);
 });
 
