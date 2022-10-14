@@ -1,17 +1,10 @@
-import type { Traceparent } from 'tctx';
-import * as tctx from 'tctx';
+import type { CallableScope, Options, Sampler, Span, Tracer } from 'rian';
 import { measureFn } from 'rian/utils';
 
-declare const RIAN_VERSION: string;
+import type { Traceparent } from 'tctx';
+import * as tctx from 'tctx';
 
-import type {
-	Scope,
-	Sampler,
-	Span,
-	Options,
-	Tracer,
-	CallableScope,
-} from 'rian';
+declare const RIAN_VERSION: string;
 
 /**
  * The default sampler;
