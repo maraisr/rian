@@ -74,6 +74,7 @@ export const create = (name: string, options: Options): Tracer => {
 			if (span_obj.end == null) span_obj.end = Date.now();
 		};
 
+		// @ts-expect-error
 		$.__add_promise = promises.add.bind(promises);
 
 		return $;
