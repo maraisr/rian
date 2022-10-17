@@ -170,7 +170,7 @@ export interface Options {
 	 * If the id is malformed, the {@link create} method will throw an exception. If no root is
 	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules.
 	 */
-	traceparent?: string;
+	traceparent?: string | null;
 }
 
 export const create: (name: string, options: Options) => Tracer;
@@ -181,9 +181,3 @@ export const create: (name: string, options: Options) => Tracer;
 export interface CallableScope extends Scope {
 	(cb: (scope: Omit<Scope, 'end'>) => void): ReturnType<typeof cb>;
 }
-
-/** @internal */
-export const PROMISES: WeakMap<Scope, Promise<any>[]>;
-
-/** @internal */
-export const ADD_PROMISE: (scope: Scope, promise: Promise<any>) => void;

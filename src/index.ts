@@ -1,25 +1,10 @@
-import type { Traceparent } from 'tctx';
-import * as tctx from 'tctx';
+import type { CallableScope, Options, Sampler, Span, Tracer } from 'rian';
 import { measureFn } from 'rian/utils';
 
+import type { Traceparent } from 'tctx';
+import * as tctx from 'tctx';
+
 declare const RIAN_VERSION: string;
-
-import type {
-	Scope,
-	Sampler,
-	Span,
-	Options,
-	Tracer,
-	CallableScope,
-} from 'rian';
-
-// ==> impl
-
-export const PROMISES = new WeakMap<Scope, Promise<any>[]>();
-export const ADD_PROMISE = (scope: Scope, promise: Promise<any>) => {
-	if (PROMISES.has(scope)) PROMISES.get(scope)!.push(promise);
-	else PROMISES.set(scope, [promise]);
-};
 
 /**
  * The default sampler;
@@ -43,6 +28,7 @@ const sdk_object = {
 
 export const create = (name: string, options: Options): Tracer => {
 	const spans: Set<Span> = new Set();
+	const promises: Set<Promise<any>> = new Set();
 
 	const sampler = options.sampler || defaultSampler;
 	const sampler_callable = typeof sampler !== 'boolean';
@@ -88,6 +74,9 @@ export const create = (name: string, options: Options): Tracer => {
 			if (span_obj.end == null) span_obj.end = Date.now();
 		};
 
+		// @ts-expect-error
+		$.__add_promise = promises.add.bind(promises);
+
 		return $;
 	};
 
@@ -102,7 +91,7 @@ export const create = (name: string, options: Options): Tracer => {
 
 	root.end = async () => {
 		endRoot();
-		if (PROMISES.has(root)) await Promise.all(PROMISES.get(root)!);
+		if (promises.size > 0) await Promise.all([...promises.values()]);
 
 		return options.exporter(spans, {
 			...(options.context || {}),
