@@ -1,6 +1,6 @@
 {
 	"name": "rian",
-	"version": "0.2.2",
+	"version": "0.2.3",
 	"description": "Effective tracing for the edge and origins",
 	"keywords": [
 		"opentelemetry",
