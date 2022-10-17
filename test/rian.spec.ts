@@ -110,7 +110,8 @@ test('promise returns', async () => {
 
 	const prom = new Promise((resolve) => setTimeout(resolve, 0));
 
-	await tracer.fork('test')(() => prom);
+	// Don't await here so we can assert the __add__promise worked 
+	tracer.fork('test')(() => prom);
 
 	await tracer.end();
 
