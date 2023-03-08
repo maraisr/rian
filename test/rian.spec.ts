@@ -77,14 +77,14 @@ test('context', async () => {
 	});
 });
 
-test('has start and end times', async () => {
+test('has offset start and end times', async () => {
 	let called = -1;
 	spyOn(Date, 'now', () => ++called);
 
 	let spans: ReadonlySet<Span>;
 	const tracer = rian.create('test', {
 		exporter: (x) => (spans = x),
-	});
+	}, 1);
 
 	tracer.fork('test')(spy());
 
@@ -96,9 +96,9 @@ test('has start and end times', async () => {
 	const arr = Array.from(spans);
 
 	// 2 spans, 2 calls per span
-	assert.equal(arr[0].start, 0);
+	assert.equal(arr[0].start, 1);
 	assert.equal(arr[0].end, 3);
-	assert.equal(arr[1].start, 1);
+	assert.equal(arr[1].start, 2);
 	assert.equal(arr[1].end, 2);
 });
 

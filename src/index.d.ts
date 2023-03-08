@@ -173,7 +173,7 @@ export interface Options {
 	traceparent?: string | null;
 }
 
-export const create: (name: string, options: Options) => Tracer;
+export const create: (name: string, options: Options, start_offset?: number) => Tracer;
 
 // ==> internals
 

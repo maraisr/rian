@@ -26,7 +26,7 @@ const sdk_object = {
 	'telemetry.sdk.version': RIAN_VERSION,
 };
 
-export const create = (name: string, options: Options): Tracer => {
+export const create = (name: string, options: Options, start_offset = 0): Tracer => {
 	const spans: Set<Span> = new Set();
 	const promises: Set<Promise<any>> = new Set();
 
@@ -45,7 +45,7 @@ export const create = (name: string, options: Options): Tracer => {
 		const span_obj: Span = {
 			id,
 			parent,
-			start: Date.now(),
+			start: Date.now() + start_offset,
 			name,
 			events: [],
 			context: {},
