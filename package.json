@@ -1,6 +1,6 @@
 {
 	"name": "rian",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"description": "Effective tracing for the edge and origins",
 	"keywords": [
 		"opentelemetry",
@@ -19,7 +19,6 @@
 	"license": "MIT",
 	"author": "Marais Rossow <me@marais.dev> (https://marais.io)",
 	"sideEffects": false,
-	"type": "module",
 	"exports": {
 		".": {
 			"types": "./index.d.ts",
