@@ -7,6 +7,6 @@
 		"@types/benchmark": "2.1.1",
 		"benchmark": "2.1.4",
 		"opentracing": "^0.14.5",
-		"rian": "workspace:*"
+		"rian": "file://../"
 	}
 }
