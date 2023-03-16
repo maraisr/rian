@@ -1,3 +1,5 @@
+import type { Traceparent } from 'tctx';
+
 /**
  * Spans are units within a distributed trace. Spans encapsulate mainly 3 pieces of information, a
  * {@link Span.name|name}, and a {@link Span.start|start} and {@link Span.end|end} time.
