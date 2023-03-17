@@ -6,10 +6,10 @@
 		"removeComments": false,
 		"lib": ["esnext", "dom.iterable", "webworker"],
 		"paths": {
-			"rian": ["./src/globald.ts", "./src/index.d.ts"],
-			"rian/*": ["./src/globald.ts", "./src/*.d.ts"]
+			"rian": ["./src/index.d.ts"],
+			"rian/*": ["./src/*.d.ts"]
 		}
 	},
-	"include": ["src", "test"],
+	"include": ["global.d.ts", "src", "test"],
 	"exclude": ["node_modules"]
 }

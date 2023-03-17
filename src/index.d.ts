@@ -1,5 +1,73 @@
 import type { Traceparent } from 'tctx';
 
+// --- tracer
+
+/**
+ * An exporter is a method called when the parent scope ends, gets given a Set of all spans traced
+ * during this execution.
+ */
+export type Exporter = (
+	spans: ReadonlySet<Readonly<Span>>,
+	context: Context,
+) => any;
+
+export type ClockLike = { now(): number };
+
+export interface Options {
+	/**
+	 * @borrows {@link Exporter}
+	 */
+	exporter: Exporter;
+
+	/**
+	 * @borrows {@link Sampler}
+	 */
+	sampler?: Sampler | boolean;
+
+	context?: Context;
+
+	/**
+	 * A root, or extracted w3c traceparent stringed header.
+	 *
+	 * If the id is malformed, the {@link create} method will throw an exception. If no root is
+	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules.
+	 */
+	traceparent?: string | null;
+
+	clock?: ClockLike;
+}
+
+export interface Tracer extends Pick<Scope, 'span'> {
+	/**
+	 * Awaits all active promises, and then calls the {@link Options.exporter|exporter}. Passing all collected spans.
+	 */
+	report(): Promise<ReturnType<Exporter>>;
+}
+
+/**
+ * @borrows {@link Span.context}
+ */
+export interface Context {
+	[property: string]: any;
+}
+
+/**
+ * Should return true when you want to sample the span, this is ran before the span is traced — so
+ * decisions is made preemptively.
+ *
+ * The Span itself will still be included in the {@link Options.exporter|exporter}, and can be
+ * filtered out there.
+ *
+ * Sampling does impact the traceparent, for injection — and is encoded there.
+ */
+export type Sampler = (
+	name: string,
+	parentId?: Traceparent,
+	context?: Context,
+) => boolean;
+
+// --- spans
+
 /**
  * Spans are units within a distributed trace. Spans encapsulate mainly 3 pieces of information, a
  * {@link Span.name|name}, and a {@link Span.start|start} and {@link Span.end|end} time.
@@ -86,6 +154,8 @@ export interface Span {
 	events: { name: string; timestamp: number; attributes: Context }[];
 }
 
+// --- scopes
+
 export interface Scope {
 	/**
 	 * A W3C traceparent. One can .toString() this if you want to cross a network.
@@ -118,80 +188,10 @@ export interface Scope {
 	end(): void;
 }
 
-export interface Tracer extends Pick<Scope, 'span'> {
-	report(): ReturnType<Exporter>;
-}
-
-/**
- * An exporter is a method called when the parent scope ends, gets given a Set of all spans traced
- * during this execution.
- */
-export type Exporter = (
-	spans: ReadonlySet<Readonly<Span>>,
-	context: Context,
-) => any;
-
-/**
- * @borrows {@link Span.context}
- */
-export interface Context {
-	[property: string]: any;
-}
-
-/**
- * Should return true when you want to sample the span, this is ran before the span is traced — so
- * decisions is made preemptively.
- *
- * The Span itself will still be included in the {@link Options.exporter|exporter}, and can be
- * filtered out there.
- *
- * Sampling does impact the traceparent, for injection — and is encoded there.
- */
-export type Sampler = (
-	name: string,
-	parentId?: Traceparent,
-	context?: Context,
-) => boolean;
-
-/**
- * Provinding a clock allows you to control the time of the span.
- */
-export type ClockLike = {
-	/**
-	 * Must return the number of milliseconds since the epoch.
-	 */
-	now(): number;
-};
-
-export interface Options {
-	/**
-	 * @borrows {@link Exporter}
-	 */
-	exporter: Exporter;
-
-	/**
-	 * @borrows {@link Sampler}
-	 */
-	sampler?: Sampler | boolean;
-
-	context?: Context;
-
-	/**
-	 * A root, or extracted w3c traceparent stringed header.
-	 *
-	 * If the id is malformed, the {@link create} method will throw an exception. If no root is
-	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules.
-	 */
-	traceparent?: string | null;
-
-	clock?: ClockLike;
-}
-
-export const create: (name: string, options: Options) => Tracer;
-
-// ==> internals
-
-/** @internal */
 export interface CallableScope extends Scope {
 	(cb: (scope: Omit<Scope, 'end'>) => void): ReturnType<typeof cb>;
 }
+
+// --- main api
+
+export const create: (name: string, options: Options) => Tracer;
