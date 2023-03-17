@@ -1,11 +1,4 @@
-import type {
-	CallableScope,
-	Options,
-	Sampler,
-	Span,
-	Tracer,
-	ClockLike,
-} from 'rian';
+import type { CallableScope, Options, Sampler, Span, Tracer } from 'rian';
 import { measureFn } from 'rian/utils';
 
 import type { Traceparent } from 'tctx';
