@@ -1,4 +1,11 @@
-import type { CallableScope, Options, Sampler, Span, Tracer } from 'rian';
+import type {
+	CallableScope,
+	Options,
+	Sampler,
+	Span,
+	Tracer,
+	ClockLike,
+} from 'rian';
 import { measureFn } from 'rian/utils';
 
 import type { Traceparent } from 'tctx';
@@ -33,6 +40,8 @@ export const create = (name: string, options: Options): Tracer => {
 	const sampler = options.sampler || defaultSampler;
 	const sampler_callable = typeof sampler !== 'boolean';
 
+	const clock = options.clock || Date;
+
 	const span = (name: string, parent?: Traceparent): CallableScope => {
 		const should_sample = sampler_callable
 			? sampler(name, parent, options.context)
@@ -45,7 +54,7 @@ export const create = (name: string, options: Options): Tracer => {
 		const span_obj: Span = {
 			id,
 			parent,
-			start: Date.now(),
+			start: clock.now(),
 			name,
 			events: [],
 			context: {},
@@ -66,12 +75,12 @@ export const create = (name: string, options: Options): Tracer => {
 		$.add_event = (name, attributes) => {
 			span_obj.events.push({
 				name,
-				timestamp: Date.now(),
+				timestamp: clock.now(),
 				attributes: attributes || {},
 			});
 		};
 		$.end = () => {
-			if (span_obj.end == null) span_obj.end = Date.now();
+			if (span_obj.end == null) span_obj.end = clock.now();
 		};
 
 		// @ts-expect-error

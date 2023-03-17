@@ -153,6 +153,16 @@ export type Sampler = (
 	context?: Context,
 ) => boolean;
 
+/**
+ * Provinding a clock allows you to control the time of the span.
+ */
+export type ClockLike = {
+	/**
+	 * Must return the number of milliseconds since the epoch.
+	 */
+	now(): number;
+};
+
 export interface Options {
 	/**
 	 * @borrows {@link Exporter}
@@ -173,6 +183,8 @@ export interface Options {
 	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules.
 	 */
 	traceparent?: string | null;
+
+	clock?: ClockLike;
 }
 
 export const create: (name: string, options: Options) => Tracer;
