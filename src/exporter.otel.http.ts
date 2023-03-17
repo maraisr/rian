@@ -118,13 +118,21 @@ const map_kind = (kind: any): number => {
 
 export const exporter =
 	(request: (payload: any) => any): rian.Exporter =>
-	(resources) => {
-		const resourceSpans = [];
+	(trace) => {
+		const scopeSpans: {
+			scope: rian.ScopedSpans['scope'];
+			spans: Span[];
+		}[] = [];
 
-		for (let { resource, spans } of resources) {
-			const ilSpans = [];
+		for (let scope of trace.scopeSpans) {
+			const spans: Span[] = [];
 
-			for (let span of spans) {
+			scopeSpans.push({
+				scope: scope.scope,
+				spans,
+			});
+
+			for (let span of scope.spans) {
 				const { kind, error, ...span_ctx } = span.context;
 
 				let status: Status;
@@ -138,7 +146,7 @@ export const exporter =
 					}
 				}
 
-				ilSpans.push({
+				spans.push({
 					traceId: span.id.trace_id,
 					spanId: span.id.parent_id,
 					parentSpanId: span.parent?.parent_id,
@@ -166,23 +174,17 @@ export const exporter =
 					})),
 				});
 			}
-
-			resourceSpans.push({
-				resource: {
-					attributes: convert_object_to_kv(resource),
-					droppedAttributesCount: 0,
-				},
-				instrumentationLibrarySpans: [
-					{
-						instrumentationLibrary: {
-							name: 'rian',
-							version: RIAN_VERSION,
-						},
-						spans: ilSpans,
-					},
-				],
-			});
 		}
 
-		return request({ resourceSpans });
+		return request({
+			resourceSpans: [
+				{
+					resource: {
+						attributes: convert_object_to_kv(trace.resource),
+						droppedAttributesCount: 0,
+					},
+					scopeSpans,
+				},
+			],
+		});
 	};

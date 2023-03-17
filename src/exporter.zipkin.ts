@@ -23,11 +23,11 @@ interface Span {
 
 export const exporter =
 	(request: (payload: any) => any): rian.Exporter =>
-	(resources) => {
+	(trace) => {
 		const zipkin: Span[] = [];
 
-		for (let resource of resources) {
-			for (let span of resource.spans) {
+		for (let scope of trace.scopeSpans) {
+			for (let span of scope.spans) {
 				const { kind, error, ...span_ctx } = span.context;
 
 				if (error) {
@@ -58,12 +58,12 @@ export const exporter =
 						: undefined,
 
 					localEndpoint: {
-						serviceName: resource.resource['service.name'],
+						serviceName: `${trace.resource['service.name']}@${scope.scope.name}`,
 					},
 
 					tags: flattie(
 						{
-							...resource.resource,
+							...trace.resource,
 							...span_ctx,
 						},
 						'.',

@@ -6,22 +6,21 @@ import type { Traceparent } from 'tctx';
  * An exporter is a method called when the parent scope ends, gets given a Set of all spans traced
  * during this execution.
  */
-export type Exporter = (resources: IterableIterator<Resource>) => any;
-
-export type Resource = {
+export type Exporter = (trace: {
 	resource: Context;
-	spans: ReadonlySet<Readonly<Span>>;
-};
+	scopeSpans: IterableIterator<ScopedSpans>;
+}) => any;
 
-export type ClockLike = { now(): number };
+export type ScopedSpans = {
+	readonly scope: { readonly name: string };
+	readonly spans: ReadonlyArray<Readonly<Span>>;
+};
 
 export type Options = {
 	/**
 	 * @borrows {@link Sampler}
 	 */
 	sampler?: Sampler | boolean;
-
-	context?: Context;
 
 	/**
 	 * A root, or extracted w3c traceparent stringed header.
@@ -30,8 +29,6 @@ export type Options = {
 	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules.
 	 */
 	traceparent?: string | null;
-
-	clock?: ClockLike;
 };
 
 export type Tracer = Pick<Scope, 'span'>;
@@ -54,7 +51,7 @@ export type Context = {
 export type Sampler = (
 	readonly name: string,
 	readonly id: Traceparent,
-	readonly context: Context,
+	readonly scope: { readonly name: string },
 ) => boolean;
 
 // --- spans
@@ -193,3 +190,6 @@ export function tracer(name: string, options?: Options): Tracer;
 export async function report<T extends Exporter>(
 	exporter: T,
 ): Promise<ReturnType<T>>;
+
+// TODO
+export function configure(name: string, attributes: Context = {}): void;
