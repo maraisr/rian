@@ -19,11 +19,6 @@ const defaultSampler: Sampler = (_name, parentId) => {
 	return tctx.is_sampled(parentId);
 };
 
-const sdk_object = {
-	'telemetry.sdk.name': 'rian',
-	'telemetry.sdk.version': RIAN_VERSION,
-};
-
 export const create = (name: string, options: Options): Tracer => {
 	const spans: Set<Span> = new Set();
 	const promises: Set<Promise<any>> = new Set();
@@ -32,6 +27,10 @@ export const create = (name: string, options: Options): Tracer => {
 	const sampler_callable = typeof sampler !== 'boolean';
 
 	const clock = options.clock || Date;
+
+	const context = options.context || {};
+	context['telemetry.sdk.name'] = 'rian';
+	context['telemetry.sdk.version'] = RIAN_VERSION;
 
 	const span = (name: string, parent?: Traceparent): CallableScope => {
 		const should_sample = sampler_callable
@@ -57,11 +56,10 @@ export const create = (name: string, options: Options): Tracer => {
 
 		$.traceparent = id;
 		$.fork = (name) => span(name, id);
-		// @ts-expect-error TS7030 its always undefined ts :eye-roll:
 		$.set_context = (ctx) => {
 			if (typeof ctx === 'function')
 				return void (span_obj.context = ctx(span_obj.context));
-			Object.assign(span_obj.context, ctx);
+			return void Object.assign(span_obj.context, ctx);
 		};
 		$.add_event = (name, attributes) => {
 			span_obj.events.push({
@@ -93,10 +91,7 @@ export const create = (name: string, options: Options): Tracer => {
 		endRoot();
 		if (promises.size > 0) await Promise.all([...promises.values()]);
 
-		return options.exporter(spans, {
-			...(options.context || {}),
-			...sdk_object,
-		});
+		return options.exporter(spans, context);
 	};
 
 	return root;
