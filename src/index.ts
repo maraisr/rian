@@ -1,4 +1,4 @@
-import type { CallableScope, Options, Sampler, Span, Tracer } from 'rian';
+import type { CallableScope, Options, Sampler, Span, Tracer, ClockLike } from 'rian';
 import { measureFn } from 'rian/utils';
 
 import type { Traceparent } from 'tctx';
@@ -26,7 +26,8 @@ const sdk_object = {
 	'telemetry.sdk.version': RIAN_VERSION,
 };
 
-export const create = (name: string, options: Options, start_offset = 0): Tracer => {
+
+export const create = (name: string, options: Options, clock: ClockLike = Date): Tracer => {
 	const spans: Set<Span> = new Set();
 	const promises: Set<Promise<any>> = new Set();
 
@@ -45,7 +46,7 @@ export const create = (name: string, options: Options, start_offset = 0): Tracer
 		const span_obj: Span = {
 			id,
 			parent,
-			start: Date.now() + start_offset,
+			start: clock.now(),
 			name,
 			events: [],
 			context: {},
@@ -66,12 +67,12 @@ export const create = (name: string, options: Options, start_offset = 0): Tracer
 		$.add_event = (name, attributes) => {
 			span_obj.events.push({
 				name,
-				timestamp: Date.now(),
+				timestamp: clock.now(),
 				attributes: attributes || {},
 			});
 		};
 		$.end = () => {
-			if (span_obj.end == null) span_obj.end = Date.now();
+			if (span_obj.end == null) span_obj.end = clock.now();
 		};
 
 		// @ts-expect-error

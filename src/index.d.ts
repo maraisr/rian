@@ -173,7 +173,9 @@ export interface Options {
 	traceparent?: string | null;
 }
 
-export const create: (name: string, options: Options, start_offset?: number) => Tracer;
+export type ClockLike = { now(): number };
+
+export const create: (name: string, options: Options, clock?:ClockLike) => Tracer;
 
 // ==> internals
 
