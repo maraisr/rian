@@ -6,19 +6,16 @@ import type { Traceparent } from 'tctx';
  * An exporter is a method called when the parent scope ends, gets given a Set of all spans traced
  * during this execution.
  */
-export type Exporter = (
-	spans: ReadonlySet<Readonly<Span>>,
-	context: Context,
-) => any;
+export type Exporter = (resources: IterableIterator<Resource>) => any;
+
+export type Resource = {
+	resource: Context;
+	spans: ReadonlySet<Readonly<Span>>;
+};
 
 export type ClockLike = { now(): number };
 
-export interface Options {
-	/**
-	 * @borrows {@link Exporter}
-	 */
-	exporter: Exporter;
-
+export type Options = {
 	/**
 	 * @borrows {@link Sampler}
 	 */
@@ -35,21 +32,16 @@ export interface Options {
 	traceparent?: string | null;
 
 	clock?: ClockLike;
-}
+};
 
-export interface Tracer extends Pick<Scope, 'span'> {
-	/**
-	 * Awaits all active promises, and then calls the {@link Options.exporter|exporter}. Passing all collected spans.
-	 */
-	report(): Promise<ReturnType<Exporter>>;
-}
+export type Tracer = Pick<Scope, 'span'>;
 
 /**
  * @borrows {@link Span.context}
  */
-export interface Context {
+export type Context = {
 	[property: string]: any;
-}
+};
 
 /**
  * Should return true when you want to sample the span, this is ran before the span is traced — so
@@ -88,7 +80,7 @@ export type Sampler = (
  * Spans are aimed to interoperate with
  * {@link https://github.com/opentracing/specification/blob/master/specification.md|OpenTracing's Spans}, albeit not entirely api compatible — they do share principles.
  */
-export interface Span {
+export type Span = {
 	/**
 	 * A human-readable name for this span. For example the function name, the name of a subtask,
 	 * or stage of the larger stack.
@@ -152,11 +144,11 @@ export interface Span {
 	 * new span.
 	 */
 	events: { name: string; timestamp: number; attributes: Context }[];
-}
+};
 
 // --- scopes
 
-export interface Scope {
+export type Scope = {
 	/**
 	 * A W3C traceparent. One can .toString() this if you want to cross a network.
 	 */
@@ -186,12 +178,19 @@ export interface Scope {
 	 * timestamp nulled out — when the tracer ends.
 	 */
 	end(): void;
-}
+};
 
-export interface CallableScope extends Scope {
+export type CallableScope = Scope & {
 	(cb: (scope: Omit<Scope, 'end'>) => void): ReturnType<typeof cb>;
-}
+};
 
 // --- main api
 
-export const create: (name: string, options: Options) => Tracer;
+export function tracer(name: string, options?: Options): Tracer;
+
+/**
+ * Awaits all active promises, and then calls the {@link Options.exporter|exporter}. Passing all collected spans.
+ */
+export async function report<T extends Exporter>(
+	exporter: T,
+): Promise<ReturnType<T>>;

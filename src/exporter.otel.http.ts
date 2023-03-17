@@ -118,69 +118,71 @@ const map_kind = (kind: any): number => {
 
 export const exporter =
 	(request: (payload: any) => any): rian.Exporter =>
-	(spans, context) => {
-		const otel_spans: Span[] = [];
+	(resources) => {
+		const resourceSpans = [];
 
-		for (let span of spans) {
-			const { kind, error, ...span_ctx } = span.context;
+		for (let { resource, spans } of resources) {
+			const ilSpans = [];
 
-			let status: Status;
-			if (error) {
-				status = {
-					code: SpanStatusCode_ERROR,
-				};
+			for (let span of spans) {
+				const { kind, error, ...span_ctx } = span.context;
 
-				if ('message' in (error as Error)) {
-					status.message = error.message;
+				let status: Status;
+				if (error) {
+					status = {
+						code: SpanStatusCode_ERROR,
+					};
+
+					if ('message' in (error as Error)) {
+						status.message = error.message;
+					}
 				}
+
+				ilSpans.push({
+					traceId: span.id.trace_id,
+					spanId: span.id.parent_id,
+					parentSpanId: span.parent?.parent_id,
+
+					name: span.name,
+					kind: map_kind(kind || 'INTERNAL'),
+
+					startTimeUnixNano: span.start * 1000000,
+					endTimeUnixNano: span.end ? span.end * 1000000 : undefined,
+
+					droppedAttributesCount: 0,
+					droppedEventsCount: 0,
+					droppedLinksCount: 0,
+
+					attributes: convert_object_to_kv(span_ctx),
+
+					// @ts-expect-error TS2454
+					status: status || { code: SpanStatusCode_UNSET },
+
+					events: span.events.map((i) => ({
+						name: i.name,
+						attributes: convert_object_to_kv(i.attributes),
+						droppedAttributesCount: 0,
+						timeUnixNano: i.timestamp * 1000000,
+					})),
+				});
 			}
 
-			otel_spans.push({
-				traceId: span.id.trace_id,
-				spanId: span.id.parent_id,
-				parentSpanId: span.parent?.parent_id,
-
-				name: span.name,
-				kind: map_kind(kind || 'INTERNAL'),
-
-				startTimeUnixNano: span.start * 1000000,
-				endTimeUnixNano: span.end ? span.end * 1000000 : undefined,
-
-				droppedAttributesCount: 0,
-				droppedEventsCount: 0,
-				droppedLinksCount: 0,
-
-				attributes: convert_object_to_kv(span_ctx),
-
-				// @ts-expect-error TS2454
-				status: status || { code: SpanStatusCode_UNSET },
-
-				events: span.events.map((i) => ({
-					name: i.name,
-					attributes: convert_object_to_kv(i.attributes),
+			resourceSpans.push({
+				resource: {
+					attributes: convert_object_to_kv(resource),
 					droppedAttributesCount: 0,
-					timeUnixNano: i.timestamp * 1000000,
-				})),
+				},
+				instrumentationLibrarySpans: [
+					{
+						instrumentationLibrary: {
+							name: 'rian',
+							version: RIAN_VERSION,
+						},
+						spans: ilSpans,
+					},
+				],
 			});
 		}
 
-		return request({
-			resourceSpans: [
-				{
-					resource: {
-						attributes: convert_object_to_kv(context),
-						droppedAttributesCount: 0,
-					},
-					instrumentationLibrarySpans: [
-						{
-							instrumentationLibrary: {
-								name: 'rian',
-								version: RIAN_VERSION,
-							},
-							spans: otel_spans,
-						},
-					],
-				},
-			],
-		});
+		return request({ resourceSpans });
 	};

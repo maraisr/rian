@@ -23,55 +23,59 @@ interface Span {
 
 export const exporter =
 	(request: (payload: any) => any): rian.Exporter =>
-	(spans, context) => {
+	(resources) => {
 		const zipkin: Span[] = [];
 
-		for (let span of spans) {
-			const { kind, error, ...span_ctx } = span.context;
+		for (let resource of resources) {
+			for (let span of resource.spans) {
+				const { kind, error, ...span_ctx } = span.context;
 
-			if (error) {
-				if ('message' in error) {
-					span_ctx.error = {
-						name: error.name,
-						message: error.message,
-						stack: error.stack,
-					};
-				} else {
-					span_ctx.error = true;
+				if (error) {
+					if ('message' in error) {
+						span_ctx.error = {
+							name: error.name,
+							message: error.message,
+							stack: error.stack,
+						};
+					} else {
+						span_ctx.error = true;
+					}
 				}
-			}
 
-			zipkin.push({
-				id: span.id.parent_id,
-				traceId: span.id.trace_id,
-				parentId: span.parent ? span.parent.parent_id : undefined,
+				zipkin.push({
+					id: span.id.parent_id,
+					traceId: span.id.trace_id,
+					parentId: span.parent ? span.parent.parent_id : undefined,
 
-				name: span.name,
+					name: span.name,
 
-				kind: kind === 'INTERNAL' ? undefined : kind,
+					kind: kind === 'INTERNAL' ? undefined : kind,
 
-				timestamp: span.start * 1000,
+					timestamp: span.start * 1000,
 
-				duration: span.end ? (span.end - span.start) * 1000 : undefined,
+					duration: span.end
+						? (span.end - span.start) * 1000
+						: undefined,
 
-				localEndpoint: context.localEndpoint || {
-					serviceName: span_ctx['service.name'],
-				},
-
-				tags: flattie(
-					{
-						...context,
-						...span_ctx,
+					localEndpoint: {
+						serviceName: resource.resource['service.name'],
 					},
-					'.',
-					true,
-				),
 
-				annotations: span.events.map((i) => ({
-					value: `${i.name} :: ${JSON.stringify(i.attributes)}`,
-					timestamp: i.timestamp * 1000,
-				})),
-			});
+					tags: flattie(
+						{
+							...resource.resource,
+							...span_ctx,
+						},
+						'.',
+						true,
+					),
+
+					annotations: span.events.map((i) => ({
+						value: `${i.name} :: ${JSON.stringify(i.attributes)}`,
+						timestamp: i.timestamp * 1000,
+					})),
+				});
+			}
 		}
 
 		return request(zipkin);
