@@ -119,8 +119,6 @@ test('promise returns', async () => {
 	assert.equal(spans!.size, 2);
 });
 
-test.run();
-
 const fn = suite('fn mode');
 
 fn('api', async () => {
@@ -139,8 +137,6 @@ fn('api', async () => {
 	assert.instance(items, Set);
 	assert.equal(items.size, 2);
 });
-
-fn.run();
 
 const measure = suite('measure');
 
@@ -211,8 +207,6 @@ sampled.skip('default :: should obey parent', async () => {
 	);
 });
 
-sampled.run();
-
 const events = suite('events');
 
 events('api', async () => {
@@ -237,4 +231,8 @@ events('api', async () => {
 	assert.equal(spans[0].events[1].attributes, { foo: 'bar' });
 });
 
+test.run();
+fn.run();
+measure.run();
+sampled.run();
 events.run();

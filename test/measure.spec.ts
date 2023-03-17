@@ -72,8 +72,6 @@ test('should call .end()', async () => {
 	assert.equal(scope.end.callCount, 2);
 });
 
-test.run();
-
 const returns = suite('returns');
 
 returns('sync', () => {
@@ -123,8 +121,6 @@ returns('async', async () => {
 	);
 });
 
-returns.run();
-
 const errors = suite('errors');
 
 errors('sync', () => {
@@ -161,4 +157,6 @@ errors('async', async () => {
 	}
 });
 
+test.run();
+returns.run();
 errors.run();
