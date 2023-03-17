@@ -10,8 +10,7 @@ import type {
 } from 'rian';
 import { measureFn } from 'rian/utils';
 
-import type { Traceparent } from 'tctx';
-import * as tctx from 'tctx';
+import { make, parse, is_sampled, SAMPLED_FLAG, type Traceparent } from 'tctx';
 
 /**
  * The default sampler;
@@ -25,7 +24,7 @@ import * as tctx from 'tctx';
  */
 const defaultSampler: Sampler = (_name, parentId) => {
 	if (!parentId) return true;
-	return tctx.is_sampled(parentId);
+	return is_sampled(parentId);
 };
 
 const span_buffer = new Set<[Span, Context]>();
@@ -46,18 +45,19 @@ export function tracer(name: string, options?: Options): Tracer {
 
 	const root_id =
 		typeof options?.traceparent === 'string'
-			? tctx.parse(options.traceparent)
+			? parse(options.traceparent)
 			: undefined;
 
 	const span = (name: string, parent?: Traceparent): CallableScope => {
+		const id = parent ? parent.child() : make();
+
 		const should_sample =
 			typeof sampler !== 'boolean'
-				? sampler(name, parent, resource)
+				? sampler(name, id, resource)
 				: sampler;
 
-		const id = parent
-			? parent.child(should_sample)
-			: tctx.make(should_sample);
+		if (should_sample) id.flags | SAMPLED_FLAG;
+		else id.flags & ~SAMPLED_FLAG;
 
 		const span_obj: Span = {
 			id,

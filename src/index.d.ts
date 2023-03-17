@@ -47,15 +47,14 @@ export type Context = {
  * Should return true when you want to sample the span, this is ran before the span is traced — so
  * decisions is made preemptively.
  *
- * The Span itself will still be included in the {@link Options.exporter|exporter}, and can be
- * filtered out there.
+ * Returning false will not include this span in the {@link Exporter}.
  *
  * Sampling does impact the traceparent, for injection — and is encoded there.
  */
 export type Sampler = (
-	name: string,
-	parentId?: Traceparent,
-	context?: Context,
+	readonly name: string,
+	readonly id: Traceparent,
+	readonly context: Context,
 ) => boolean;
 
 // --- spans
