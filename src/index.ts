@@ -4,8 +4,6 @@ import { measureFn } from 'rian/utils';
 import type { Traceparent } from 'tctx';
 import * as tctx from 'tctx';
 
-declare const RIAN_VERSION: string;
-
 /**
  * The default sampler;
  *

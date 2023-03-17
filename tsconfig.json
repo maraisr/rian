@@ -6,9 +6,8 @@
 		"removeComments": false,
 		"lib": ["esnext", "dom.iterable", "webworker"],
 		"paths": {
-			"rian": ["./src/index.d.ts"],
-			"rian/*": ["./src/*.d.ts"],
-			"rian/package.json": ["./package.json"]
+			"rian": ["./src/globald.ts", "./src/index.d.ts"],
+			"rian/*": ["./src/globald.ts", "./src/*.d.ts"]
 		}
 	},
 	"include": ["src", "test"],

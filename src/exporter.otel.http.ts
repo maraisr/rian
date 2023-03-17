@@ -1,7 +1,5 @@
 import type * as rian from 'rian';
 
-import { name as rian_name, version as rian_version } from 'rian/package.json';
-
 type KeyValue = {
 	key: string;
 	value: AnyValue;
@@ -176,8 +174,8 @@ export const exporter =
 					instrumentationLibrarySpans: [
 						{
 							instrumentationLibrary: {
-								name: rian_name,
-								version: rian_version,
+								name: 'rian',
+								version: RIAN_VERSION,
 							},
 							spans: otel_spans,
 						},
