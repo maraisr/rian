@@ -17,20 +17,19 @@ export type MeasureFn =
  * @example
  *
  * ```text
- * const data = await measure(scope, 'name', get_data, 'user_id_123');
- *        ^                    ^      ^       ^          ^
- *        |                    |      |       |          |
- *        |                    |      |       |          the first argument to get_data
- *        |                    |      |       function to be called
- *        |                    |      the name of the sub scope
- *        |                    |
- *        |                    the parent scope
- *         return value from get_data
+ * const data = await measure(scope, get_data, 'user_id_123');
+ *       ^                    ^     ^          ^
+ *       |                    |     |          |
+ *       |                    |     |          the first argument to get_data
+ *       |                    |     |
+ *       |                    |     function to be called
+ *       |                    |
+ *       |                    the parent scope
+ *       return value from get_data
  * ```
  */
 export const measure: <Fn extends MeasureFn>(
 	scope: Scope,
-	name: string,
 	fn: Fn, // TODO: fn doesnt see scope correctly
 	...args: RealMeasureFnParams<Parameters<Fn>>
 ) => ReturnType<Fn>;
@@ -51,7 +50,6 @@ export const measure: <Fn extends MeasureFn>(
  */
 export const wrap: <Fn extends MeasureFn>(
 	scope: Scope,
-	name: string,
 	fn: Fn, // TODO: fn doesnt see scope correctly
 ) => Fn;
 

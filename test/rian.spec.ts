@@ -24,7 +24,7 @@ test('api', async () => {
 		exporter,
 	});
 
-	const scope = tracer.fork('some-name');
+	const scope = tracer.span('some-name');
 
 	scope.set_context({
 		baz: 'qux',
@@ -38,12 +38,12 @@ test('api', async () => {
 		return 'test';
 	});
 
-	await tracer.end();
+	await tracer.report();
 
 	assert.equal(exporter.callCount, 1);
 	const items = exporter.calls[0][0] as Set<Span>;
 	assert.instance(items, Set);
-	assert.equal(items.size, 2);
+	assert.equal(items.size, 1);
 });
 
 test('context', async () => {
@@ -52,7 +52,7 @@ test('context', async () => {
 		exporter,
 	});
 
-	const span = tracer.fork('context');
+	const span = tracer.span('context');
 
 	span.set_context({
 		one: 'one',
@@ -66,12 +66,12 @@ test('context', async () => {
 
 	span.end();
 
-	await tracer.end();
+	await tracer.report();
 
 	const items = exporter.calls[0][0] as Set<Span>;
 	assert.instance(items, Set);
-	assert.equal(items.size, 2);
-	assert.equal(Array.from(items)[1].context, {
+	assert.equal(items.size, 1);
+	assert.equal(Array.from(items)[0].context, {
 		one: 'two',
 		three: 'three',
 	});
@@ -87,9 +87,11 @@ test('has offset start and end times', async () => {
 		clock: { now: () => Date.now() + 5 },
 	});
 
-	tracer.fork('test')(spy());
+	tracer.span('test')(() => {
+		tracer.span('test')(() => {});
+	});
 
-	await tracer.end();
+	await tracer.report();
 
 	// @ts-expect-error TS2454
 	assert.equal(spans.size, 2);
@@ -112,11 +114,11 @@ test('promise returns', async () => {
 	const prom = new Promise((resolve) => setTimeout(resolve, 0));
 
 	// Don't await here so we can assert the __add__promise worked
-	tracer.fork('test')(() => prom);
+	tracer.span('test')(() => prom);
 
-	await tracer.end();
+	await tracer.report();
 
-	assert.equal(spans!.size, 2);
+	assert.equal(spans!.size, 1);
 });
 
 const fn = suite('fn mode');
@@ -128,14 +130,14 @@ fn('api', async () => {
 		exporter,
 	});
 
-	tracer.fork('forked')(spy());
+	tracer.span('forked')(spy());
 
-	await tracer.end();
+	await tracer.report();
 
 	assert.equal(exporter.callCount, 1);
 	const items = exporter.calls[0][0] as Set<Span>;
 	assert.instance(items, Set);
-	assert.equal(items.size, 2);
+	assert.equal(items.size, 1);
 });
 
 const measure = suite('measure');
@@ -148,19 +150,19 @@ measure('throw context', async () => {
 	});
 
 	assert.throws(() =>
-		utils.measure(tracer, 'test', () => {
+		utils.measure(tracer.span('test'), () => {
 			throw new Error('test');
 		}),
 	);
 
-	await tracer.end();
+	await tracer.report();
 
 	assert.equal(exporter.callCount, 1);
 	const items = exporter.calls[0][0] as Set<Span>;
 	assert.instance(items, Set);
-	assert.equal(items.size, 2);
+	assert.equal(items.size, 1);
 
-	assert.instance(Array.from(items)[1].context.error, Error);
+	assert.instance(Array.from(items)[0].context.error, Error);
 });
 
 const sampled = suite('sampling');
@@ -171,14 +173,14 @@ sampled('default :: no parent should be sampled', async () => {
 		exporter,
 	});
 
-	tracer.fork('test')(noop);
+	tracer.span('test')(noop);
 
-	await tracer.end();
+	await tracer.report();
 
 	assert.equal(exporter.callCount, 1);
 
 	const spans: Set<Span> = exporter.calls[0][0];
-	assert.equal(spans.size, 2);
+	assert.equal(spans.size, 1);
 	assert.ok(
 		Array.from(spans).every((i) => is_sampled(i.id)),
 		'every id should be sampled',
@@ -193,9 +195,9 @@ sampled.skip('default :: should obey parent', async () => {
 		traceparent: String(make(false)),
 	});
 
-	tracer.fork('test')(noop);
+	tracer.span('test')(noop);
 
-	await tracer.end();
+	await tracer.report();
 
 	assert.equal(exporter.callCount, 1);
 
@@ -215,12 +217,15 @@ events('api', async () => {
 		exporter,
 	});
 
-	tracer.add_event('work');
-	tracer.add_event('work', {
+	const span = tracer.span('work');
+
+	span.add_event('work');
+	span.add_event('work', {
 		foo: 'bar',
 	});
 
-	await tracer.end();
+	span.end();
+	await tracer.report();
 
 	assert.equal(exporter.callCount, 1);
 

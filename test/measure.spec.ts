@@ -5,7 +5,7 @@ import * as assert from 'uvu/assert';
 import { measure } from '../src/utils.js';
 
 const mock_scope = () => ({
-	fork: mock_scope,
+	span: mock_scope,
 	end: spy(),
 	set_context: spy(),
 	__add_promise: spy(),
@@ -20,13 +20,13 @@ test('args', () => {
 
 	const sum_base = (a: number, b: number) => a + b;
 
-	measure(scope as any, 'test', sum_base, 1, 2);
+	measure((scope as any).span('test'), sum_base, 1, 2);
 
 	// @ts-expect-error
-	measure(scope as any, 'test', sum_base, 'test'); // tests typescript
+	measure((scope as any).span('test'), sum_base, 'test'); // tests typescript
 
 	const sum = spy(sum_base);
-	const r = measure(scope as any, 'test', sum, 1, 2);
+	const r = measure((scope as any).span('test'), sum, 1, 2);
 
 	assert.equal(r, 3);
 	assert.equal(sum.callCount, 1);
@@ -44,24 +44,23 @@ test('should retain `this` context', async () => {
 		},
 	};
 
-	const result = measure(scope as any, 'test', fn.run.bind(fn));
+	const result = measure((scope as any).span('test'), fn.run.bind(fn));
 	assert.equal(result, 'foobar');
 });
 
 test('should call .end()', async () => {
 	const scope = mock_scope();
-	scope.fork = () => scope; // keep the current scope so we can assert it
+	scope.span = () => scope; // keep the current scope so we can assert it
 
 	assert.equal(
-		measure(scope as any, 'test', () => 'hello'),
+		measure((scope as any).span('test'), () => 'hello'),
 		'hello',
 	);
 	assert.equal(scope.end.callCount, 1);
 
 	assert.equal(
 		await measure(
-			scope as any,
-			'test',
+			(scope as any).span('test'),
 			() => new Promise((res) => setTimeout(() => res('hello'))),
 		),
 		'hello',
@@ -78,19 +77,19 @@ returns('sync', () => {
 	const scope = mock_scope();
 
 	assert.equal(
-		measure(scope as any, 'test', () => 'test'),
+		measure((scope as any).span('test'), () => 'test'),
 		'test',
 	);
 	assert.equal(
-		measure(scope as any, 'test', () => 1),
+		measure((scope as any).span('test'), () => 1),
 		1,
 	);
 	assert.equal(
-		measure(scope as any, 'test', () => false),
+		measure((scope as any).span('test'), () => false),
 		false,
 	);
 	assert.instance(
-		measure(scope as any, 'test', () => new Error('test')),
+		measure((scope as any).span('test'), () => new Error('test')),
 		Error,
 		'error want thrown, so should just return',
 	);
@@ -100,22 +99,28 @@ returns('async', async () => {
 	const scope = mock_scope();
 
 	assert.instance(
-		measure(scope as any, 'test', async () => {}),
+		measure((scope as any).span('test'), async () => {}),
 		Promise,
 	);
 
 	assert.not.equal(
-		measure(scope as any, 'test', async () => 'test'),
+		measure((scope as any).span('test'), async () => 'test'),
 		'test',
 	);
 	assert.equal(
-		await measure(scope as any, 'test', async () => 'test'),
+		await measure((scope as any).span('test'), async () => 'test'),
 		'test',
 	);
-	assert.equal(await measure(scope as any, 'test', async () => 1), 1);
-	assert.equal(await measure(scope as any, 'test', async () => false), false);
+	assert.equal(await measure((scope as any).span('test'), async () => 1), 1);
+	assert.equal(
+		await measure((scope as any).span('test'), async () => false),
+		false,
+	);
 	assert.instance(
-		await measure(scope as any, 'test', async () => new Error('test')),
+		await measure(
+			(scope as any).span('test'),
+			async () => new Error('test'),
+		),
 		Error,
 		'error want thrown, so should just return',
 	);
@@ -127,7 +132,7 @@ errors('sync', () => {
 	const scope = mock_scope();
 
 	assert.throws(() => {
-		measure(scope as any, 'test', () => {
+		measure((scope as any).span('test'), () => {
 			throw new Error('test');
 		});
 	});
@@ -137,7 +142,7 @@ errors('async', async () => {
 	const scope = mock_scope();
 
 	try {
-		await measure(scope as any, 'test', async () => {
+		await measure((scope as any).span('test'), async () => {
 			return new Promise((_resolve, rejects) => {
 				rejects('test');
 			});
@@ -148,7 +153,7 @@ errors('async', async () => {
 	}
 
 	try {
-		await measure(scope as any, 'test', async () => {
+		await measure((scope as any).span('test'), async () => {
 			throw new Error('test');
 		});
 		assert.unreachable();

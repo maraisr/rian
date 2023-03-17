@@ -29,8 +29,14 @@ export const create = (name: string, options: Options): Tracer => {
 	const clock = options.clock || Date;
 
 	const context = options.context || {};
+	context['service.name'] = name;
 	context['telemetry.sdk.name'] = 'rian';
 	context['telemetry.sdk.version'] = RIAN_VERSION;
+
+	const root_id =
+		typeof options.traceparent === 'string'
+			? tctx.parse(options.traceparent)
+			: undefined;
 
 	const span = (name: string, parent?: Traceparent): CallableScope => {
 		const should_sample = sampler_callable
@@ -55,7 +61,7 @@ export const create = (name: string, options: Options): Tracer => {
 		const $: CallableScope = (cb: any) => measureFn($, cb);
 
 		$.traceparent = id;
-		$.fork = (name) => span(name, id);
+		$.span = (name) => span(name, id);
 		$.set_context = (ctx) => {
 			if (typeof ctx === 'function')
 				return void (span_obj.context = ctx(span_obj.context));
@@ -78,21 +84,14 @@ export const create = (name: string, options: Options): Tracer => {
 		return $;
 	};
 
-	const root = span(
-		name,
-		typeof options.traceparent === 'string'
-			? tctx.parse(options.traceparent)
-			: undefined,
-	);
+	return {
+		span(name) {
+			return span(name, root_id);
+		},
+		async report() {
+			if (promises.size > 0) await Promise.all([...promises.values()]);
 
-	const endRoot = root.end.bind(root);
-
-	root.end = async () => {
-		endRoot();
-		if (promises.size > 0) await Promise.all([...promises.values()]);
-
-		return options.exporter(spans, context);
+			return options.exporter(spans, context);
+		},
 	};
-
-	return root;
 };

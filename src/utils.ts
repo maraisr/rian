@@ -35,16 +35,11 @@ export const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
 
 export const measure = <Fn extends MeasureFn>(
 	scope: Scope,
-	name: string,
 	fn: Fn,
 	...args: RealMeasureFnParams<Parameters<Fn>>
-): ReturnType<Fn> => measureFn(scope.fork(name), fn, ...args);
+): ReturnType<Fn> => measureFn(scope, fn, ...args);
 
-export const wrap = <Fn extends MeasureFn>(
-	scope: Scope,
-	name: string,
-	fn: Fn,
-): Fn =>
+export const wrap = <Fn extends MeasureFn>(scope: Scope, fn: Fn): Fn =>
 	function () {
-		return measureFn(scope.fork(name), fn, ...arguments);
+		return measureFn(scope, fn, ...arguments);
 	} as Fn;

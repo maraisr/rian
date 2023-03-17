@@ -95,7 +95,7 @@ export interface Scope {
 	/**
 	 * Forks the span into a new child span.
 	 */
-	fork(name: string): CallableScope;
+	span(name: string): CallableScope;
 
 	/**
 	 * Allows the span's context to be set. Passing an object will be `Object.assign`ed into the
@@ -118,8 +118,8 @@ export interface Scope {
 	end(): void;
 }
 
-export interface Tracer extends Omit<Scope, 'end'> {
-	end(): ReturnType<Exporter>;
+export interface Tracer extends Pick<Scope, 'span'> {
+	report(): ReturnType<Exporter>;
 }
 
 /**
