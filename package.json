@@ -1,6 +1,6 @@
 {
 	"name": "rian",
-	"version": "0.2.5",
+	"version": "0.3.0-next.2",
 	"description": "Effective tracing for the edge and origins",
 	"keywords": [
 		"opentelemetry",
@@ -26,19 +26,19 @@
 			"require": "./index.js"
 		},
 		"./exporter.otel.http": {
-			"types": "./exporter.otel.http/index.d.ts",
-			"import": "./exporter.otel.http/index.mjs",
-			"require": "./exporter.otel.http/index.js"
+			"types": "./exporter.otel.http.d.ts",
+			"import": "./exporter.otel.http.mjs",
+			"require": "./exporter.otel.http.js"
 		},
 		"./exporter.zipkin": {
-			"types": "./exporter.zipkin/index.d.ts",
-			"import": "./exporter.zipkin/index.mjs",
-			"require": "./exporter.zipkin/index.js"
+			"types": "./exporter.zipkin.d.ts",
+			"import": "./exporter.zipkin.mjs",
+			"require": "./exporter.zipkin.js"
 		},
 		"./utils": {
-			"types": "./utils/index.d.ts",
-			"import": "./utils/index.mjs",
-			"require": "./utils/index.js"
+			"types": "./utils.d.ts",
+			"import": "./utils.mjs",
+			"require": "./utils.js"
 		},
 		"./package.json": "./package.json"
 	},
@@ -49,6 +49,7 @@
 		"*.mjs",
 		"*.js",
 		"*.d.ts",
+		"!global.d.ts",
 		"exporter.*/*",
 		"utils/*"
 	],
