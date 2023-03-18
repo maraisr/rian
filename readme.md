@@ -246,22 +246,18 @@ Rian is still in active development, but ready for production!
 Validation :: single span
 ✔ rian
 ✔ opentelemetry
-✔ opentracing
 
 Benchmark :: single span
-  rian                   x 381,751 ops/sec ±4.17% (84 runs sampled)
-  opentelemetry          x 201,584 ops/sec ±13.97% (63 runs sampled)
-  opentracing            x  57,881 ops/sec ±38.08% (96 runs sampled)
+  rian                   x 339,110 ops/sec ±2.11% (89 runs sampled)
+  opentelemetry          x 199,246 ops/sec ±14.78% (67 runs sampled)
 
 Validation :: child span
 ✔ rian
 ✔ opentelemetry
-✔ opentracing
 
 Benchmark :: child span
-  rian                   x 204,952 ops/sec ±5.78% (82 runs sampled)
-  opentelemetry          x 128,768 ops/sec ±11.47% (68 runs sampled)
-  opentracing            x  36,181 ops/sec ±0.64% (97 runs sampled)
+  rian                   x 176,936 ops/sec ±2.30% (88 runs sampled)
+  opentelemetry          x 124,447 ops/sec ±13.72% (70 runs sampled)
 ```
 
 > And please... I know these results are anything but the full story. But it's a number and point on comparison.

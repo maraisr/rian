@@ -4,9 +4,8 @@ import {
 } from '@opentelemetry/sdk-trace-base';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { Suite } from 'benchmark';
-import { MockTracer } from 'opentracing';
 
-import * as rian from 'rian';
+import * as rian from '..';
 import * as assert from 'uvu/assert';
 
 async function runner(
@@ -65,13 +64,13 @@ const opentelemetrySetup = () => {
 		{
 			rian: {
 				fn: async () => {
-					let spans;
-					const tracer = rian.create('test', {
-						exporter: (s) => (spans = s),
-					});
+					const tracer = rian.tracer('test');
 
-					await tracer.end();
-					return spans;
+					tracer.span('span 1').end();
+
+					return await rian.report(
+						(s) => Array.from(s.scopeSpans)[0].spans,
+					);
 				},
 			},
 			opentelemetry: {
@@ -80,20 +79,10 @@ const opentelemetrySetup = () => {
 					tracerProvider,
 					exporter,
 				}: ReturnType<typeof opentelemetrySetup>) => {
-					const span = tracerProvider
-						.getTracer('test')
-						.startSpan('span 1');
-					span.end();
+					tracerProvider.getTracer('test').startSpan('span 1').end();
 					await tracerProvider.forceFlush();
 
 					return exporter.getFinishedSpans();
-				},
-			},
-			opentracing: {
-				fn: () => {
-					const tracer = new MockTracer();
-					tracer.startSpan('test').finish();
-					return tracer.report().spans;
 				},
 			},
 		},
@@ -109,15 +98,15 @@ const opentelemetrySetup = () => {
 		{
 			rian: {
 				fn: async () => {
-					let spans;
-					const tracer = rian.create('test', {
-						exporter: (s) => (spans = s),
+					const tracer = rian.tracer('test');
+
+					tracer.span('span 1')((s) => {
+						s.span('span 2').end();
 					});
 
-					tracer.fork('span 2').end();
-
-					await tracer.end();
-					return spans;
+					return await rian.report(
+						(s) => Array.from(s.scopeSpans)[0].spans,
+					);
 				},
 			},
 			opentelemetry: {
@@ -137,19 +126,6 @@ const opentelemetrySetup = () => {
 					await tracerProvider.forceFlush();
 
 					return exporter.getFinishedSpans();
-				},
-			},
-			opentracing: {
-				fn: () => {
-					const tracer = new MockTracer();
-					const span = tracer.startSpan('test');
-
-					tracer.startSpan('span 2', {
-						childOf: span,
-					});
-
-					span.finish();
-					return tracer.report().spans;
 				},
 			},
 		},
