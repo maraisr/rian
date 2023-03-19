@@ -249,19 +249,23 @@ Rian does not by design handle injecting [`w3c trace-context`](https://www.w3.or
 ```
 Validation :: single span
 ✔ rian
+✔ rian/async
 ✔ opentelemetry
 
 Benchmark :: single span
-  rian                   x 339,110 ops/sec ±2.11% (89 runs sampled)
-  opentelemetry          x 199,246 ops/sec ±14.78% (67 runs sampled)
+  rian                   x 277,283 ops/sec ±3.57% (90 runs sampled)
+  rian/async             x 279,525 ops/sec ±2.33% (91 runs sampled)
+  opentelemetry          x 155,019 ops/sec ±13.13% (70 runs sampled)
 
 Validation :: child span
 ✔ rian
+✔ rian/async
 ✔ opentelemetry
 
 Benchmark :: child span
-  rian                   x 176,936 ops/sec ±2.30% (88 runs sampled)
-  opentelemetry          x 124,447 ops/sec ±13.72% (70 runs sampled)
+  rian                   x 146,793 ops/sec ±3.38% (87 runs sampled)
+  rian/async             x 180,488 ops/sec ±1.64% (92 runs sampled)
+  opentelemetry          x 102,541 ops/sec ±9.77% (73 runs sampled)
 ```
 
 > And please... I know these results are anything but the full story. But it's a number and point on comparison.
