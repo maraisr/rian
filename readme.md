@@ -115,7 +115,7 @@ isn't accessible.
 
 > 💡 Note ~> this module should be used mutually exclusively with the main `rian` module.
 
-<detials>
+<details>
 
 <summary>Example</summary>
 
