@@ -154,7 +154,7 @@ export type Scope = {
 		 * @borrows {@link Span.name}
 		 */
 		name: string,
-		parentId?: Traceparent | string,
+		parent_id?: Traceparent | string,
 	): CallableScope;
 
 	/**

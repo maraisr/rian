@@ -37,7 +37,7 @@ export function currentSpan(): Scope;
  */
 export function span(
 	name: string,
-	parseId?: Traceparent | string,
+	parent_id?: Traceparent | string,
 ): CallableScope;
 
 export type Tracer<T> = (cb: T) => ReturnType<T>;
