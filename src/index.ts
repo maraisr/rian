@@ -19,7 +19,11 @@ export function tracer(name: string, options?: Options): Tracer {
 		parent_id?: Traceparent | string,
 	): CallableScope => {
 		const parent =
-			typeof parent_id === 'string' ? parse(parent_id) : parent_id;
+			parent_id != null
+				? typeof parent_id === 'string'
+					? parse(parent_id)
+					: parent_id
+				: undefined;
 		const id = parent ? parent.child() : make();
 
 		const should_sample =

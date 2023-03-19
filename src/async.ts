@@ -40,14 +40,13 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	const current_span = context[1];
 	const sampler = api.sampler;
 
+	// ---
 	const parent =
 		parent_id != null
 			? typeof parent_id === 'string'
 				? parse(parent_id)
 				: parent_id
 			: current_span?.traceparent;
-
-	// ---
 	const id = parent ? parent.child() : make();
 
 	const should_sample =
