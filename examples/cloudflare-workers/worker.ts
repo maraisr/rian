@@ -6,6 +6,8 @@ const consoleExporter = (scopes) => {
 	console.log(Array.from(scopes.scopeSpans).flatMap((scope) => scope.spans));
 };
 
+const trace = tracer('rian-example-cloudflare-workers');
+
 const indexHandler = async (data: KVNamespace) => {
 	const payload = await span('get_data')(() => {
 		currentSpan().set_context({
@@ -36,10 +38,11 @@ const fetchHandler: ExportedHandlerFetchHandler<{
 	const traceparent = req.headers.get('traceparent');
 
 	// ~> Create the tracer for this request
-	return tracer('rian-example-cloudflare-workers', {
-		traceparent,
-	})(async () => {
-		const response = span(`${req.method} :: ${url.pathname}`)(async () => {
+	return trace(async () => {
+		const response = span(
+			`${req.method} :: ${url.pathname}`,
+			traceparent,
+		)(async () => {
 			if (url.pathname === '/') return indexHandler(env.DATA);
 		});
 

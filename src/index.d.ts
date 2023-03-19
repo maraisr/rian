@@ -21,14 +21,6 @@ export type Options = {
 	 */
 	sampler?: Sampler | boolean;
 
-	/**
-	 * A root, or extracted w3c traceparent string header.
-	 *
-	 * If the id is malformed, the {@link create} method will throw an exception. If no root is
-	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules on each span.
-	 */
-	traceparent?: string | null;
-
 	clock?: ClockLike;
 };
 
@@ -162,6 +154,7 @@ export type Scope = {
 		 * @borrows {@link Span.name}
 		 */
 		name: string,
+		parentId?: Traceparent | string,
 	): CallableScope;
 
 	/**

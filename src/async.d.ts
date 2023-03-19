@@ -1,4 +1,5 @@
 import type { CallableScope, Options, Scope } from 'rian';
+import type { Traceparent } from 'tctx';
 
 export { report, configure } from 'rian';
 
@@ -34,7 +35,10 @@ export function currentSpan(): Scope;
  * });
  * ```
  */
-export function span(name: string): CallableScope;
+export function span(
+	name: string,
+	parseId?: Traceparent | string,
+): CallableScope;
 
 export type Tracer<T> = (cb: T) => ReturnType<T>;
 

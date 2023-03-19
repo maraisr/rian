@@ -16,7 +16,6 @@ import { defaultSampler, span_buffer, wait_promises } from './_internal';
 export { configure, report } from './_internal';
 
 type API = {
-	root_id: Traceparent | undefined;
 	sampler: Sampler | boolean;
 	scope: { name: string };
 	clock: ClockLike;
@@ -32,7 +31,7 @@ export function currentSpan() {
 	return scope;
 }
 
-export function span(name: string) {
+export function span(name: string, parent_id?: Traceparent | string) {
 	const context = resourceStore.getStore();
 	if (!context) throw Error('TODO');
 
@@ -41,7 +40,12 @@ export function span(name: string) {
 	const current_span = context[1];
 	const sampler = api.sampler;
 
-	const parent = current_span?.traceparent ?? api.root_id;
+	const parent =
+		parent_id != null
+			? typeof parent_id === 'string'
+				? parse(parent_id)
+				: parent_id
+			: current_span?.traceparent;
 
 	// ---
 	const id = parent ? parent.child() : make();
@@ -104,13 +108,7 @@ export function tracer<T extends () => any>(
 
 	const scope = { name };
 
-	const root_id =
-		typeof options?.traceparent === 'string'
-			? parse(options.traceparent)
-			: undefined;
-
 	const api: API = {
-		root_id,
 		scope,
 		sampler,
 		clock: options?.clock ?? Date,
@@ -120,7 +118,6 @@ export function tracer<T extends () => any>(
 
 	return function (cb) {
 		const parent = resourceStore.getStore();
-		api.root_id ||= parent?.[0].root_id;
 		return resourceStore.run([api, parent?.[1] || null], cb);
 	};
 }

@@ -8,6 +8,11 @@ configure('my-api', {
 	'deployment.environment': 'development',
 });
 
+// ~> Create the tracer for this server
+const trace = tracer('rian-example-node', {
+	sampler: () => true, // lets always sample
+});
+
 const otel_exporter = exporter((payload) =>
 	// local jaeger instance
 	fetch('http://localhost:4318/v1/traces', {
@@ -46,30 +51,27 @@ const server = createServer((req, res) => {
 	// ~> There may be an incoming traceparent.
 	const traceparent = req.headers['traceparent'] as string;
 
-	// ~> Create the tracer for this request
-	const trace = tracer('rian-example-node', {
-		traceparent,
-		sampler: () => true, // lets always sample
-	});
-
 	const url = new URL(req.url!, `http://${req.headers.host}`);
 
-	trace(() => {
-		span(`${req.method} ${url.pathname}`)(() => {
-			if (req.url === '/') {
-				span('indexHandler')(() => indexHandler(req, res));
-			} else {
-				res.writeHead(404, {
-					'content-type': 'application/json',
-				});
-				res.write('not found');
-				res.end();
-			}
-		});
+	span(
+		`${req.method} ${url.pathname}`,
+		traceparent,
+	)(() => {
+		if (req.url === '/') {
+			span('indexHandler')(() => indexHandler(req, res));
+		} else {
+			res.writeHead(404, {
+				'content-type': 'application/json',
+			});
+			res.write('not found');
+			res.end();
+		}
 	});
 
 	report(otel_exporter);
 });
 
 // ~> Lets listen
-server.listen(8080);
+trace(() => {
+	server.listen(8080);
+});

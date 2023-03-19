@@ -14,12 +14,12 @@ export function tracer(name: string, options?: Options): Tracer {
 	const ps: Set<Promise<any>> = new Set();
 	wait_promises.set(scope, ps);
 
-	const root_id =
-		typeof options?.traceparent === 'string'
-			? parse(options.traceparent)
-			: undefined;
-
-	const span = (name: string, parent?: Traceparent): CallableScope => {
+	const span = (
+		name: string,
+		parent_id?: Traceparent | string,
+	): CallableScope => {
+		const parent =
+			typeof parent_id === 'string' ? parse(parent_id) : parent_id;
 		const id = parent ? parent.child() : make();
 
 		const should_sample =
@@ -69,8 +69,6 @@ export function tracer(name: string, options?: Options): Tracer {
 	};
 
 	return {
-		span(name) {
-			return span(name, root_id);
-		},
+		span,
 	};
 }
