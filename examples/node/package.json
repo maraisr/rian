@@ -3,9 +3,10 @@
 		"start": "tsm server.ts"
 	},
 	"devDependencies": {
+		"@types/node": "^18.15.3",
 		"tsm": "^2.2.1"
 	},
 	"dependencies": {
-		"rian": "next"
+		"rian": "*"
 	}
 }

@@ -1,47 +1,74 @@
-import { createServer } from 'node:http';
-import { currentSpan, report, span, tracer } from 'rian/async';
+/// <reference path="./node_modules/@types/node/index.d.ts" />
 
-const consoleExporter = (scopes) => {
-	console.log(Array.from(scopes.scopeSpans).flatMap((scope) => scope.spans));
-};
+import { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import { configure, currentSpan, report, span, tracer } from 'rian/async';
+import { exporter } from 'rian/exporter.otel.http';
 
-const get_data = async (name: string) =>
-	new Promise((resolve) => {
-		currentSpan().set_context({ name_length: name.length });
-		setTimeout(resolve, 1e3, { name });
+configure('my-api', {
+	'deployment.environment': 'development',
+});
+
+const otel_exporter = exporter((payload) =>
+	// local jaeger instance
+	fetch('http://localhost:4318/v1/traces', {
+		method: 'POST',
+		body: JSON.stringify(payload),
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	}),
+);
+
+async function get_data(name: string) {
+	return span('get_data')(
+		() =>
+			new Promise((resolve) => {
+				currentSpan().add_event('got data', {
+					name,
+					name_length: name.length,
+				});
+
+				setTimeout(resolve, Math.random() * 1000, { name });
+			}),
+	);
+}
+
+async function indexHandler(req: IncomingMessage, res: ServerResponse) {
+	const data = await get_data('rian');
+	res.writeHead(200, {
+		'content-type': 'application/json',
 	});
+	res.write(JSON.stringify(data));
+	res.end();
+}
 
 const server = createServer((req, res) => {
 	// ~> There may be an incoming traceparent.
 	const traceparent = req.headers['traceparent'] as string;
 
 	// ~> Create the tracer for this request
-	tracer('rian-example-node', {
+	const trace = tracer('rian-example-node', {
 		traceparent,
 		sampler: () => true, // lets always sample
-	})(() => {
-		const s = span(`${req.method} :: ${req.url}`);
-
-		if (req.url === '/') {
-			res.writeHead(200, {
-				'content-type': 'application/json',
-			});
-
-			// ~> Lets check how long it takes to get db data
-			s.span('db::read')(() => get_data('hello world')).then((data) => {
-				res.write(JSON.stringify(data));
-				res.end();
-			});
-		} else {
-			res.writeHead(200, {
-				'content-type': 'application/json',
-			});
-			res.write('not found');
-			res.end();
-		}
 	});
 
-	report(consoleExporter);
+	const url = new URL(req.url!, `http://${req.headers.host}`);
+
+	trace(() => {
+		span(`${req.method} ${url.pathname}`)(() => {
+			if (req.url === '/') {
+				span('indexHandler')(() => indexHandler(req, res));
+			} else {
+				res.writeHead(404, {
+					'content-type': 'application/json',
+				});
+				res.write('not found');
+				res.end();
+			}
+		});
+	});
+
+	report(otel_exporter);
 });
 
 // ~> Lets listen
