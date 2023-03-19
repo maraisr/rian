@@ -1,21 +1,11 @@
 name = "rian-example"
-type = "javascript"
 
+main = "worker.ts"
 workers_dev = true
 
-account_id = '<fillme>'
-
-compatibility_date = "2021-11-22"
+compatibility_date = "2023-03-07"
+compatibility_flags = ['nodejs_compat']
 
 kv_namespaces = [
-	{ binding = "DATA", id = "<fillme>" }
+	{ binding = "DATA", id = "<fillme>", preview_id = "<fillme>" }
 ]
-
-[build]
-command = "pnpm worktop build worker.ts"
-
-[build.upload]
-format = "modules"
-dir = "build"
-main = "./index.mjs"
-

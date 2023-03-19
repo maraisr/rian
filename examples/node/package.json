@@ -6,6 +6,6 @@
 		"tsm": "^2.2.1"
 	},
 	"dependencies": {
-		"rian": "*"
+		"rian": "next"
 	}
 }

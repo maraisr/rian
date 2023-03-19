@@ -1,10 +1,30 @@
 ///<reference path="node_modules/@cloudflare/workers-types/index.d.ts"/>
 
-import { create, type Exporter } from 'rian';
-import { measure } from 'rian/utils';
+import { currentSpan, report, span, tracer } from 'rian/async';
 
-const consoleExporter: Exporter = (spans) => {
-	console.log(...spans);
+const consoleExporter = (scopes) => {
+	console.log(Array.from(scopes.scopeSpans).flatMap((scope) => scope.spans));
+};
+
+const indexHandler = async (data: KVNamespace) => {
+	const payload = await span('get_data')(() => {
+		currentSpan().set_context({
+			'kv.key': 'example',
+			type: 'json',
+		});
+
+		return data.get('example', {
+			type: 'json',
+		});
+	});
+
+	return new Response(JSON.stringify(payload), {
+		status: 200,
+		headers: {
+			'content-type': 'application/json',
+			'cache-control': 'public,max-age=10',
+		},
+	});
 };
 
 const fetchHandler: ExportedHandlerFetchHandler<{
@@ -16,54 +36,22 @@ const fetchHandler: ExportedHandlerFetchHandler<{
 	const traceparent = req.headers.get('traceparent');
 
 	// ~> Create the tracer for this request
-	const tracer = create(`${req.method} :: ${url.pathname}`, {
+	return tracer('rian-example-cloudflare-workers', {
 		traceparent,
-		context: {
-			// Any context to be passed to all spans
-			'service.name': 'rian-example-cloudflare-workers',
-		},
-		sampler: () => true, // lets always sample
-		exporter: consoleExporter,
-	});
-
-	let response: Response;
-	if (url.pathname === '/') {
-		// ~> Lets see how long KV took to get the data
-		const payload = await measure(
-			tracer.fork('retrieve_hello_world'),
-			async (span) => {
-				const kv_key = 'example';
-
-				// ~> you may want to track some context about this span
-				span.set_context({
-					'kv.key': kv_key,
-					type: 'json',
-				});
-
-				return env.DATA.get(kv_key, {
-					type: 'json',
-				});
-			},
-		);
-
-		response = new Response(JSON.stringify(payload), {
-			status: 200,
-			headers: {
-				'content-type': 'application/json',
-				'cache-control': 'public,max-age=10',
-			},
+	})(async () => {
+		const response = span(`${req.method} :: ${url.pathname}`)(async () => {
+			if (url.pathname === '/') return indexHandler(env.DATA);
 		});
-	}
 
-	// ~> Don't forget to end the tracer without blocking response
-	ctx.waitUntil(tracer.end());
+		ctx.waitUntil(report(consoleExporter));
 
-	return (
-		response ||
-		new Response('not found', {
-			status: 404,
-		})
-	);
+		return (
+			response ||
+			new Response('not found', {
+				status: 404,
+			})
+		);
+	});
 };
 
 export default {
