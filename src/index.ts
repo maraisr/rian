@@ -46,7 +46,7 @@ export function tracer(name: string, options?: Options): Tracer {
 		const $: CallableScope = (cb: any) => measure($, cb);
 
 		$.traceparent = id;
-		$.span = span;
+		$.span = (name, p_id) => span(name, p_id || id);
 		$.set_context = (ctx) => {
 			if (typeof ctx === 'function')
 				return void (span_obj.context = ctx(span_obj.context));
