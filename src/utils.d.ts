@@ -30,7 +30,7 @@ export type MeasureFn =
  */
 export const measure: <Fn extends MeasureFn>(
 	scope: Scope,
-	fn: Fn, // TODO: fn doesnt see scope correctly
+	fn: Fn, // TODO: fn doesn't see scope correctly
 	...args: RealMeasureFnParams<Parameters<Fn>>
 ) => ReturnType<Fn>;
 
@@ -50,7 +50,7 @@ export const measure: <Fn extends MeasureFn>(
  */
 export const wrap: <Fn extends MeasureFn>(
 	scope: Scope,
-	fn: Fn, // TODO: fn doesnt see scope correctly
+	fn: Fn, // TODO: fn doesn't see scope correctly
 ) => Fn;
 
 // ==> internals
