@@ -1,6 +1,13 @@
 import * as async_hooks from 'node:async_hooks';
 
-import type { CallableScope, Options, Sampler, Scope, Span } from 'rian';
+import type {
+	CallableScope,
+	ClockLike,
+	Options,
+	Sampler,
+	Scope,
+	Span,
+} from 'rian';
 import type { Tracer } from 'rian/async';
 import { measure } from 'rian/utils';
 import { make, parse, SAMPLED_FLAG, type Traceparent } from 'tctx';
@@ -12,6 +19,7 @@ type API = {
 	root_id: Traceparent | undefined;
 	sampler: Sampler | boolean;
 	scope: { name: string };
+	clock: ClockLike;
 };
 
 const resourceStore = new async_hooks.AsyncLocalStorage<
@@ -47,7 +55,7 @@ export function span(name: string) {
 	const span_obj: Span = {
 		id,
 		parent,
-		start: Date.now(),
+		start: api.clock.now(),
 		name,
 		events: [],
 		context: {},
@@ -70,12 +78,12 @@ export function span(name: string) {
 	$.add_event = (name, attributes) => {
 		span_obj.events.push({
 			name,
-			timestamp: Date.now(),
+			timestamp: api.clock.now(),
 			attributes: attributes || {},
 		});
 	};
 	$.end = () => {
-		if (span_obj.end == null) span_obj.end = Date.now();
+		if (span_obj.end == null) span_obj.end = api.clock.now();
 	};
 
 	const ps = wait_promises.get(scope)!;
@@ -105,6 +113,7 @@ export function tracer<T extends () => any>(
 		root_id,
 		scope,
 		sampler,
+		clock: options?.clock ?? Date,
 	};
 
 	wait_promises.set(scope, new Set());

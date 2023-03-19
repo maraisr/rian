@@ -28,6 +28,8 @@ export type Options = {
 	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules on each span.
 	 */
 	traceparent?: string | null;
+
+	clock?: ClockLike;
 };
 
 export type Tracer = Pick<Scope, 'span'>;
@@ -235,3 +237,13 @@ export async function report<T extends Exporter>(
  * ```
  */
 export function configure(name: string, attributes: Context = {}): void;
+
+/**
+ * Provinding a clock allows you to control the time of the span.
+ */
+export type ClockLike = {
+	/**
+	 * Must return the number of milliseconds since the epoch.
+	 */
+	now(): number;
+};

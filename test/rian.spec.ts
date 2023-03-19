@@ -73,7 +73,9 @@ test('has offset start and end times', async () => {
 	let called = -1;
 	spyOn(Date, 'now', () => ++called);
 
-	const tracer = rian.tracer('test');
+	const tracer = rian.tracer('test', {
+		clock: { now: () => Date.now() + 5 },
+	});
 
 	tracer.span('test')(() => {
 		tracer.span('test')(() => {});
@@ -87,10 +89,10 @@ test('has offset start and end times', async () => {
 	const arr = Array.from(spans);
 
 	// 2 spans, 2 calls per span
-	assert.equal(arr[0].start, 0);
-	assert.equal(arr[0].end, 3);
-	assert.equal(arr[1].start, 1);
-	assert.equal(arr[1].end, 2);
+	assert.equal(arr[0].start, 5);
+	assert.equal(arr[0].end, 8);
+	assert.equal(arr[1].start, 6);
+	assert.equal(arr[1].end, 7);
 });
 
 test('promise returns', async () => {

@@ -7,6 +7,7 @@ export { report, configure } from './_internal';
 
 export function tracer(name: string, options?: Options): Tracer {
 	const sampler = options?.sampler ?? defaultSampler;
+	const clock = options?.clock ?? Date;
 
 	const scope = { name };
 
@@ -30,7 +31,7 @@ export function tracer(name: string, options?: Options): Tracer {
 		const span_obj: Span = {
 			id,
 			parent,
-			start: Date.now(),
+			start: clock.now(),
 			name,
 			events: [],
 			context: {},
@@ -50,12 +51,12 @@ export function tracer(name: string, options?: Options): Tracer {
 		$.add_event = (name, attributes) => {
 			span_obj.events.push({
 				name,
-				timestamp: Date.now(),
+				timestamp: clock.now(),
 				attributes: attributes || {},
 			});
 		};
 		$.end = () => {
-			if (span_obj.end == null) span_obj.end = Date.now();
+			if (span_obj.end == null) span_obj.end = clock.now();
 		};
 
 		// @ts-expect-error
