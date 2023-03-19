@@ -68,7 +68,7 @@ export function span(name: string) {
 		resourceStore.run([api, $], measure, $, cb);
 
 	$.traceparent = id;
-	$.span = span;
+	$.span = (name: string) => resourceStore.run([api, $], span, name);
 	// @ts-expect-error TS7030 its always undefined ts :eye-roll:
 	$.set_context = (ctx) => {
 		if (typeof ctx === 'function')

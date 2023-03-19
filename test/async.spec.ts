@@ -241,5 +241,28 @@ tracer('collects spans between reports', async () => {
 	}
 });
 
+tracer('.span should nest', async () => {
+	rian.tracer('test')(() => {
+		rian.span('parent1')((s) => {
+			s.span('child1').end();
+		});
+		const s = rian.span('parent2');
+		s.span('child2').end();
+		s.end();
+	});
+
+	const spans = await rian.report(scope_spans);
+	assert.is(spans.length, 4);
+	assert.is(spans[0].name, 'parent1');
+	assert.is(spans[1].name, 'child1');
+	assert.is(spans[2].name, 'parent2');
+	assert.is(spans[3].name, 'child2');
+
+	assert.is(spans[0].parent, undefined);
+	assert.is(spans[1].parent, spans[0].id);
+	assert.is(spans[2].parent, undefined);
+	assert.is(spans[3].parent, spans[2].id);
+});
+
 test.run();
 tracer.run();
