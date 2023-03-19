@@ -3,8 +3,7 @@ import type { Traceparent } from 'tctx';
 // --- tracer
 
 /**
- * An exporter is a method called when the parent scope ends, gets given a Set of all spans traced
- * during this execution.
+ * The exporter is called when the {@link report} method is called.
  */
 export type Exporter = (trace: {
 	resource: Context;
@@ -23,10 +22,10 @@ export type Options = {
 	sampler?: Sampler | boolean;
 
 	/**
-	 * A root, or extracted w3c traceparent stringed header.
+	 * A root, or extracted w3c traceparent string header.
 	 *
 	 * If the id is malformed, the {@link create} method will throw an exception. If no root is
-	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules.
+	 * provided then one will be created obeying the {@link Options.sampler|sampling} rules on each span.
 	 */
 	traceparent?: string | null;
 };
@@ -41,17 +40,24 @@ export type Context = {
 };
 
 /**
- * Should return true when you want to sample the span, this is ran before the span is traced — so
- * decisions is made preemptively.
+ * Allows a sampling decision to be made. This method will influence the {@link Span.id|traceparent} sampling flag.
  *
- * Returning false will not include this span in the {@link Exporter}.
- *
- * Sampling does impact the traceparent, for injection — and is encoded there.
+ * Return true if the span should be sampled, and reported to the {@link Exporter}.
+ * Return false if the span should not be sampled, and not reported to the {@link Exporter}.
  */
 export type Sampler = (
+	/**
+	 * The name of the span.
+	 */
 	readonly name: string,
+	/**
+	 * The traceparent id of the span.
+	 */
 	readonly id: Traceparent,
-	readonly scope: { readonly name: string },
+	/**
+	 * The tracer this span belongs to.
+	 */
+	readonly tracer: { readonly name: string },
 ) => boolean;
 
 // --- spans
@@ -61,20 +67,15 @@ export type Sampler = (
  * {@link Span.name|name}, and a {@link Span.start|start} and {@link Span.end|end} time.
  *
  * Each span should be named, not too vague, and not too precise. For example, "resolve_user_ids"
- * and not "resolver_user_ids[1,2,3]" nor "resolve".
+ * and not "resolver_user_ids[1,2,3]" nor "resolver".
  *
  * A span forms part of a wider trace, and can be visualized like:
  *
  * ```plain
  *  [Span A················································(2ms)]
  *    [Span B·········································(1.7ms)]
- *       [Span D···············(0.8ms)]  [Span C......(0.6ms)]
+ *       [Span D···············(0.8ms)] [Span C......(0.6ms)]
  * ```
- *
- * ---
- *
- * Spans are aimed to interoperate with
- * {@link https://github.com/opentracing/specification/blob/master/specification.md|OpenTracing's Spans}, albeit not entirely api compatible — they do share principles.
  */
 export type Span = {
 	/**
@@ -82,6 +83,7 @@ export type Span = {
 	 * or stage of the larger stack.
 	 *
 	 * @example
+	 *
 	 * "resolve_user_ids"
 	 * "[POST] /api"
 	 */
@@ -105,7 +107,7 @@ export type Span = {
 	/**
 	 * The time represented as a UNIX epoch timestamp in milliseconds when this span was created.
 	 * Typically, via
-	 * {@link Scope.fork|tracer.fork()}.
+	 * {@link Scope.span|scope.span()}.
 	 */
 	start: number;
 
@@ -119,7 +121,7 @@ export type Span = {
 	 * An arbitrary context object useful for storing information during a trace.
 	 *
 	 * Usually following a convention such as `tag.*`, `http.*` or any of the
-	 * {@link https://github.com/opentracing/specification/blob/master/semantic_conventions.md|Semantic Conventions outlined by OpenTracing}.
+	 * {@link https://opentelemetry.io/docs/reference/specification/trace/semantic_conventions/|OpenTelemetry Trace Semantic Conventions}.
 	 *
 	 * ### Note!
 	 *
@@ -153,7 +155,12 @@ export type Scope = {
 	/**
 	 * Forks the span into a new child span.
 	 */
-	span(name: string): CallableScope;
+	span(
+		/**
+		 * @borrows {@link Span.name}
+		 */
+		name: string,
+	): CallableScope;
 
 	/**
 	 * Allows the span's context to be set. Passing an object will be `Object.assign`ed into the
@@ -177,11 +184,29 @@ export type Scope = {
 };
 
 export type CallableScope = Scope & {
-	<Fn extends (scope: Scope) => any>(cb: Fn): ReturnType<Fn>;
+	<Fn extends (scope: Omit<Scope, 'end'>) => any>(cb: Fn): ReturnType<Fn>;
 };
 
 // --- main api
 
+/**
+ * A tracer is a logical unit in your application. This alleviates the need to pass around a tracer instance.
+ *
+ * All spans produced by a tracer will all collect into a single span collection that is given to {@link report}.
+ *
+ * @example
+ *
+ * ```ts
+ * // file: server.ts
+ * const trace = tracer('server');
+ *
+ * // file: orm.ts
+ * const trace = tracer('orm');
+ *
+ * // file: api.ts
+ * const trace = tracer('api');
+ * ```
+ */
 export function tracer(name: string, options?: Options): Tracer;
 
 /**
@@ -191,5 +216,20 @@ export async function report<T extends Exporter>(
 	exporter: T,
 ): Promise<ReturnType<T>>;
 
-// TODO
+/**
+ * Calling this method will set the resource attributes for this runtime. This is useful for things like:
+ * - setting the deployment environment of the application
+ * - setting the k8s namespace
+ * - ...
+ *
+ * The `name` argument will set the `service.name` attribute. And is required.
+ *
+ * The fields can be whatever you want, but it is recommended to follow the {@link https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/|OpenTelemetry Resource Semantic Conventions}.
+ *
+ * @example
+ *
+ * ```ts
+ * configure('my-service', { 'deployment.environment': 'production', 'k8s.namespace.name': 'default' });
+ * ```
+ */
 export function configure(name: string, attributes: Context = {}): void;

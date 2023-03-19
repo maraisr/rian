@@ -9,7 +9,7 @@ import type { Scope } from 'rian';
  *
  * All promises are tracked, and awaited on a `report`.
  *
- * This is a utility method, but is functionally equivilent to `scope.span('name')(fn)`.
+ * This is a utility method, but is functionally equivalent to `scope.span('name')(fn)`.
  *
  * @example
  *
