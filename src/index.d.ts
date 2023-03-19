@@ -177,7 +177,7 @@ export type Scope = {
 };
 
 export type CallableScope = Scope & {
-	(cb: (scope: Omit<Scope, 'end'>) => void): ReturnType<typeof cb>;
+	<Fn extends (scope: Scope) => any>(cb: Fn): ReturnType<Fn>;
 };
 
 // --- main api

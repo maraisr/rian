@@ -1,9 +1,11 @@
 import type { Scope } from 'rian';
-import type { MeasureFn, RealMeasureFnParams } from 'rian/utils';
 
-export const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
+export function measure<Fn extends (scope: Scope) => any>(
+	scope: Scope,
+	fn: Fn,
+): ReturnType<Fn> {
 	try {
-		var r = fn(...args, scope),
+		var r = fn(scope),
 			is_promise = r instanceof Promise;
 
 		if (is_promise) {
@@ -31,15 +33,4 @@ export const measureFn = (scope: Scope, fn: any, ...args: any[]) => {
 		// @ts-expect-error TS2454
 		if (is_promise !== true) scope.end();
 	}
-};
-
-export const measure = <Fn extends MeasureFn>(
-	scope: Scope,
-	fn: Fn,
-	...args: RealMeasureFnParams<Parameters<Fn>>
-): ReturnType<Fn> => measureFn(scope, fn, ...args);
-
-export const wrap = <Fn extends MeasureFn>(scope: Scope, fn: Fn): Fn =>
-	function () {
-		return measureFn(scope, fn, ...arguments);
-	} as Fn;
+}

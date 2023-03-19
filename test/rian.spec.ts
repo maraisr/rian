@@ -26,8 +26,8 @@ test('api', async () => {
 		baz: 'qux',
 	});
 
-	scope((span) => {
-		span.set_context({
+	scope((scope) => {
+		scope.set_context({
 			foo: 'bar',
 		});
 

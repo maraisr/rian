@@ -1,5 +1,5 @@
 import type { CallableScope, Options, Span, Tracer } from 'rian';
-import { measureFn } from 'rian/utils';
+import { measure } from 'rian/utils';
 import { make, parse, SAMPLED_FLAG, type Traceparent } from 'tctx';
 import { defaultSampler, span_buffer, wait_promises } from './_internal';
 
@@ -38,7 +38,7 @@ export function tracer(name: string, options?: Options): Tracer {
 
 		should_sample && span_buffer.add([span_obj, scope]);
 
-		const $: CallableScope = (cb: any) => measureFn($, cb);
+		const $: CallableScope = (cb: any) => measure($, cb);
 
 		$.traceparent = id;
 		$.span = (name) => span(name, id);

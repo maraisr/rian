@@ -54,7 +54,7 @@ function handler(req) {
     s.set_context({ user_id: req.params.user_id });
 
     // ~> span again for `db::read`
-    const data = await s.span('db::read')(db_execute, 'SELECT * FROM users');
+    const data = await s.span('db::read')(() => db_execute('SELECT * FROM users'));
 
     // ~> maybe have some manual spanning
     const processing_span = s.span('process records');
