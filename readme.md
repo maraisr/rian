@@ -108,6 +108,52 @@ The main and _default_ module responsible for creating and provisioning spans.
 > [Semantic Conventions](https://opentelemetry.io/docs/reference/specification/trace/semantic_conventions/), but won't
 > be enforced.
 
+#### Module: [`rian/async`](./packages/rian/src/async.ts)
+
+A module that utilizes the `async_hooks` API to provide a `tracer` and `spans` that can be used where the current span
+isn't accessible.
+
+> 💡 Note ~> this module should be used mutually exclusively with the main `rian` module.
+
+<detials>
+
+<summary>Example</summary>
+
+```ts
+import { configure, tracer, span, currentSpan, report } from 'rian/async';
+import { exporter } from 'rian/exporter.otel.http';
+
+function handler(req) {
+  return span(`${req.method} ${req.path}`)(async () => {
+    const s = currentSpan();
+
+    s.set_context({ user_id: req.params.user_id });
+
+    const data = await s.span('db::read')(() => db_execute('SELECT * FROM users'));
+
+    const processing_span = s.span('process records');
+
+    for (let row of data) {
+      processing_span.add_event('doing stuff', { id: row.id });
+      do_stuff(row);
+    }
+
+    processing_span.end();
+
+    return reply(200, { data });
+  });
+}
+
+const httpTrace = tracer('http');
+
+http.listen((req, executionCtx) => {
+  executionCtx.defer(() => report(exporter));
+  return httpTrace(() => handler(req));
+});
+```
+
+</details>
+
 #### Module: [`rian/exporter.zipkin`](./packages/rian/src/exporter.zipkin.ts)
 
 Exports the spans created using the zipkin protocol and leaves the shipping up to you.

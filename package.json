@@ -1,6 +1,6 @@
 {
 	"name": "rian",
-	"version": "0.3.0-next.2",
+	"version": "0.3.0-next.9",
 	"description": "Effective tracing for the edge and origins",
 	"keywords": [
 		"opentelemetry",
@@ -24,6 +24,11 @@
 			"types": "./index.d.ts",
 			"import": "./index.mjs",
 			"require": "./index.js"
+		},
+		"./async": {
+			"types": "./async.d.ts",
+			"import": "./async.mjs",
+			"require": "./async.js"
 		},
 		"./exporter.otel.http": {
 			"types": "./exporter.otel.http.d.ts",

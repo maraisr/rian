@@ -8,5 +8,7 @@ export default define((input, options) => {
 		RIAN_VERSION: `"${version}"`,
 	};
 
+	options.external?.push('node:async_hooks');
+
 	return options;
 });

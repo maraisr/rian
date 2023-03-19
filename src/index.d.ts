@@ -209,6 +209,8 @@ export type CallableScope = Scope & {
  */
 export function tracer(name: string, options?: Options): Tracer;
 
+// -- general api
+
 /**
  * Awaits all active promises, and then calls the {@link Options.exporter|exporter}. Passing all collected spans.
  */
