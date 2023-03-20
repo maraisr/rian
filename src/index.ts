@@ -1,4 +1,4 @@
-import * as tctx from 'tctx';
+import { make, parse, SAMPLED_FLAG, type Traceparent } from 'tctx';
 
 import type { Attributes, Options, Scope, Span, SpanFn } from 'rian';
 import { measure, span_buffer, wait_promises } from './_internal';
@@ -8,14 +8,14 @@ export { configure, report } from './_internal';
 function toSpan(
 	scope: Scope,
 	label: string,
-	sampler: boolean | ((label: string, id: tctx.Traceparent) => boolean),
-	parent?: tctx.Traceparent,
+	sampler: boolean | ((label: string, id: Traceparent) => boolean),
+	parent?: Traceparent,
 ): SpanFn {
-	let id = parent ? parent.child() : tctx.make();
+	let id = parent ? parent.child() : make();
 	let should_sample =
 		typeof sampler === 'boolean' ? sampler : sampler(label, id);
-	if (should_sample) id.flags |= tctx.SAMPLED_FLAG;
-	else id.flags &= ~tctx.SAMPLED_FLAG;
+	if (should_sample) id.flags |= SAMPLED_FLAG;
+	else id.flags &= ~SAMPLED_FLAG;
 
 	let c: Span = {
 		label,
@@ -31,8 +31,8 @@ function toSpan(
 
 	return {
 		id: String(c.id),
-		span(label: string) {
-			return toSpan(scope, label, sampler, id);
+		span(label: string, parent?: Traceparent) {
+			return toSpan(scope, label, sampler, parent || id);
 		},
 		end() {
 			c.end ||= Date.now();
@@ -60,19 +60,19 @@ export function tracer(label: string, options?: Options) {
 	let s = typeof sampler === 'function' ? sampler.bind(null, scope) : sampler;
 
 	return {
-		span(label: string, parent_id?: string | tctx.Traceparent) {
+		span(label: string, parent_id?: string | Traceparent) {
 			return toSpan(
 				scope,
 				label,
 				s,
 				typeof parent_id === 'string'
-					? tctx.parse(parent_id)
+					? parse(parent_id)
 					: parent_id,
 			);
 		},
 		time<T extends (span: SpanFn) => any>(
 			label: string,
-			arg1: T | string | tctx.Traceparent,
+			arg1: T | string | Traceparent,
 			arg2?: T,
 		): ReturnType<T> {
 			let parent_id = typeof arg1 === 'function' ? undefined : arg1;

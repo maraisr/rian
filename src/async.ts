@@ -1,28 +1,19 @@
 import * as async_hooks from 'node:async_hooks';
 
-import type {
-	CallableScope,
-	ClockLike,
-	Options,
-	Sampler,
-	Scope,
-	Span,
-} from 'rian';
+import type { Attributes, Options, Sampler, Scope, Span, SpanFn } from 'rian';
 import type { Tracer } from 'rian/async';
-import { measure } from 'rian/utils';
 import { make, parse, SAMPLED_FLAG, type Traceparent } from 'tctx';
-import { defaultSampler, span_buffer, wait_promises } from './_internal';
+import { measure, span_buffer, wait_promises } from './_internal';
 
 export { configure, report } from './_internal';
 
 type API = {
-	sampler: Sampler | boolean;
-	scope: { name: string };
-	clock: ClockLike;
+	sample: boolean | Sampler;
+	scope: Scope;
 };
 
 const resourceStore = new async_hooks.AsyncLocalStorage<
-	[API, Scope | null] | null
+	[API, SpanFn | null] | null
 >();
 
 export function currentSpan() {
@@ -31,89 +22,84 @@ export function currentSpan() {
 	return scope;
 }
 
-export function span(name: string, parent_id?: Traceparent | string) {
+export function span<T extends (s: SpanFn) => any>(
+	label: string,
+	arg1?: T | string | Traceparent,
+	arg2?: T,
+): typeof arg1 extends T ? ReturnType<T> : SpanFn {
 	const context = resourceStore.getStore();
 	if (!context) throw Error('TODO');
+
+	let parent = typeof arg1 === 'function' ? undefined : arg1;
+	let fn = typeof arg1 === 'function' ? arg1 : arg2!;
 
 	const api = context[0];
 	const scope = api.scope;
 	const current_span = context[1];
-	const sampler = api.sampler;
+	const sampler = api.sample;
 
-	// ---
-	const parent =
-		parent_id != null
-			? typeof parent_id === 'string'
-				? parse(parent_id)
-				: parent_id
-			: current_span?.traceparent;
-	const id = parent ? parent.child() : make();
+	parent ||= current_span?.id;
+	if (typeof parent === 'string') parent = parse(parent);
 
-	const should_sample =
-		typeof sampler !== 'boolean' ? sampler(name, id, scope) : sampler;
+	let id = parent ? parent.child() : make();
+	let should_sample =
+		typeof sampler === 'boolean' ? sampler : sampler(scope, label, id);
+	if (should_sample) id.flags |= SAMPLED_FLAG;
+	else id.flags &= ~SAMPLED_FLAG;
 
-	if (should_sample) id.flags | SAMPLED_FLAG;
-	else id.flags & ~SAMPLED_FLAG;
-
-	const span_obj: Span = {
+	let c: Span = {
+		label,
 		id,
 		parent,
-		start: api.clock.now(),
-		name,
+		attributes: {},
+		start: Date.now(),
+		end: undefined,
 		events: [],
-		context: {},
 	};
 
-	should_sample && span_buffer.add([span_obj, scope]);
-	// ---
+	should_sample && span_buffer.add([c, scope]);
 
-	const $: CallableScope = (cb: any) =>
-		resourceStore.run([api, $], measure, $, cb);
+	const $: SpanFn = {
+		id: String(c.id),
+		span(label: string, parent?: Traceparent | string) {
+			return resourceStore.run([api, $], span, label, parent);
+		},
+		end() {
+			c.end ||= Date.now();
+		},
+		set_attributes(a: Attributes | ((a: Attributes) => void)) {
+			if (typeof a === 'function')
+				return void (c.attributes = a(c.attributes));
+			return void Object.assign(c.attributes, a);
+		},
+		add_event(label: string, attributes?: Attributes) {
+			c.events.push({
+				label,
+				timestamp: Date.now(),
+				attributes,
+			});
+		},
+	};
 
-	$.traceparent = id;
-	$.span = (name: string) => resourceStore.run([api, $], span, name);
-	// @ts-expect-error TS7030 its always undefined ts :eye-roll:
-	$.set_context = (ctx) => {
-		if (typeof ctx === 'function')
-			return void (span_obj.context = ctx(span_obj.context));
-		Object.assign(span_obj.context, ctx);
-	};
-	$.add_event = (name, attributes) => {
-		span_obj.events.push({
-			name,
-			timestamp: api.clock.now(),
-			attributes: attributes || {},
-		});
-	};
-	$.end = () => {
-		if (span_obj.end == null) span_obj.end = api.clock.now();
-	};
-
-	const ps = wait_promises.get(scope)!;
 	// @ts-expect-error
-	$.__add_promise = (p) => {
-		ps.add(p);
-		p.then(() => ps.delete(p));
-	};
+	if (fn == null) return $;
 
-	return $;
+	return resourceStore.run([api, $], measure, scope, $, fn);
 }
 
 export function tracer<T extends () => any>(
-	name: string,
+	label: string,
 	options?: Options,
 ): Tracer<T> {
-	const sampler = options?.sampler ?? defaultSampler;
+	const sampler = options?.sample ?? true;
 
-	const scope = { name };
+	const scope = { label };
+	wait_promises.set(scope, new Set());
 
 	const api: API = {
 		scope,
-		sampler,
-		clock: options?.clock ?? Date,
+		sample: sampler,
 	};
-
-	wait_promises.set(scope, new Set());
 
 	return function (cb) {
 		const parent = resourceStore.getStore();

@@ -25,6 +25,11 @@
 			"import": "./index.mjs",
 			"require": "./index.js"
 		},
+		"./async": {
+			"types": "./async.d.ts",
+			"import": "./async.mjs",
+			"require": "./async.js"
+		},
 		"./exporter.otel.http": {
 			"types": "./exporter.otel.http.d.ts",
 			"import": "./exporter.otel.http.mjs",

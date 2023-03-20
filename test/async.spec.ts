@@ -22,20 +22,22 @@ test('api', () => {
 
 test('works', async () => {
 	const value = await rian.tracer('tracer')(() => {
-		const scope = rian.span('span 1');
+		const span = rian.span('span 1');
 
-		scope.set_context({
+		span.set_attributes({
 			baz: 'qux',
 		});
 
-		return scope(() => {
+		span.end();
+
+		return rian.span('test', () => {
 			const span = rian.currentSpan();
 
-			span.set_context({
+			span.set_attributes({
 				foo: 'bar',
 			});
 
-			rian.span('span 2')(() => {});
+			rian.span('span 2', () => {});
 
 			return 'test';
 		});
@@ -46,23 +48,23 @@ test('works', async () => {
 	const spans = await rian.report(scope_spans);
 
 	assert.is(spans.length, 2);
-	assert.is(spans[0].name, 'span 1');
-	assert.is(spans[1].name, 'span 2');
+	assert.is(spans[0].label, 'span 1');
+	assert.is(spans[1].label, 'span 2');
 });
 
 test('can mix with third-party async_hooks', async () => {
 	const store = new AsyncLocalStorage();
 
 	const value = await rian.tracer('tracer')(() => {
-		return rian.span('span 1')(() => {
+		return rian.span('span 1', () => {
 			return store.run('frank', () => {
 				const span = rian.currentSpan();
 
-				span.set_context({
+				span.set_attributes({
 					foo: 'bar',
 				});
 
-				return rian.span('read')(() => store.getStore());
+				return rian.span('read'), () => store.getStore();
 			});
 		});
 	});
@@ -72,10 +74,10 @@ test('can mix with third-party async_hooks', async () => {
 	const spans = await rian.report(scope_spans);
 
 	assert.is(spans.length, 2);
-	assert.is(spans[0].name, 'span 1');
-	assert.is(spans[1].name, 'read');
+	assert.is(spans[0].label, 'span 1');
+	assert.is(spans[1].label, 'read');
 
-	assert.is(spans[0].context.foo, 'bar');
+	assert.is(spans[0].attributes.foo, 'bar');
 });
 
 const tracer = suite('tracer');
@@ -85,10 +87,11 @@ tracer('api', () => {
 });
 
 tracer('can create spans', async () => {
-	rian.tracer('test')(() => {
-		rian.span('some-name')(() => {});
-		rian.span('some-other-name').end();
-	});
+	rian.tracer('test'),
+		() => {
+			rian.span('some-name'), () => {};
+			rian.span('some-other-name').end();
+		};
 
 	const spans = await rian.report(scope_spans);
 	assert.is(spans.length, 2);
@@ -100,25 +103,23 @@ tracer('can recieve a root_id', async () => {
 	const two = rian.tracer('two');
 
 	one(() => {
-		rian.span('child 1')(() => {});
+		rian.span('child 1'), () => {};
 
 		two(() => {
-			rian.span(
-				'child 2',
-				id,
-			)(() => {
-				one(() => {
-					rian.span('child 3')(() => {});
-				});
-			});
+			rian.span('child 2', id),
+				() => {
+					one(() => {
+						rian.span('child 3'), () => {};
+					});
+				};
 		});
 	});
 
 	const spans = await rian.report(scope_spans);
 	assert.is(spans.length, 3);
-	assert.is(spans[0].name, 'child 1');
-	assert.is(spans[1].name, 'child 3');
-	assert.is(spans[2].name, 'child 2');
+	assert.is(spans[0].label, 'child 1');
+	assert.is(spans[1].label, 'child 3');
+	assert.is(spans[2].label, 'child 2');
 
 	assert.is(spans[0].parent, undefined);
 	assert.is(String(spans[2].parent), String(id), 'was given id, use it');
@@ -126,16 +127,18 @@ tracer('can recieve a root_id', async () => {
 });
 
 tracer('can nest spans', async () => {
-	rian.tracer('test')(() => {
-		rian.span('parent')(() => {
-			rian.span('child')(() => {});
-		});
-	});
+	rian.tracer('test'),
+		() => {
+			rian.span('parent'),
+				() => {
+					rian.span('child'), () => {};
+				};
+		};
 
 	const spans = await rian.report(scope_spans);
 	assert.is(spans.length, 2);
-	assert.is(spans[0].name, 'parent');
-	assert.is(spans[1].name, 'child');
+	assert.is(spans[0].label, 'parent');
+	assert.is(spans[1].label, 'child');
 
 	assert.is(spans[0].parent, undefined);
 	assert.is(spans[1].parent, spans[0].id);
@@ -146,13 +149,13 @@ tracer('correctly parents tracers', async () => {
 	const two = rian.tracer('two');
 
 	one(() => {
-		rian.span('child 1')(() => {
+		rian.span('child 1', () => {
 			two(() => {
-				rian.span('child 2')(() => {});
+				rian.span('child 2'), () => {};
 			});
 		});
 
-		rian.span('child 3')(() => {});
+		rian.span('child 3'), () => {};
 	});
 
 	const scopes = await rian.report((scopes) => scopes);
@@ -160,14 +163,14 @@ tracer('correctly parents tracers', async () => {
 	const spans = scoped_spans.flatMap((scope) => scope.spans);
 
 	assert.is(spans.length, 3);
-	assert.is(spans[0].name, 'child 1');
-	assert.is(spans[1].name, 'child 3');
-	assert.is(spans[2].name, 'child 2');
+	assert.is(spans[0].label, 'child 1');
+	assert.is(spans[1].label, 'child 3');
+	assert.is(spans[2].label, 'child 2');
 
 	assert.is(scoped_spans.length, 2);
-	assert.is(scoped_spans[0].scope.name, 'one');
+	assert.is(scoped_spans[0].scope.label, 'one');
 	assert.is(scoped_spans[0].spans.length, 2);
-	assert.is(scoped_spans[1].scope.name, 'two');
+	assert.is(scoped_spans[1].scope.label, 'two');
 	assert.is(scoped_spans[1].spans.length, 1);
 
 	assert.is(spans[0].parent, undefined);
@@ -180,24 +183,24 @@ tracer('can be called again', async () => {
 	const two = rian.tracer('two');
 
 	one(() => {
-		rian.span('child 1')(() => {
+		rian.span('child 1', () => {
 			two(() => {
 				one(() => {
-					rian.span('child 2')(() => {});
+					rian.span('child 2'), () => {};
 				});
 			});
 		});
 
 		two(() => {
-			rian.span('child 3')(() => {});
+			rian.span('child 3'), () => {};
 		});
 	});
 
 	const spans = await rian.report(scope_spans);
 	assert.is(spans.length, 3);
-	assert.is(spans[0].name, 'child 1');
-	assert.is(spans[1].name, 'child 2');
-	assert.is(spans[2].name, 'child 3');
+	assert.is(spans[0].label, 'child 1');
+	assert.is(spans[1].label, 'child 2');
+	assert.is(spans[2].label, 'child 3');
 
 	assert.is(spans[0].parent, undefined);
 	assert.is(spans[1].parent, spans[0].id, 'should pierce tracers');
@@ -213,7 +216,7 @@ tracer('collects spans between reports', async () => {
 	{
 		const spans = await rian.report(scope_spans);
 		assert.is(spans.length, 1);
-		assert.is(spans[0].name, 'span 1');
+		assert.is(spans[0].label, 'span 1');
 	}
 
 	one(() => {
@@ -223,13 +226,13 @@ tracer('collects spans between reports', async () => {
 	{
 		const spans = await rian.report(scope_spans);
 		assert.is(spans.length, 1);
-		assert.is(spans[0].name, 'span 2');
+		assert.is(spans[0].label, 'span 2');
 	}
 });
 
 tracer('.span should nest', async () => {
 	rian.tracer('test')(() => {
-		rian.span('parent1')((s) => {
+		rian.span('parent1', (s) => {
 			s.span('child1').end();
 		});
 		const s = rian.span('parent2');
@@ -239,10 +242,10 @@ tracer('.span should nest', async () => {
 
 	const spans = await rian.report(scope_spans);
 	assert.is(spans.length, 4);
-	assert.is(spans[0].name, 'parent1');
-	assert.is(spans[1].name, 'child1');
-	assert.is(spans[2].name, 'parent2');
-	assert.is(spans[3].name, 'child2');
+	assert.is(spans[0].label, 'parent1');
+	assert.is(spans[1].label, 'child1');
+	assert.is(spans[2].label, 'parent2');
+	assert.is(spans[3].label, 'child2');
 
 	assert.is(spans[0].parent, undefined);
 	assert.is(spans[1].parent, spans[0].id);

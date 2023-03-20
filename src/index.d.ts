@@ -21,7 +21,7 @@ export type Span = {
 
 export type SpanFn = {
 	id: string;
-	span(label: string): SpanFn;
+	span(label: string, parent?: Traceparent): SpanFn;
 	end(): void;
 	set_attributes(a: Attributes | ((a: Attributes) => void)): void;
 	add_event(label: string, attributes?: Attributes): void;
