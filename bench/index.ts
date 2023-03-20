@@ -6,7 +6,6 @@ import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { Suite } from 'benchmark';
 
 import * as rian from '..';
-import * as rianAsync from '../async';
 import * as assert from 'uvu/assert';
 
 async function runner(
@@ -74,17 +73,6 @@ const opentelemetrySetup = () => {
 					);
 				},
 			},
-			'rian/async': {
-				fn: async () => {
-					rianAsync.tracer('test')(() => {
-						rianAsync.span('span 1').end();
-					});
-
-					return await rianAsync.report(
-						(s) => Array.from(s.scopeSpans)[0].spans,
-					);
-				},
-			},
 			opentelemetry: {
 				setup: opentelemetrySetup,
 				fn: async ({
@@ -112,24 +100,11 @@ const opentelemetrySetup = () => {
 				fn: async () => {
 					const tracer = rian.tracer('test');
 
-					tracer.span('span 1')((s) => {
+					tracer.time('span 1', (s) => {
 						s.span('span 2').end();
 					});
 
 					return await rian.report(
-						(s) => Array.from(s.scopeSpans)[0].spans,
-					);
-				},
-			},
-			'rian/async': {
-				fn: async () => {
-					rianAsync.tracer('test')(() => {
-						rianAsync.span('span 1')(() => {
-							rianAsync.span('span 2').end();
-						});
-					});
-
-					return await rianAsync.report(
 						(s) => Array.from(s.scopeSpans)[0].spans,
 					);
 				},

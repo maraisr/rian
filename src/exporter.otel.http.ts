@@ -133,7 +133,7 @@ export const exporter =
 			});
 
 			for (let span of scope.spans) {
-				const { kind, error, ...span_ctx } = span.context;
+				const { kind, error, ...span_ctx } = span.attributes;
 
 				let status: Status;
 				if (error) {
@@ -151,7 +151,7 @@ export const exporter =
 					spanId: span.id.parent_id,
 					parentSpanId: span.parent?.parent_id,
 
-					name: span.name,
+					name: span.label,
 					kind: map_kind(kind || 'INTERNAL'),
 
 					startTimeUnixNano: span.start * 1000000,
@@ -167,7 +167,7 @@ export const exporter =
 					status: status || { code: SpanStatusCode_UNSET },
 
 					events: span.events.map((i) => ({
-						name: i.name,
+						name: i.label,
 						attributes: convert_object_to_kv(i.attributes),
 						droppedAttributesCount: 0,
 						timeUnixNano: i.timestamp * 1000000,

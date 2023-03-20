@@ -1,78 +1,84 @@
-import type { CallableScope, Options, Span, Tracer } from 'rian';
-import { measure } from 'rian/utils';
-import { make, parse, SAMPLED_FLAG, type Traceparent } from 'tctx';
-import { defaultSampler, span_buffer, wait_promises } from './_internal';
+import * as tctx from 'tctx';
 
-export { report, configure } from './_internal';
+import type { Attributes, Options, Scope, Span, SpanFn } from 'rian';
+import { measure, span_buffer, wait_promises } from './_internal';
 
-export function tracer(name: string, options?: Options): Tracer {
-	const sampler = options?.sampler ?? defaultSampler;
-	const clock = options?.clock ?? Date;
+export { configure, report } from './_internal';
 
-	const scope = { name };
+function toSpan(
+	scope: Scope,
+	label: string,
+	sampler: boolean | ((label: string, id: tctx.Traceparent) => boolean),
+	parent?: tctx.Traceparent,
+): SpanFn {
+	let id = parent ? parent.child() : tctx.make();
+	let should_sample =
+		typeof sampler === 'boolean' ? sampler : sampler(label, id);
+	if (should_sample) id.flags |= tctx.SAMPLED_FLAG;
+	else id.flags &= ~tctx.SAMPLED_FLAG;
 
-	const ps: Set<Promise<any>> = new Set();
-	wait_promises.set(scope, ps);
-
-	const span = (
-		name: string,
-		parent_id?: Traceparent | string,
-	): CallableScope => {
-		const parent =
-			parent_id != null
-				? typeof parent_id === 'string'
-					? parse(parent_id)
-					: parent_id
-				: undefined;
-		const id = parent ? parent.child() : make();
-
-		const should_sample =
-			typeof sampler !== 'boolean' ? sampler(name, id, scope) : sampler;
-
-		if (should_sample) id.flags | SAMPLED_FLAG;
-		else id.flags & ~SAMPLED_FLAG;
-
-		const span_obj: Span = {
-			id,
-			parent,
-			start: clock.now(),
-			name,
-			events: [],
-			context: {},
-		};
-
-		should_sample && span_buffer.add([span_obj, scope]);
-
-		const $: CallableScope = (cb: any) => measure($, cb);
-
-		$.traceparent = id;
-		$.span = (name, p_id) => span(name, p_id || id);
-		$.set_context = (ctx) => {
-			if (typeof ctx === 'function')
-				return void (span_obj.context = ctx(span_obj.context));
-			return void Object.assign(span_obj.context, ctx);
-		};
-		$.add_event = (name, attributes) => {
-			span_obj.events.push({
-				name,
-				timestamp: clock.now(),
-				attributes: attributes || {},
-			});
-		};
-		$.end = () => {
-			if (span_obj.end == null) span_obj.end = clock.now();
-		};
-
-		// @ts-expect-error
-		$.__add_promise = (p) => {
-			ps.add(p);
-			p.then(() => ps.delete(p));
-		};
-
-		return $;
+	let c: Span = {
+		label,
+		id,
+		parent,
+		attributes: {},
+		start: Date.now(),
+		end: undefined,
+		events: [],
 	};
 
+	should_sample && span_buffer.add([c, scope]);
+
 	return {
-		span,
+		id: String(c.id),
+		span(label: string) {
+			return toSpan(scope, label, sampler, id);
+		},
+		end() {
+			c.end ||= Date.now();
+		},
+		set_attributes(a: Attributes | ((a: Attributes) => void)) {
+			if (typeof a === 'function')
+				return void (c.attributes = a(c.attributes));
+			return void Object.assign(c.attributes, a);
+		},
+		add_event(label: string, attributes?: Attributes) {
+			c.events.push({
+				label,
+				timestamp: Date.now(),
+				attributes,
+			});
+		},
+	};
+}
+
+export function tracer(label: string, options?: Options) {
+	let scope: Scope = { label };
+	wait_promises.set(scope, new Set());
+
+	let sampler = options?.sample ?? true;
+	let s = typeof sampler === 'function' ? sampler.bind(null, scope) : sampler;
+
+	return {
+		span(label: string, parent_id?: string | tctx.Traceparent) {
+			return toSpan(
+				scope,
+				label,
+				s,
+				typeof parent_id === 'string'
+					? tctx.parse(parent_id)
+					: parent_id,
+			);
+		},
+		time<T extends (span: SpanFn) => any>(
+			label: string,
+			arg1: T | string | tctx.Traceparent,
+			arg2?: T,
+		): ReturnType<T> {
+			let parent_id = typeof arg1 === 'function' ? undefined : arg1;
+			let span = this.span(label, parent_id);
+			let fn = typeof arg1 === 'function' ? arg1 : arg2!;
+			return measure(scope, span, fn);
+		},
 	};
 }

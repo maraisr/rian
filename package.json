@@ -25,11 +25,6 @@
 			"import": "./index.mjs",
 			"require": "./index.js"
 		},
-		"./async": {
-			"types": "./async.d.ts",
-			"import": "./async.mjs",
-			"require": "./async.js"
-		},
 		"./exporter.otel.http": {
 			"types": "./exporter.otel.http.d.ts",
 			"import": "./exporter.otel.http.mjs",
@@ -39,11 +34,6 @@
 			"types": "./exporter.zipkin.d.ts",
 			"import": "./exporter.zipkin.mjs",
 			"require": "./exporter.zipkin.js"
-		},
-		"./utils": {
-			"types": "./utils.d.ts",
-			"import": "./utils.mjs",
-			"require": "./utils.js"
 		},
 		"./package.json": "./package.json"
 	},

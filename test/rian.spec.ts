@@ -4,7 +4,6 @@ import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
 import * as rian from 'rian';
-import * as utils from 'rian/utils';
 
 const noop = () => {};
 
@@ -13,6 +12,7 @@ const returns: rian.Exporter = (traces) => {
 };
 
 test('exports', () => {
+	assert.type(rian.configure, 'function');
 	assert.type(rian.tracer, 'function');
 	assert.type(rian.report, 'function');
 });
@@ -22,17 +22,10 @@ test('api', async () => {
 
 	const scope = tracer.span('some-name');
 
-	scope.set_context({
+	scope.set_attributes({
 		baz: 'qux',
 	});
-
-	scope((scope) => {
-		scope.set_context({
-			foo: 'bar',
-		});
-
-		return 'test';
-	});
+	scope.end();
 
 	const exporter = spy(returns);
 	const scopedSpans: rian.ScopedSpans[] = await rian.report(exporter);
@@ -46,13 +39,13 @@ test('context', async () => {
 
 	const span = tracer.span('context');
 
-	span.set_context({
+	span.set_attributes({
 		one: 'one',
 	});
 
-	span.set_context((ctx) => ({ [ctx.one]: 'two' }));
+	span.set_attributes((ctx) => ({ [ctx.one]: 'two' }));
 
-	span.set_context({
+	span.set_attributes({
 		three: 'three',
 	});
 
@@ -63,7 +56,7 @@ test('context', async () => {
 	const spans = scopedSpans[0].spans;
 
 	assert.equal(spans.length, 1);
-	assert.equal(Array.from(spans)[0].context, {
+	assert.equal(Array.from(spans)[0].attributes, {
 		one: 'two',
 		three: 'three',
 	});
@@ -73,12 +66,10 @@ test('has offset start and end times', async () => {
 	let called = -1;
 	spyOn(Date, 'now', () => ++called);
 
-	const tracer = rian.tracer('test', {
-		clock: { now: () => Date.now() + 5 },
-	});
+	const tracer = rian.tracer('test');
 
-	tracer.span('test')(() => {
-		tracer.span('test')(() => {});
+	tracer.time('test', () => {
+		tracer.time('test', () => {});
 	});
 
 	const scopedSpans: rian.ScopedSpans[] = await rian.report(returns);
@@ -89,10 +80,10 @@ test('has offset start and end times', async () => {
 	const arr = Array.from(spans);
 
 	// 2 spans, 2 calls per span
-	assert.equal(arr[0].start, 5);
-	assert.equal(arr[0].end, 8);
-	assert.equal(arr[1].start, 6);
-	assert.equal(arr[1].end, 7);
+	assert.equal(arr[0].start, 0);
+	assert.equal(arr[0].end, 3);
+	assert.equal(arr[1].start, 1);
+	assert.equal(arr[1].end, 2);
 });
 
 test('promise returns', async () => {
@@ -101,28 +92,11 @@ test('promise returns', async () => {
 	const prom = new Promise((resolve) => setTimeout(resolve, 0));
 
 	// Don't await here so we can assert the __add__promise worked
-	tracer.span('test')(() => prom);
+	tracer.time('test', () => prom);
 
 	const scopedSpans: rian.ScopedSpans[] = await rian.report(returns);
 	assert.equal(scopedSpans.length, 1);
 	const spans = scopedSpans[0].spans;
-
-	assert.equal(spans.length, 1);
-});
-
-const fn = suite('fn');
-
-fn('api', async () => {
-	const tracer = rian.tracer('test');
-
-	tracer.span('forked')(spy());
-
-	const exporter = spy<rian.Exporter>(returns);
-	const scopedSpans: rian.ScopedSpans[] = await rian.report(exporter);
-	assert.equal(scopedSpans.length, 1);
-
-	const spans = scopedSpans[0].spans;
-	assert.equal(exporter.callCount, 1);
 
 	assert.equal(spans.length, 1);
 });
@@ -133,7 +107,7 @@ measure('throw context', async () => {
 	const tracer = rian.tracer('test');
 
 	assert.throws(() =>
-		utils.measure(tracer.span('test'), () => {
+		tracer.time('test', () => {
 			throw new Error('test');
 		}),
 	);
@@ -147,7 +121,7 @@ measure('throw context', async () => {
 
 	assert.equal(spans.length, 1);
 
-	assert.instance(Array.from(spans)[0].context.error, Error);
+	assert.instance(Array.from(spans)[0].attributes.error, Error);
 });
 
 const sampled = suite('sampling');
@@ -155,7 +129,7 @@ const sampled = suite('sampling');
 sampled('default :: no parent should be sampled', async () => {
 	const tracer = rian.tracer('test');
 
-	tracer.span('test')(noop);
+	tracer.time('test', noop);
 
 	const exporter = spy<rian.Exporter>(returns);
 	const scopedSpans: rian.ScopedSpans[] = await rian.report(exporter);
@@ -194,7 +168,7 @@ events('api', async () => {
 
 	assert.equal(spans.length, 1);
 	assert.equal(spans[0].events.length, 2);
-	assert.equal(spans[0].events[0].attributes, {});
+	assert.equal(spans[0].events[0].attributes, undefined);
 	assert.equal(spans[0].events[1].attributes, { foo: 'bar' });
 });
 
@@ -225,12 +199,11 @@ buffer('flush all', async () => {
 		assert.equal(spans.length, 2);
 	}
 
-	assert.equal(spans[0].name, 'span 1.1');
-	assert.equal(spans[1].name, 'span 2');
+	assert.equal(spans[0].label, 'span 1.1');
+	assert.equal(spans[1].label, 'span 2');
 });
 
 test.run();
-fn.run();
 measure.run();
 sampled.run();
 events.run();

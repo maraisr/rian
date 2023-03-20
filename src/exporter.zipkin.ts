@@ -28,7 +28,7 @@ export const exporter =
 
 		for (let scope of trace.scopeSpans) {
 			for (let span of scope.spans) {
-				const { kind, error, ...span_ctx } = span.context;
+				const { kind, error, ...span_ctx } = span.attributes;
 
 				if (error) {
 					if ('message' in error) {
@@ -47,7 +47,7 @@ export const exporter =
 					traceId: span.id.trace_id,
 					parentId: span.parent ? span.parent.parent_id : undefined,
 
-					name: span.name,
+					name: span.label,
 
 					kind: kind === 'INTERNAL' ? undefined : kind,
 
@@ -58,7 +58,7 @@ export const exporter =
 						: undefined,
 
 					localEndpoint: {
-						serviceName: `${trace.resource['service.name']}@${scope.scope.name}`,
+						serviceName: `${trace.resource['service.name']}@${scope.scope.label}`,
 					},
 
 					tags: flattie(
@@ -71,7 +71,7 @@ export const exporter =
 					),
 
 					annotations: span.events.map((i) => ({
-						value: `${i.name} :: ${JSON.stringify(i.attributes)}`,
+						value: `${i.label} :: ${JSON.stringify(i.attributes)}`,
 						timestamp: i.timestamp * 1000,
 					})),
 				});
