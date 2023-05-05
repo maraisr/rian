@@ -52,8 +52,8 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	const should_sample =
 		typeof sampler !== 'boolean' ? sampler(name, id, scope) : sampler;
 
-	if (should_sample) id.flags | SAMPLED_FLAG;
-	else id.flags & ~SAMPLED_FLAG;
+	if (should_sample) id.flags |= SAMPLED_FLAG;
+	else id.flags &= ~SAMPLED_FLAG;
 
 	const span_obj: Span = {
 		id,
