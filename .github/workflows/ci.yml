@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [14, 16, 17]
+        node: [16, 18, 20]
     steps:
       - uses: actions/checkout@main
 
       - name: (env) setup pnpm
-        uses: pnpm/action-setup@v2.0.1
+        uses: pnpm/action-setup@master
         with:
-          version: 7.11.0
+          version: 8.6.1
 
       - name: (env) setup node v${{ matrix.node }}
         uses: actions/setup-node@main
@@ -28,13 +28,13 @@ jobs:
           check-latest: true
 
       - name: Install
-        run: pnpm install
+        run: pnpm install --ignore-scripts
 
       - name: Compiles
-        run: pnpm build
+        run: pnpm run build
 
       - name: Test
-        run: pnpm test
+        run: pnpm run test
 
       - name: Check Types
-        run: pnpm typecheck
+        run: pnpm run typecheck
