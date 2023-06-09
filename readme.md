@@ -87,7 +87,7 @@ http.listen((req, executionCtx) => {
 /*
 And we end up with something like this in our reporting tool:
 
-[ GET /data .................,,...................... (1.2ms) ] { request }
+[ GET /data ......................................... (1.2ms) ] { request }
    [ db::read .... (0.5ms) ] [ process records .... (0.5ms) ]
    ^                           ^             ^            ^
    { user_id }                 ev { id: 1 }  |            |
