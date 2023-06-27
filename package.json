@@ -66,6 +66,7 @@
 		"test": "uvu src \".test.ts$\" -r tsm",
 		"typecheck": "tsc --noEmit"
 	},
+	"prettier": "@marais/prettier",
 	"dependencies": {
 		"flattie": "^1.1.0",
 		"tctx": "^0.0.13"
@@ -80,7 +81,6 @@
 		"typescript": "5.1.3",
 		"uvu": "0.5.4"
 	},
-	"prettier": "@marais/prettier",
 	"volta": {
 		"node": "17.2.0"
 	}
