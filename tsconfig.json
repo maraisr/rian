@@ -1,13 +1,10 @@
 {
 	"extends": "@marais/tsconfig",
 	"compilerOptions": {
-		"target": "esnext",
-		"declaration": false,
-		"removeComments": false,
-		"lib": ["esnext", "dom.iterable", "webworker"],
+		"baseUrl": ".",
 		"paths": {
-			"rian": ["./src/index.d.ts"],
-			"rian/*": ["./src/*.d.ts"]
+			"rian": ["src/index.d.ts"],
+			"rian/*": ["src/*.d.ts"]
 		}
 	},
 	"include": ["global.d.ts", "src", "test"],
