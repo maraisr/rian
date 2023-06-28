@@ -53,7 +53,9 @@ export const exporter =
 
 					timestamp: span.start * 1000,
 
-					duration: span.end ? (span.end - span.start) * 1000 : undefined,
+					duration: span.end
+						? (span.end - span.start) * 1000
+						: undefined,
 
 					localEndpoint: {
 						serviceName: `${trace.resource['service.name']}@${scope.scope.name}`,

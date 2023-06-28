@@ -35,7 +35,10 @@ export function currentSpan(): Scope;
  * });
  * ```
  */
-export function span(name: string, parent_id?: Traceparent | string): CallableScope;
+export function span(
+	name: string,
+	parent_id?: Traceparent | string,
+): CallableScope;
 
 export type Tracer<T> = (cb: T) => ReturnType<T>;
 
@@ -54,4 +57,7 @@ export type Tracer<T> = (cb: T) => ReturnType<T>;
  * });
  * ```
  */
-export function tracer<T extends () => any>(name: string, options?: Options): Tracer<T>;
+export function tracer<T extends () => any>(
+	name: string,
+	options?: Options,
+): Tracer<T>;

@@ -1,87 +1,87 @@
 {
-	"name": "rian",
-	"version": "0.3.4",
-	"description": "Effective tracing for the edge and origins",
-	"keywords": [
-		"opentelemetry",
-		"trace-context",
-		"opentracing",
-		"traceparent",
-		"measure",
-		"monitor",
-		"observe",
-		"tracing",
-		"zipkin",
-		"tracer",
-		"trace"
-	],
-	"repository": "maraisr/rian",
-	"license": "MIT",
-	"author": "Marais Rossow <me@marais.dev> (https://marais.io)",
-	"sideEffects": false,
-	"exports": {
-		".": {
-			"types": "./index.d.ts",
-			"import": "./index.mjs",
-			"require": "./index.js"
-		},
-		"./async": {
-			"types": "./async.d.ts",
-			"import": "./async.mjs",
-			"require": "./async.js"
-		},
-		"./exporter.otel.http": {
-			"types": "./exporter.otel.http.d.ts",
-			"import": "./exporter.otel.http.mjs",
-			"require": "./exporter.otel.http.js"
-		},
-		"./exporter.zipkin": {
-			"types": "./exporter.zipkin.d.ts",
-			"import": "./exporter.zipkin.mjs",
-			"require": "./exporter.zipkin.js"
-		},
-		"./utils": {
-			"types": "./utils.d.ts",
-			"import": "./utils.mjs",
-			"require": "./utils.js"
-		},
-		"./package.json": "./package.json"
-	},
-	"main": "./index.js",
-	"module": "./index.mjs",
-	"types": "index.d.ts",
-	"files": [
-		"*.mjs",
-		"*.js",
-		"*.d.ts",
-		"!global.d.ts",
-		"exporter.*/*",
-		"utils/*"
-	],
-	"scripts": {
-		"bench": "node -r tsm bench/index.ts",
-		"build": "bundt --minify",
-		"format": "prettier --write \"{*,{src,test}/**/*,examples/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
-		"pretest": "pnpm run build",
-		"test": "uvu src \".test.ts$\" -r tsm",
-		"typecheck": "tsc --noEmit"
-	},
-	"prettier": "@marais/prettier",
-	"dependencies": {
-		"flattie": "^1.1.0",
-		"tctx": "^0.0.13"
-	},
-	"devDependencies": {
-		"@marais/prettier": "0.0.2",
-		"@marais/tsconfig": "0.0.4",
-		"bundt": "2.0.0-next.5",
-		"nanospy": "1.0.0",
-		"prettier": "2.8.8",
-		"tsm": "2.3.0",
-		"typescript": "5.1.3",
-		"uvu": "0.5.4"
-	},
-	"volta": {
-		"node": "18.16.1"
-	}
+  "name": "rian",
+  "version": "0.3.4",
+  "description": "Effective tracing for the edge and origins",
+  "keywords": [
+    "opentelemetry",
+    "trace-context",
+    "opentracing",
+    "traceparent",
+    "measure",
+    "monitor",
+    "observe",
+    "tracing",
+    "zipkin",
+    "tracer",
+    "trace"
+  ],
+  "repository": "maraisr/rian",
+  "license": "MIT",
+  "author": "Marais Rossow <me@marais.dev> (https://marais.io)",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.js"
+    },
+    "./async": {
+      "types": "./async.d.ts",
+      "import": "./async.mjs",
+      "require": "./async.js"
+    },
+    "./exporter.otel.http": {
+      "types": "./exporter.otel.http.d.ts",
+      "import": "./exporter.otel.http.mjs",
+      "require": "./exporter.otel.http.js"
+    },
+    "./exporter.zipkin": {
+      "types": "./exporter.zipkin.d.ts",
+      "import": "./exporter.zipkin.mjs",
+      "require": "./exporter.zipkin.js"
+    },
+    "./utils": {
+      "types": "./utils.d.ts",
+      "import": "./utils.mjs",
+      "require": "./utils.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./index.js",
+  "module": "./index.mjs",
+  "types": "index.d.ts",
+  "files": [
+    "*.mjs",
+    "*.js",
+    "*.d.ts",
+    "!global.d.ts",
+    "exporter.*/*",
+    "utils/*"
+  ],
+  "scripts": {
+    "bench": "node -r tsm bench/index.ts",
+    "build": "bundt --minify",
+    "format": "prettier --write \"{*,{src,test}/**/*,examples/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
+    "pretest": "pnpm run build",
+    "test": "uvu src \".test.ts$\" -r tsm",
+    "typecheck": "tsc --noEmit"
+  },
+  "prettier": "@marais/prettier",
+  "dependencies": {
+    "flattie": "^1.1.0",
+    "tctx": "^0.0.13"
+  },
+  "devDependencies": {
+    "@marais/prettier": "0.0.4",
+    "@marais/tsconfig": "0.0.4",
+    "bundt": "2.0.0-next.5",
+    "nanospy": "1.0.0",
+    "prettier": "2.8.8",
+    "tsm": "2.3.0",
+    "typescript": "5.1.3",
+    "uvu": "0.5.4"
+  },
+  "volta": {
+    "node": "18.16.1"
+  }
 }

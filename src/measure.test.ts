@@ -89,11 +89,23 @@ returns('async', async () => {
 		utils.measure((scope as any).span('test'), async () => 'test'),
 		'test',
 	);
-	assert.equal(await utils.measure((scope as any).span('test'), async () => 'test'), 'test');
-	assert.equal(await utils.measure((scope as any).span('test'), async () => 1), 1);
-	assert.equal(await utils.measure((scope as any).span('test'), async () => false), false);
+	assert.equal(
+		await utils.measure((scope as any).span('test'), async () => 'test'),
+		'test',
+	);
+	assert.equal(
+		await utils.measure((scope as any).span('test'), async () => 1),
+		1,
+	);
+	assert.equal(
+		await utils.measure((scope as any).span('test'), async () => false),
+		false,
+	);
 	assert.instance(
-		await utils.measure((scope as any).span('test'), async () => new Error('test')),
+		await utils.measure(
+			(scope as any).span('test'),
+			async () => new Error('test'),
+		),
 		Error,
 		'error want thrown, so should just return',
 	);

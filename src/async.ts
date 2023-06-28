@@ -1,6 +1,13 @@
 import * as async_hooks from 'node:async_hooks';
 
-import type { CallableScope, ClockLike, Options, Sampler, Scope, Span } from 'rian';
+import type {
+	CallableScope,
+	ClockLike,
+	Options,
+	Sampler,
+	Scope,
+	Span,
+} from 'rian';
 import type { Tracer } from 'rian/async';
 import { measure } from 'rian/utils';
 import { make, parse, SAMPLED_FLAG, type Traceparent } from 'tctx';
@@ -14,7 +21,9 @@ type API = {
 	clock: ClockLike;
 };
 
-const resourceStore = new async_hooks.AsyncLocalStorage<[API, Scope | null] | null>();
+const resourceStore = new async_hooks.AsyncLocalStorage<
+	[API, Scope | null] | null
+>();
 
 export function currentSpan() {
 	const scope = resourceStore.getStore()?.[1];
@@ -40,7 +49,8 @@ export function span(name: string, parent_id?: Traceparent | string) {
 			: current_span?.traceparent;
 	const id = parent ? parent.child() : make();
 
-	const should_sample = typeof sampler !== 'boolean' ? sampler(name, id, scope) : sampler;
+	const should_sample =
+		typeof sampler !== 'boolean' ? sampler(name, id, scope) : sampler;
 
 	if (should_sample) id.flags |= SAMPLED_FLAG;
 	else id.flags &= ~SAMPLED_FLAG;
@@ -57,12 +67,14 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	should_sample && span_buffer.add([span_obj, scope]);
 	// ---
 
-	const $: CallableScope = (cb: any) => resourceStore.run([api, $], measure, $, cb);
+	const $: CallableScope = (cb: any) =>
+		resourceStore.run([api, $], measure, $, cb);
 
 	$.traceparent = id;
 	$.span = (name: string) => resourceStore.run([api, $], span, name);
 	$.set_context = (ctx) => {
-		if (typeof ctx === 'function') return void (span_obj.context = ctx(span_obj.context));
+		if (typeof ctx === 'function')
+			return void (span_obj.context = ctx(span_obj.context));
 		Object.assign(span_obj.context, ctx);
 	};
 	$.add_event = (name, attributes) => {
@@ -86,7 +98,10 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	return $;
 }
 
-export function tracer<T extends () => any>(name: string, options?: Options): Tracer<T> {
+export function tracer<T extends () => any>(
+	name: string,
+	options?: Options,
+): Tracer<T> {
 	const sampler = options?.sampler ?? defaultSampler;
 
 	const scope = { name };

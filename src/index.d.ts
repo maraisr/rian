@@ -209,7 +209,9 @@ export function tracer(name: string, options?: Options): Tracer;
 /**
  * Awaits all active promises, and then calls the {@link Options.exporter|exporter}. Passing all collected spans.
  */
-export async function report<T extends Exporter>(exporter: T): Promise<ReturnType<T>>;
+export async function report<T extends Exporter>(
+	exporter: T,
+): Promise<ReturnType<T>>;
 
 /**
  * Calling this method will set the resource attributes for this runtime. This is useful for things like:

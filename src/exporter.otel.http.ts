@@ -27,7 +27,10 @@ const SpanStatusCode_OK = 1;
 const SpanStatusCode_ERROR = 2;
 
 type Status = {
-	code: typeof SpanStatusCode_UNSET | typeof SpanStatusCode_OK | typeof SpanStatusCode_ERROR;
+	code:
+		| typeof SpanStatusCode_UNSET
+		| typeof SpanStatusCode_OK
+		| typeof SpanStatusCode_ERROR;
 	message?: string;
 };
 
@@ -72,7 +75,8 @@ const convert_value_to_anyvalue = (value: any) => {
 		any_value.arrayValue = {
 			values: value.map((i) => convert_value_to_anyvalue(i)),
 		};
-	else if (value) any_value.kvlistValue = { values: convert_object_to_kv(value) };
+	else if (value)
+		any_value.kvlistValue = { values: convert_object_to_kv(value) };
 
 	return any_value;
 };

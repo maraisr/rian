@@ -1,12 +1,12 @@
 {
-	"extends": "@marais/tsconfig",
-	"compilerOptions": {
-		"baseUrl": ".",
-		"paths": {
-			"rian": ["src/index.d.ts"],
-			"rian/*": ["src/*.d.ts"]
-		}
-	},
-	"include": ["global.d.ts", "src", "test"],
-	"exclude": ["node_modules"]
+  "extends": "@marais/tsconfig",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "rian": ["src/index.d.ts"],
+      "rian/*": ["src/*.d.ts"]
+    }
+  },
+  "include": ["global.d.ts", "src", "test"],
+  "exclude": ["node_modules"]
 }

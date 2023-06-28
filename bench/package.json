@@ -1,10 +1,10 @@
 {
-	"private": true,
-	"dependencies": {
-		"@opentelemetry/api": "1.4.1",
-		"@opentelemetry/sdk-trace-base": "1.10.0",
-		"@opentelemetry/sdk-trace-node": "1.10.0",
-		"@types/benchmark": "2.1.2",
-		"benchmark": "2.1.4"
-	}
+  "private": true,
+  "dependencies": {
+    "@opentelemetry/api": "1.4.1",
+    "@opentelemetry/sdk-trace-base": "1.10.0",
+    "@opentelemetry/sdk-trace-node": "1.10.0",
+    "@types/benchmark": "2.1.2",
+    "benchmark": "2.1.4"
+  }
 }

@@ -1,12 +1,12 @@
 {
-	"scripts": {
-		"start": "tsm server.ts"
-	},
-	"dependencies": {
-		"rian": "*"
-	},
-	"devDependencies": {
-		"@types/node": "^18.15.3",
-		"tsm": "^2.2.1"
-	}
+  "scripts": {
+    "start": "tsm server.ts"
+  },
+  "dependencies": {
+    "rian": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.3",
+    "tsm": "^2.2.1"
+  }
 }

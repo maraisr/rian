@@ -14,7 +14,10 @@ export function tracer(name: string, options?: Options): Tracer {
 	const ps: Set<Promise<any>> = new Set();
 	wait_promises.set(scope, ps);
 
-	const span = (name: string, parent_id?: Traceparent | string): CallableScope => {
+	const span = (
+		name: string,
+		parent_id?: Traceparent | string,
+	): CallableScope => {
 		const parent =
 			parent_id != null
 				? typeof parent_id === 'string'

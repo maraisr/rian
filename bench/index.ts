@@ -1,4 +1,7 @@
-import { InMemorySpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import {
+	InMemorySpanExporter,
+	SimpleSpanProcessor,
+} from '@opentelemetry/sdk-trace-base';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { Suite } from 'benchmark';
 
@@ -8,7 +11,10 @@ import * as assert from 'uvu/assert';
 
 async function runner(
 	name: string,
-	candidates: Record<string, { setup?: () => any; fn: (...args: any[]) => any }>,
+	candidates: Record<
+		string,
+		{ setup?: () => any; fn: (...args: any[]) => any }
+	>,
 	valid: (p: any) => boolean,
 ) {
 	console.log('\nValidation :: %s', name);
@@ -25,7 +31,9 @@ async function runner(
 
 	return new Promise((resolve) => {
 		console.log('\nBenchmark :: %s', name);
-		const bench = new Suite().on('cycle', (e) => console.log('  ' + e.target));
+		const bench = new Suite().on('cycle', (e) =>
+			console.log('  ' + e.target),
+		);
 		Object.keys(candidates).forEach((name) => {
 			const setup = candidates[name].setup?.();
 			bench.add(name + ' '.repeat(22 - name.length), {
@@ -61,7 +69,9 @@ const opentelemetrySetup = () => {
 
 					tracer.span('span 1').end();
 
-					return await rian.report((s) => Array.from(s.scopeSpans)[0].spans);
+					return await rian.report(
+						(s) => Array.from(s.scopeSpans)[0].spans,
+					);
 				},
 			},
 			'rian/async': {
@@ -70,7 +80,9 @@ const opentelemetrySetup = () => {
 						rianAsync.span('span 1').end();
 					});
 
-					return await rianAsync.report((s) => Array.from(s.scopeSpans)[0].spans);
+					return await rianAsync.report(
+						(s) => Array.from(s.scopeSpans)[0].spans,
+					);
 				},
 			},
 			opentelemetry: {
@@ -104,7 +116,9 @@ const opentelemetrySetup = () => {
 						s.span('span 2').end();
 					});
 
-					return await rian.report((s) => Array.from(s.scopeSpans)[0].spans);
+					return await rian.report(
+						(s) => Array.from(s.scopeSpans)[0].spans,
+					);
 				},
 			},
 			'rian/async': {
@@ -115,7 +129,9 @@ const opentelemetrySetup = () => {
 						});
 					});
 
-					return await rianAsync.report((s) => Array.from(s.scopeSpans)[0].spans);
+					return await rianAsync.report(
+						(s) => Array.from(s.scopeSpans)[0].spans,
+					);
 				},
 			},
 			opentelemetry: {
