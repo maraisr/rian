@@ -217,9 +217,7 @@ export function tracer(name: string, options?: Options): Tracer;
 /**
  * Awaits all active promises, and then calls the {@link Options.exporter|exporter}. Passing all collected spans.
  */
-export async function report<T extends Exporter>(
-	exporter: T,
-): Promise<ReturnType<T>>;
+export function report<T extends Exporter>(exporter: T): Promise<ReturnType<T>>;
 
 /**
  * Calling this method will set the resource attributes for this runtime. This is useful for things like:
@@ -237,7 +235,7 @@ export async function report<T extends Exporter>(
  * configure('my-service', { 'deployment.environment': 'production', 'k8s.namespace.name': 'default' });
  * ```
  */
-export function configure(name: string, attributes: Context): void;
+export function configure(name: string, attributes?: Context): void;
 
 /**
  * Provinding a clock allows you to control the time of the span.
