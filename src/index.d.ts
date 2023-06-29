@@ -5,10 +5,18 @@ import type { Traceparent } from 'tctx';
 /**
  * The exporter is called when the {@link report} method is called.
  */
-export type Exporter = (trace: {
-	resource: Context;
+export type Exporter = (trace: Trace) => any;
+
+type Resource = {
+	'service.name': string;
+	'telemetry.sdk.name': string;
+	'telemetry.sdk.version': string;
+} & Context;
+
+export type Trace = {
+	resource: Resource;
 	scopeSpans: IterableIterator<ScopedSpans>;
-}) => any;
+};
 
 export type ScopedSpans = {
 	readonly scope: { readonly name: string };
@@ -43,15 +51,15 @@ export type Sampler = (
 	/**
 	 * The name of the span.
 	 */
-	readonly name: string,
+	name: string,
 	/**
 	 * The traceparent id of the span.
 	 */
-	readonly id: Traceparent,
+	id: Traceparent,
 	/**
 	 * The tracer this span belongs to.
 	 */
-	readonly tracer: { readonly name: string },
+	tracer: { readonly name: string },
 ) => boolean;
 
 // --- spans
@@ -229,7 +237,7 @@ export async function report<T extends Exporter>(
  * configure('my-service', { 'deployment.environment': 'production', 'k8s.namespace.name': 'default' });
  * ```
  */
-export function configure(name: string, attributes: Context = {}): void;
+export function configure(name: string, attributes: Context): void;
 
 /**
  * Provinding a clock allows you to control the time of the span.

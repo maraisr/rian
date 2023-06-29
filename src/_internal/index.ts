@@ -1,11 +1,11 @@
 // 🚨 WARNING THIS FILE WILL DUPLICATE ITSELF WITH EACH ENTRYPOINT
 
-import type { Context, Exporter, ScopedSpans, Span } from 'rian';
+import type { Resource, Context, Exporter, ScopedSpans, Span } from 'rian';
 import { is_sampled, type Traceparent } from 'tctx';
 
 // ---
 
-let resource: Context = {};
+let resource = {} as Resource;
 
 export function configure(name: string, attributes: Context = {}) {
 	resource = {
