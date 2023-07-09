@@ -1,24 +1,36 @@
-<div align="right">
+<div align="left">
+
+<samp>
+
 <img src="files/logo-light.svg#gh-light-mode-only" alt="rian light mode logo" width="200px">
 <img src="files/logo-dark.svg#gh-dark-mode-only" alt="rian dark mode logo" width="200px">
-<br />
-<br />
 
-<p><code>npm add rian</code> doesn't overcomplicate tracing</p>
-<span>
+</samp>
+
+**A utility to simplify your tracing**
+
 <a href="https://npm-stat.com/charts.html?package=rian">
-	<img src="https://badgen.net/npm/dw/rian?labelColor=black&color=black&cache=600" alt="downloads"/>
+  <img src="https://badgen.net/npm/dm/rian?color=black&label=npm%20downloads" alt="js downloads">
 </a>
-<a href="https://packagephobia.com/result?p=rian">
-	<img src="https://badgen.net/packagephobia/install/rian?labelColor=black&color=black" alt="size"/>
+<a href="https://unpkg.com/rian/index.mjs">
+  <img src="https://img.badgesize.io/https://unpkg.com/rian/index.mjs?compression=gzip&label=gzip&color=black" alt="gzip size" />
 </a>
-<a href="https://bundlephobia.com/result?p=rian">
-	<img src="https://badgen.net/bundlephobia/minzip/rian?labelColor=black&color=black" alt="size"/>
+<a href="https://unpkg.com/rian/index.mjs">
+  <img src="https://img.badgesize.io/https://unpkg.com/rian/index.mjs?compression=brotli&label=brotli&color=black" alt="brotli size" />
 </a>
-</span>
 
-<br />
-<br />
+<br>
+<br>
+
+<sup>
+
+This is free to use software, but if you do like it, consisder supporting me ❤️
+
+[![sponsor me](https://badgen.net/badge/icon/sponsor?icon=github&label&color=gray)](https://github.com/sponsors/maraisr)
+[![buy me a coffee](https://badgen.net/badge/icon/buymeacoffee?icon=buymeacoffee&label&color=gray)](https://www.buymeacoffee.com/marais)
+
+</sup>
+
 </div>
 
 ## ⚡ Features
@@ -276,6 +288,6 @@ MIT © [Marais Rossouw](https://marais.io)
 
 ##### Disclaimer
 
-<sup>- NewRelic is a registered trademark of https://newrelic.com/ and not affiliated with this project.</sup><br />
-<sup>- Datadog is a registered trademark of https://www.datadoghq.com/ and not affiliated with this project.</sup><br />
+<sup>- NewRelic is a registered trademark of https://newrelic.com/ and not affiliated with this project.</sup><br>
+<sup>- Datadog is a registered trademark of https://www.datadoghq.com/ and not affiliated with this project.</sup><br>
 <sup>- Lightstep is a registered trademark of https://lightstep.com/ and not affiliated with this project.</sup>
