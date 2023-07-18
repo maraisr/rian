@@ -8,6 +8,9 @@ dependencies:
   flattie:
     specifier: ^1.1.0
     version: 1.1.0
+  kleur:
+    specifier: ^4.1.5
+    version: 4.1.5
   tctx:
     specifier: ^0.0.13
     version: 0.0.13
@@ -19,6 +22,9 @@ devDependencies:
   '@marais/tsconfig':
     specifier: 0.0.4
     version: 0.0.4
+  '@types/node':
+    specifier: 20.4.2
+    version: 20.4.2
   bundt:
     specifier: 2.0.0-next.5
     version: 2.0.0-next.5
@@ -119,6 +125,10 @@ packages:
 
   /@marais/tsconfig@0.0.4:
     resolution: {integrity: sha512-b6KCal22xP6E8wgl52rxdf8MXuffI4oJ9aTosucX4aVb97yl01wU0PzGF67oMA/i9KdzLa0rjQ0zVdZ+1pvVAg==}
+    dev: true
+
+  /@types/node@20.4.2:
+    resolution: {integrity: sha512-Dd0BYtWgnWJKwO1jkmTrzofjK2QXXcai0dmtzvIBhcA+RsG5h8R3xlyta0kGOZRNfL9GuRtb1knmPEhQrePCEw==}
     dev: true
 
   /acorn@8.9.0:
@@ -582,7 +592,6 @@ packages:
   /kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
-    dev: true
 
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}

@@ -40,6 +40,11 @@
       "import": "./exporter.zipkin.mjs",
       "require": "./exporter.zipkin.js"
     },
+    "./exporter.console": {
+      "types": "./exporter.console.d.ts",
+      "import": "./exporter.console.mjs",
+      "require": "./exporter.console.js"
+    },
     "./utils": {
       "types": "./utils.d.ts",
       "import": "./utils.mjs",
@@ -60,7 +65,7 @@
   ],
   "scripts": {
     "bench": "node -r tsm bench/index.ts",
-    "build": "bundt --minify",
+    "build": "bundt",
     "format": "prettier --write \"{*,{src,test}/**/*,examples/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
     "pretest": "pnpm run build",
     "test": "uvu src \".test.ts$\" -r tsm",
@@ -69,11 +74,13 @@
   "prettier": "@marais/prettier",
   "dependencies": {
     "flattie": "^1.1.0",
+    "kleur": "^4.1.5",
     "tctx": "^0.0.13"
   },
   "devDependencies": {
     "@marais/prettier": "0.0.4",
     "@marais/tsconfig": "0.0.4",
+    "@types/node": "20.4.2",
     "bundt": "2.0.0-next.5",
     "nanospy": "1.0.0",
     "prettier": "2.8.8",

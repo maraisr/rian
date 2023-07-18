@@ -7,6 +7,6 @@
       "rian/*": ["src/*.d.ts"]
     }
   },
-  "include": ["global.d.ts", "src", "test"],
+  "include": ["global.d.ts", "src/*.d.ts", "src", "test"],
   "exclude": ["node_modules"]
 }
