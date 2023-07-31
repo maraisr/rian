@@ -4,7 +4,6 @@ import { exporter } from '../exporter.console.mjs'
 Rian.configure('basic')
 
 await Rian.tracer('basic')(async () => {
-	Rian.span('go');
     await Promise.all([
         Rian.span('setup')(() => sleep(93)),
         Rian.span('bootstrap')(() => sleep(41)),
@@ -13,8 +12,10 @@ await Rian.tracer('basic')(async () => {
 
     await Promise.all([
         Rian.span('precompile')(() => sleep(59)),
-        sleep(10).then(() => Rian.span('verify')(() => sleep(79))),
+        sleep(23).then(() => Rian.span('verify')(() => sleep(79))),
     ]);
+
+    Rian.span('background thread');
 
     await Rian.span('running')(() => {
         return Rian.span('e2e')(async () => {
