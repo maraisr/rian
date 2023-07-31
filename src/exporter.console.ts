@@ -47,17 +47,25 @@ export function exporter(max_cols: number) {
 				let dur = end_time - start_time;
 				let dur_str = format(dur);
 
-				// name
-				out += '[ ';
+				// time
+				out += '╭';
+				out += '─'.repeat(max_time_col-2);
+				out += '╮ ╭';
+				out += '─'.repeat(max_trace_col-2);
+				out += '╮';
+				out += '\n';
+				out += '│ ';
 				out += dur_str.padStart(max_time_length);
-				out += ' ]';
+				out += ' │ │';
 
 				// trace
 				out += ' '.repeat(start_trace + p);
 				out += '┣';
-				out += (tmp.end ? '━' : '╍').repeat(end_trace - start_trace);
+				out += (tmp.end ? '━' : '╍').repeat(Math.max(end_trace - start_trace - 3, 0));
 				out += '┫';
-				out += ' '.repeat(max_trace_col - end_trace - (p + 2));
+				out += ' '.repeat(Math.max(max_trace_col - end_trace-4, 0)+p);
+
+				out += ' │ ';
 
 				// name
 				out += '◗ ';
@@ -66,6 +74,12 @@ export function exporter(max_cols: number) {
 						? tmp.name.substring(0, max_name_col - 3) + '…'
 						: tmp.name;
 				out += '\n';
+
+				out += '╰';
+				out += '─'.repeat(max_time_col-2);
+				out += '╯ ╰';
+				out += '─'.repeat(max_trace_col-2);
+				out += '╯\n';
 			}
 
 			// trailer
