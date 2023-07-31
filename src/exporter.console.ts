@@ -1,87 +1,96 @@
-///<reference types="node" />
-
 import type * as rian from 'rian';
 
-export function exporter(trace: rian.Trace) {
-	let max_cols = process.stdout.columns || 80;
+export function exporter(max_cols: number) {
+    return function(trace: rian.Trace) {
+        for (let scope of trace.scopeSpans) {
+            let spans = scope.spans;
 
-	for (let scope of trace.scopeSpans) {
-		let spans = Array.from(scope.spans);
+            if (!spans.length) return;
 
-		const [max_time, min_time] = spans.reduce(
-			(col, span) => {
-				col[0] = Math.max(col[0], span.end || span.start);
-				col[1] = Math.min(col[1], span.start);
-				return col;
-			},
-			[Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER] as [
-				max_time: number,
-				min_time: number,
-			],
-		);
+            let tmp, i;
 
-		let dur = max_time - min_time;
+            let out = '';
+            let max_time = 0;
+            let min_time = spans[0].start;
 
-		let max_time_length = String(dur).length;
-		let max_time_col = max_time_length + 7; // [..ms.]
-		let max_trace_col = Math.ceil((2 / 3) * (max_cols - max_time_col)) - 2; // . .
-		let max_name_col = max_cols - max_time_col - max_trace_col;
+            for (i = 0; (tmp = scope.spans[i++]);) {
+                max_time = Math.max(max_time, tmp.end || tmp.start);
+                min_time = Math.min(min_time, tmp.start);
+            }
 
-		let out = '';
+            let t_dur = max_time - min_time;
+            let t_dur_str = format(t_dur);
 
-		for (let span of spans) {
-			let time = 0;
-			let end = span.end ?? false;
-			if (end !== false) time = end - span.start;
+            /*
+            [ cols                           ]
+            [ time ] [ trace        ] [ name ]
+            [ time ] [ trace        ] [ name ]
+            */
+            let max_time_length = t_dur_str.length;
+            let max_time_col = max_time_length + 7; // [..ms.]
+            let max_trace_col = Math.ceil((2 / 3) * (max_cols - max_time_col)) - 2; // . .
+            let max_name_col = max_cols - max_time_col - max_trace_col;
 
-			let start = Math.ceil(
-				((span.start - min_time) / (max_time - min_time)) *
-					max_trace_col,
-			);
-			end = end
-				? Math.ceil(
-						((span.end! - min_time) / (max_time - min_time)) *
-							max_trace_col,
-				  )
-				: start;
+            for (i = 0; (tmp = scope.spans[i++]);) {
+                let start_time = (tmp.start - min_time);
+                let end_time = ((tmp.end ?? max_time) - min_time);
 
-			if (end - start < 1) continue;
+                let start_trace = Math.ceil((start_time / t_dur) * max_trace_col);
+                let end_trace = Math.ceil((end_time / t_dur) * max_trace_col);
 
-			// time
-			out += '[ ';
-			out += String(time).padStart(max_time_length, ' ');
-			out += ' ms';
-			out += ' ]';
+                let dur = end_time - start_time;
+                let dur_str = format(dur);
 
-			// tracer
-			out += ' ';
+                // name
+                out += '[ ';
+                out += dur_str.padStart(max_time_length);
+                out += ' ]';
 
-			for (let i = 0; i <= max_trace_col; i++) {
-				if (i === start) {
-					out += '';
-				} else if (i < start) {
-					out += ' ';
-				} else if (i >= start && i < end) {
-					out += '▇';
-				} else if (i === end) {
-					out += '';
-				} else if (i > end) {
-					out += ' ';
-				}
-			}
+                // trace
+                out += ' '.repeat(start_trace + 1); // +1 for leading space
+                out += '❲'
+                out += (tmp.end ? '•' : '◦').repeat(end_trace - start_trace);
+                out += '❳'
+                out += ' '.repeat(max_trace_col - end_trace);
 
-			out += ' ';
+                // name
+                out += ' ◗ ';
+                out +=
+                    tmp.name.length + 1 > max_name_col
+                        ? tmp.name.substring(0, max_name_col - 5) + '… '
+                        : tmp.name;
+                out += '\n';
+            }
 
-			// name
-			if (span.name.length + 3 > max_name_col) {
-				out += ' > ' + span.name.slice(0, max_name_col - 7) + '... ';
-			} else {
-				out += ' > ' + span.name + ' ';
-			}
+            // trailer
+            out += '\n';
+            let t_dur_str_seg = format(t_dur / max_trace_col);
+            let t_max_len = Math.max(t_dur_str_seg.length, String(t_dur).length);
+            out += tmp = `one • is less than: ${t_dur_str_seg}\n`;
+            out += `total time: ${String(t_dur).padStart(t_max_len - 3)} ms`.padStart(tmp.length - 1);
 
-			out += '\n';
-		}
+            console.log(out);
+        }
+    }
+}
 
-		console.log(out);
-	}
+// --
+
+let MIN = 60e3;
+let HOUR = MIN * 60;
+let SEC = 1e3;
+
+function dec_str(num: number) {
+    return num % 1 === 0 ? String(num) : num.toFixed(3);
+}
+
+function format(num: number) {
+    if (num < 0) return '0ms';
+    if (num < SEC) return `${dec_str(num)} ms`;
+    if (num < MIN) return `${dec_str(num / SEC)} s`;
+    if (num < HOUR)
+        return `${Math.floor(num / HOUR)} m ${Math.floor(
+            (num % HOUR) / SEC,
+        )} s ${dec_str(num % SEC)} ms`;
+    return '> 1hr';
 }

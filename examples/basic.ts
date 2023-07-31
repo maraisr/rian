@@ -4,6 +4,7 @@ import { exporter } from '../exporter.console.mjs'
 Rian.configure('basic')
 
 await Rian.tracer('basic')(async () => {
+	Rian.span('go');
     await Promise.all([
         Rian.span('setup')(() => sleep(93)),
         Rian.span('bootstrap')(() => sleep(41)),
@@ -27,7 +28,7 @@ await Rian.tracer('basic')(async () => {
     await Rian.span('report with a really long name to test the wrapping')(() => sleep(11));
 });
 
-Rian.report(exporter)
+Rian.report(exporter(process.stdout.columns))
 
 // --
 
