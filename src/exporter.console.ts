@@ -16,7 +16,7 @@ export function exporter(max_cols: number) {
 			let min_time = spans[0].start;
 
 			for (i = 0; (tmp = scope.spans[i++]); ) {
-				max_time = Math.max(max_time, tmp.end || tmp.start);
+				max_time = Math.max(max_time, tmp.end ?? tmp.start);
 				min_time = Math.min(min_time, tmp.start);
 			}
 
