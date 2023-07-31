@@ -3,6 +3,8 @@ import type * as rian from 'rian';
 let p = 1;
 
 export function exporter(max_cols: number) {
+	if (max_cols <  24) throw new Error('max_cols must be at least 24');
+
 	return function (trace: rian.Trace) {
 		for (let scope of trace.scopeSpans) {
 			let spans = scope.spans;
@@ -52,9 +54,9 @@ export function exporter(max_cols: number) {
 
 				// trace
 				out += ' '.repeat(start_trace + p);
-				out += '❲';
-				out += (tmp.end ? '•' : '◦').repeat(end_trace - start_trace);
-				out += '❳';
+				out += '┣';
+				out += (tmp.end ? '━' : '╍').repeat(end_trace - start_trace);
+				out += '┫';
 				out += ' '.repeat(max_trace_col - end_trace - (p + 2));
 
 				// name
@@ -73,7 +75,7 @@ export function exporter(max_cols: number) {
 				t_dur_str_seg.length,
 				String(t_dur).length,
 			);
-			out += tmp = `one • is less than: ${t_dur_str_seg}\n`;
+			out += tmp = `one '━' unit is less than: ${t_dur_str_seg}\n`;
 			out += `total time: ${String(t_dur).padStart(
 				t_max_len - 3,
 			)} ms`.padStart(tmp.length - 1);
