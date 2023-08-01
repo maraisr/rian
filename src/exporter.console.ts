@@ -31,18 +31,18 @@ export function exporter(max_cols = 120) {
 				Math.ceil((2 / 3) * (max_cols - max_time_col)) - 2; // . .
 			let max_name_col = max_cols - max_time_col - max_trace_col;
 
-			for (let span of spans) {
+			for (i = 0; (tmp = scope.spans[i++]); ) {
 				let time = 0;
-				let end = span.end ?? false;
-				if (end !== false) time = end - span.start;
+				let end = tmp.end ?? false;
+				if (end !== false) time = end - tmp.start;
 
 				let start = Math.ceil(
-					((span.start - min_time) / (max_time - min_time)) *
+					((tmp.start - min_time) / (max_time - min_time)) *
 						max_trace_col,
 				);
 				end = end
 					? Math.ceil(
-							((span.end! - min_time) / (max_time - min_time)) *
+							((tmp.end! - min_time) / (max_time - min_time)) *
 								max_trace_col,
 					  )
 					: start;
@@ -75,11 +75,11 @@ export function exporter(max_cols = 120) {
 				out += ' ';
 
 				// name
-				if (span.name.length + 3 > max_name_col) {
+				if (tmp.name.length + 3 > max_name_col) {
 					out +=
-						' > ' + span.name.slice(0, max_name_col - 7) + '... ';
+						' > ' + tmp.name.slice(0, max_name_col - 7) + '... ';
 				} else {
-					out += ' > ' + span.name + ' ';
+					out += ' > ' + tmp.name + ' ';
 				}
 
 				out += '\n';
