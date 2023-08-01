@@ -6,6 +6,8 @@ export function exporter(max_cols = 120) {
 	if (max_cols < 24) throw new Error('max_cols must be at least 24');
 
 	return function (trace: rian.Trace) {
+		max_cols = max_cols - 2;
+
 		for (let scope of trace.scopeSpans) {
 			let spans = scope.spans;
 
@@ -45,7 +47,12 @@ export function exporter(max_cols = 120) {
 
 			let out = '';
 
+			out += '╭─ ';
+			out += scope.scope.name;
+			out += '\n';
+
 			// spans top border
+			out += '│ ';
 			out += '╭'.padStart(max_time_col);
 			out += '─'.repeat(max_trace_col);
 			out += '╮\n';
@@ -62,6 +69,7 @@ export function exporter(max_cols = 120) {
 				let dur_str = format(dur);
 
 				// time
+				out += '│ ';
 				out += dur_str.padStart(max_time_length);
 				out += ' │';
 
@@ -83,6 +91,7 @@ export function exporter(max_cols = 120) {
 			}
 
 			// spans bottom border
+			out += '│ ';
 			out += '╰'.padStart(max_time_col);
 			out += '┼';
 			out += '┴'.repeat(mid - 2);
@@ -92,6 +101,7 @@ export function exporter(max_cols = 120) {
 			out += '╯\n';
 
 			// legend
+			out += '│ ';
 			out += '0 ms'.padStart(max_time_length + 2 + 4); // .[0 ms
 			out += mid_str.padStart(mid + mid_str_anchor - 4); // 0 ms
 			out += t_dur_str.padStart(
@@ -102,14 +112,19 @@ export function exporter(max_cols = 120) {
 					t_dur_str.length,
 			);
 
+			out += '\n│\n';
+
 			// trailer
-			out += '\n\n';
+			out += '│ ';
 			let t_dur_str_seg = format(t_dur / trace_cols);
 			let t_max_len = Math.max(t_dur_str_seg.length, t_dur_str.length);
 			out += tmp = `one └┘ unit is less than: ${t_dur_str_seg}\n`;
+			out += '│ ';
 			out += `total time: ${t_dur_str.padStart(t_max_len)}`.padStart(
 				tmp.length - 1,
 			);
+
+			out += '\n╰─';
 
 			console.log(out);
 		}

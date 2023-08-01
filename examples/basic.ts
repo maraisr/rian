@@ -17,7 +17,14 @@ await Rian.tracer('basic')(async () => {
         sleep(23).then(() => Rian.span('verify')(() => sleep(79))),
     ]);
 
-    Rian.span('background thread');
+    await Rian.span('spawn thread')(() =>
+        Rian.tracer('thread #1')(async () => Promise.all([
+            Rian.span('setup')(() => sleep(20)),
+            Rian.span('bootstrap')(() => sleep(63)),
+        ]))
+    );
+
+   	Rian.span('doesnt finish');
 
     await Rian.span('running')(() => {
         return Rian.span('e2e')(async () => {
