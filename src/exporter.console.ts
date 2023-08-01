@@ -54,9 +54,9 @@ export function exporter(max_cols = 120) {
 
 				// trace
 				out += ' '.repeat(start_trace + p);
-				out += '❲';
-				out += (tmp.end ? '•' : '◦').repeat(end_trace - start_trace);
-				out += '❳';
+				out += '┣';
+				out += (tmp.end ? '━' : '╍').repeat(end_trace - start_trace);
+				out += '┫';
 				out += ' '.repeat(max_trace_col - end_trace - (p + 2));
 
 				// name
@@ -72,7 +72,7 @@ export function exporter(max_cols = 120) {
 			out += '\n';
 			let t_dur_str_seg = format(t_dur / trace_cols);
 			let t_max_len = Math.max(t_dur_str_seg.length, t_dur_str.length);
-			out += tmp = `one '•' unit is less than: ${t_dur_str_seg}\n`;
+			out += tmp = `one '━' unit is less than: ${t_dur_str_seg}\n`;
 			out += `total time: ${t_dur_str.padStart(t_max_len)}`.padStart(
 				tmp.length - 1,
 			);
