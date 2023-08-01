@@ -1,4 +1,5 @@
 import * as Rian from '../async.mjs'
+import { exporter } from '../exporter.console.mjs'
 
 Rian.configure('basic')
 
@@ -27,6 +28,8 @@ await Rian.tracer('basic')(async () => {
 
     await Rian.span('url for page /my-product/sleeping-bags-and-tents failed to find a selector')(() => sleep(11));
 });
+
+Rian.report(exporter);
 
 // --
 
