@@ -37,6 +37,11 @@ export function exporter(max_cols = 120) {
 			// [ time ] [ trace       ] { name   }
 			let max_name_col = max_cols - max_time_col - max_trace_col;
 
+			// [...^...]
+			let mid = Math.floor(trace_cols / 2);
+			let mid_str = format(t_dur / 2);
+			let mid_str_anchor = Math.floor(mid_str.length / 2);
+
 			out += ' '.repeat(max_time_length + 1);
 			out += '╭';
 			out += '─'.repeat(max_trace_col);
@@ -77,8 +82,23 @@ export function exporter(max_cols = 120) {
 
 			out += ' '.repeat(max_time_length + 1);
 			out += '╰';
-			out += '─'.repeat(max_trace_col);
+			out += '┼';
+			out += '┴'.repeat(mid - 2);
+			out += '┼';
+			out += '┴'.repeat(max_trace_col - mid - 1);
+			out += '┼';
 			out += '╯';
+			out += '\n';
+
+			out += '0 ms'.padStart(max_time_length + 2 + 4); // .[0 ms
+			out += mid_str.padStart(mid + mid_str_anchor - 4); // 0 ms
+			out += t_dur_str.padStart(
+				trace_cols -
+					mid +
+					2 - // . .
+					(mid_str_anchor + 4) + // 0 ms
+					t_dur_str.length,
+			);
 
 			out += '\n';
 
