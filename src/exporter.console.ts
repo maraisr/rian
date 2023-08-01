@@ -30,16 +30,16 @@ export function exporter(max_cols = 120) {
 			let max_time_col = max_time_length + 2; // .|
 
 			// [ time ] { trace       }
-			let max_trace_col = Math.floor((2 / 3) * (max_cols - max_time_col));
+			let max_trace_col = Math.ceil((2 / 3) * (max_cols - max_time_col));
 			let trace_cols = max_trace_col - (p * 2 + 2);
 
 			// [ time ] [ trace       ] { name   }
 			let max_name_col = max_cols - max_time_col - max_trace_col;
 
 			// [...^...]
-			let mid = Math.floor(trace_cols / 2);
+			let mid = Math.ceil(trace_cols / 2);
 			let mid_str = format(t_dur / 2);
-			let mid_str_anchor = Math.floor(mid_str.length / 2);
+			let mid_str_anchor = Math.ceil(mid_str.length / 2);
 
 			// RENDER
 
@@ -55,8 +55,8 @@ export function exporter(max_cols = 120) {
 				let start_time = tmp.start - min_time;
 				let end_time = (tmp.end ?? max_time) - min_time;
 
-				let start_trace = Math.floor((start_time / t_dur) * trace_cols);
-				let end_trace = Math.floor((end_time / t_dur) * trace_cols);
+				let start_trace = Math.ceil((start_time / t_dur) * trace_cols);
+				let end_trace = Math.ceil((end_time / t_dur) * trace_cols);
 
 				let dur = end_time - start_time;
 				let dur_str = format(dur);
