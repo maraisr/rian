@@ -28,7 +28,7 @@ export function exporter(max_cols = 120) {
 			// [ cols                            ]
 			// { time }
 			let max_time_length = t_dur_str.length;
-			let max_time_col = max_time_length + 4; // [. .]
+			let max_time_col = max_time_length + 2; // .|
 
 			// [ time ] { trace       }
 			let max_trace_col = Math.floor((2 / 3) * (max_cols - max_time_col));
@@ -36,6 +36,13 @@ export function exporter(max_cols = 120) {
 
 			// [ time ] [ trace       ] { name   }
 			let max_name_col = max_cols - max_time_col - max_trace_col;
+
+			out += ' '.repeat(max_time_length + 1);
+			out += '╭';
+			out += '─'.repeat(max_trace_col);
+			out += '╮';
+
+			out += '\n';
 
 			for (i = 0; (tmp = scope.spans[i++]); ) {
 				let start_time = tmp.start - min_time;
@@ -48,9 +55,8 @@ export function exporter(max_cols = 120) {
 				let dur_str = format(dur);
 
 				// time
-				out += '[ ';
 				out += dur_str.padStart(max_time_length);
-				out += ' ]';
+				out += ' │';
 
 				// trace
 				out += ' '.repeat(start_trace + p);
@@ -60,19 +66,27 @@ export function exporter(max_cols = 120) {
 				out += ' '.repeat(max_trace_col - end_trace - (p + 2));
 
 				// name
-				out += '◗ ';
+				out += '│◗ ';
 				out +=
-					tmp.name.length + 5 > max_name_col
-						? tmp.name.substring(0, max_name_col - 3) + '…'
+					tmp.name.length + 4 > max_name_col
+						? tmp.name.substring(0, max_name_col - 4) + '…'
 						: tmp.name;
+
 				out += '\n';
 			}
+
+			out += ' '.repeat(max_time_length + 1);
+			out += '╰';
+			out += '─'.repeat(max_trace_col);
+			out += '╯';
+
+			out += '\n';
 
 			// trailer
 			out += '\n';
 			let t_dur_str_seg = format(t_dur / trace_cols);
 			let t_max_len = Math.max(t_dur_str_seg.length, t_dur_str.length);
-			out += tmp = `one '━' unit is less than: ${t_dur_str_seg}\n`;
+			out += tmp = `one └┘ unit is less than: ${t_dur_str_seg}\n`;
 			out += `total time: ${t_dur_str.padStart(t_max_len)}`.padStart(
 				tmp.length - 1,
 			);
