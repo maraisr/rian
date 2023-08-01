@@ -75,13 +75,11 @@ export function exporter(max_cols = 120) {
 				out += ' ';
 
 				// name
-				if (tmp.name.length + 3 > max_name_col) {
-					out +=
-						' > ' + tmp.name.slice(0, max_name_col - 7) + '... ';
-				} else {
-					out += ' > ' + tmp.name + ' ';
-				}
-
+				out += ' > ';
+				out +=
+					tmp.name.length + 3 > max_name_col
+						? tmp.name.substring(0, max_name_col - 7) + '... '
+						: tmp.name;
 				out += '\n';
 			}
 
