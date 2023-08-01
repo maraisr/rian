@@ -65,6 +65,15 @@ export function exporter(max_cols = 120) {
 				out += '\n';
 			}
 
+			// trailer
+			out += '\n';
+			let t_dur_str_seg = format(t_dur / max_trace_col);
+			let t_max_len = Math.max(t_dur_str_seg.length, t_dur_str.length);
+			out += tmp = `one '•' unit is less than: ${t_dur_str_seg}\n`;
+			out += `total time: ${t_dur_str.padStart(t_max_len)}`.padStart(
+				tmp.length - 1,
+			);
+
 			console.log(out);
 		}
 	};
