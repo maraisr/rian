@@ -40,6 +40,11 @@
       "import": "./exporter.zipkin.mjs",
       "require": "./exporter.zipkin.js"
     },
+    "./exporter.console": {
+      "types": "./exporter.console.d.ts",
+      "import": "./exporter.console.mjs",
+      "require": "./exporter.console.js"
+    },
     "./utils": {
       "types": "./utils.d.ts",
       "import": "./utils.mjs",
