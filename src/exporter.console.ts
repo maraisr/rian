@@ -3,6 +3,8 @@ import type * as rian from 'rian';
 let p = 1;
 
 export function exporter(max_cols = 120) {
+	if (max_cols < 24) throw new Error('max_cols must be at least 24');
+
 	return function (trace: rian.Trace) {
 		for (let scope of trace.scopeSpans) {
 			let spans = scope.spans;
