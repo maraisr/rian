@@ -1,5 +1,7 @@
 import type * as rian from 'rian';
 
+let p = 1;
+
 export function exporter(max_cols = 120) {
 	return function (trace: rian.Trace) {
 		for (let scope of trace.scopeSpans) {
@@ -21,25 +23,24 @@ export function exporter(max_cols = 120) {
 			let t_dur = max_time - min_time;
 			let t_dur_str = format(t_dur);
 
-			/*
-            [ cols                           ]
-            [ time ] [ trace        ] [ name ]
-            [ time ] [ trace        ] [ name ]
-            */
+			// [ cols                            ]
+			// { time }
 			let max_time_length = t_dur_str.length;
-			let max_time_col = max_time_length + 7; // [..ms.]
-			let max_trace_col =
-				Math.ceil((2 / 3) * (max_cols - max_time_col)) - 2; // . .
+			let max_time_col = max_time_length + 4; // [. .]
+
+			// [ time ] { trace       }
+			let max_trace_col = Math.floor((2 / 3) * (max_cols - max_time_col));
+			let trace_cols = max_trace_col - (p * 2 + 2);
+
+			// [ time ] [ trace       ] { name   }
 			let max_name_col = max_cols - max_time_col - max_trace_col;
 
 			for (i = 0; (tmp = scope.spans[i++]); ) {
 				let start_time = tmp.start - min_time;
 				let end_time = (tmp.end ?? max_time) - min_time;
 
-				let start_trace = Math.ceil(
-					(start_time / t_dur) * max_trace_col,
-				);
-				let end_trace = Math.ceil((end_time / t_dur) * max_trace_col);
+				let start_trace = Math.floor((start_time / t_dur) * trace_cols);
+				let end_trace = Math.floor((end_time / t_dur) * trace_cols);
 
 				let dur = end_time - start_time;
 				let dur_str = format(dur);
@@ -50,24 +51,24 @@ export function exporter(max_cols = 120) {
 				out += ' ]';
 
 				// trace
-				out += ' '.repeat(start_trace + 1); // +1 for leading space
+				out += ' '.repeat(start_trace + p);
 				out += '❲';
 				out += (tmp.end ? '•' : '◦').repeat(end_trace - start_trace);
 				out += '❳';
-				out += ' '.repeat(max_trace_col - end_trace);
+				out += ' '.repeat(max_trace_col - end_trace - (p + 2));
 
 				// name
-				out += ' ◗ ';
+				out += '◗ ';
 				out +=
-					tmp.name.length + 1 > max_name_col
-						? tmp.name.substring(0, max_name_col - 5) + '… '
+					tmp.name.length + 5 > max_name_col
+						? tmp.name.substring(0, max_name_col - 3) + '…'
 						: tmp.name;
 				out += '\n';
 			}
 
 			// trailer
 			out += '\n';
-			let t_dur_str_seg = format(t_dur / max_trace_col);
+			let t_dur_str_seg = format(t_dur / trace_cols);
 			let t_max_len = Math.max(t_dur_str_seg.length, t_dur_str.length);
 			out += tmp = `one '•' unit is less than: ${t_dur_str_seg}\n`;
 			out += `total time: ${t_dur_str.padStart(t_max_len)}`.padStart(
