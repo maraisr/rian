@@ -87,3 +87,27 @@ export function exporter(max_cols = 120) {
 		}
 	};
 }
+
+// --
+
+let MIN = 60e3;
+let HOUR = MIN * 60;
+let SEC = 1e3;
+
+function dec_str(num: number) {
+	return num % 1 === 0 ? String(num) : num.toFixed(3);
+}
+
+function format(num: number) {
+	if (num < 0) return '0 ms';
+	if (num < SEC) return `${dec_str(num)} ms`;
+	if (num < MIN) return `${dec_str(num / SEC)} s`;
+	if (num < HOUR) {
+		let m = Math.floor(num / MIN);
+		let s = Math.floor((num % MIN) / SEC);
+		let ms = dec_str(num % SEC);
+		return `${m} m ${s} s ${ms} ms`;
+	}
+
+	return '> 1hr';
+}
