@@ -27,6 +27,8 @@ export function exporter(max_cols = 120) {
 			let t_dur = max_time - min_time;
 			let t_dur_str = format(t_dur);
 
+			// TODO: perform these calculations across all spans in all scopes so the boxes align
+
 			// [ cols                            ]
 			// { time }
 			let max_time_length = t_dur_str.length;
