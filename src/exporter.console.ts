@@ -6,8 +6,9 @@ export function exporter(max_cols = 120) {
 	if (max_cols < 24) throw new Error('max_cols must be at least 24');
 
 	return function (trace: rian.Trace) {
-		max_cols = max_cols - 2;
+		console.log(obj_string(trace.resource) + '─'.repeat(max_cols));
 
+		max_cols = max_cols - 2;
 		for (let scope of trace.scopeSpans) {
 			let spans = scope.spans;
 
@@ -132,6 +133,23 @@ export function exporter(max_cols = 120) {
 }
 
 // --
+
+function obj_string(obj: Record<string, string>, line_prefix = '') {
+	let keys = Object.keys(obj);
+
+	let tmp, i;
+	let max_key = 0;
+
+	for (i = 0; (tmp = keys[i++]); max_key = Math.max(max_key, tmp.length));
+
+	let out = '';
+	for (
+		i = 0;
+		(tmp = keys[i++]);
+		out += line_prefix + tmp.padStart(max_key) + ': ' + obj[tmp] + '\n'
+	);
+	return out;
+}
 
 let MIN = 60e3;
 let HOUR = MIN * 60;
