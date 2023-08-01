@@ -18,67 +18,49 @@ export function exporter(max_cols = 120) {
 				min_time = Math.min(min_time, tmp.start);
 			}
 
-			let dur = max_time - min_time;
+			let t_dur = max_time - min_time;
+			let t_dur_str = format(t_dur);
 
 			/*
             [ cols                           ]
             [ time ] [ trace        ] [ name ]
             [ time ] [ trace        ] [ name ]
             */
-			let max_time_length = String(dur).length;
+			let max_time_length = t_dur_str.length;
 			let max_time_col = max_time_length + 7; // [..ms.]
 			let max_trace_col =
 				Math.ceil((2 / 3) * (max_cols - max_time_col)) - 2; // . .
 			let max_name_col = max_cols - max_time_col - max_trace_col;
 
 			for (i = 0; (tmp = scope.spans[i++]); ) {
-				let time = 0;
-				let end = tmp.end ?? false;
-				if (end !== false) time = end - tmp.start;
+				let start_time = tmp.start - min_time;
+				let end_time = (tmp.end ?? max_time) - min_time;
 
-				let start = Math.ceil(
-					((tmp.start - min_time) / (max_time - min_time)) *
-						max_trace_col,
+				let start_trace = Math.ceil(
+					(start_time / t_dur) * max_trace_col,
 				);
-				end = end
-					? Math.ceil(
-							((tmp.end! - min_time) / (max_time - min_time)) *
-								max_trace_col,
-					  )
-					: start;
+				let end_trace = Math.ceil((end_time / t_dur) * max_trace_col);
 
-				if (end - start < 1) continue;
+				let dur = end_time - start_time;
+				let dur_str = format(dur);
 
 				// time
 				out += '[ ';
-				out += String(time).padStart(max_time_length, ' ');
-				out += ' ms';
+				out += dur_str.padStart(max_time_length);
 				out += ' ]';
 
-				// tracer
-				out += ' ';
-
-				for (let i = 0; i <= max_trace_col; i++) {
-					if (i === start) {
-						out += '';
-					} else if (i < start) {
-						out += ' ';
-					} else if (i >= start && i < end) {
-						out += '▇';
-					} else if (i === end) {
-						out += '';
-					} else if (i > end) {
-						out += ' ';
-					}
-				}
-
-				out += ' ';
+				// trace
+				out += ' '.repeat(start_trace + 1); // +1 for leading space
+				out += '❲';
+				out += (tmp.end ? '•' : '◦').repeat(end_trace - start_trace);
+				out += '❳';
+				out += ' '.repeat(max_trace_col - end_trace);
 
 				// name
-				out += ' > ';
+				out += ' ◗ ';
 				out +=
-					tmp.name.length + 3 > max_name_col
-						? tmp.name.substring(0, max_name_col - 7) + '... '
+					tmp.name.length + 1 > max_name_col
+						? tmp.name.substring(0, max_name_col - 5) + '… '
 						: tmp.name;
 				out += '\n';
 			}
