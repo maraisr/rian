@@ -9,6 +9,7 @@ export function exporter(max_cols = 120) {
 
 			let tmp, i;
 
+			let out = '';
 			let max_time = 0;
 			let min_time = spans[0].start;
 
@@ -19,13 +20,16 @@ export function exporter(max_cols = 120) {
 
 			let dur = max_time - min_time;
 
+			/*
+            [ cols                           ]
+            [ time ] [ trace        ] [ name ]
+            [ time ] [ trace        ] [ name ]
+            */
 			let max_time_length = String(dur).length;
 			let max_time_col = max_time_length + 7; // [..ms.]
 			let max_trace_col =
 				Math.ceil((2 / 3) * (max_cols - max_time_col)) - 2; // . .
 			let max_name_col = max_cols - max_time_col - max_trace_col;
-
-			let out = '';
 
 			for (let span of spans) {
 				let time = 0;
