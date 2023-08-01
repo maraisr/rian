@@ -11,9 +11,10 @@ export function exporter(max_cols = 120) {
 
 			if (!spans.length) return;
 
+			let out = '';
+
 			let tmp, i;
 
-			let out = '';
 			let max_time = 0;
 			let min_time = spans[0].start;
 
@@ -42,13 +43,12 @@ export function exporter(max_cols = 120) {
 			let mid_str = format(t_dur / 2);
 			let mid_str_anchor = Math.floor(mid_str.length / 2);
 
-			out += ' '.repeat(max_time_length + 1);
-			out += '╭';
+			// spans top border
+			out += '╭'.padStart(max_time_col);
 			out += '─'.repeat(max_trace_col);
-			out += '╮';
+			out += '╮\n';
 
-			out += '\n';
-
+			// render spans
 			for (i = 0; (tmp = scope.spans[i++]); ) {
 				let start_time = tmp.start - min_time;
 				let end_time = (tmp.end ?? max_time) - min_time;
@@ -80,16 +80,16 @@ export function exporter(max_cols = 120) {
 				out += '\n';
 			}
 
-			out += ' '.repeat(max_time_length + 1);
-			out += '╰';
+			// spans bottom border
+			out += '╰'.padStart(max_time_col);
 			out += '┼';
 			out += '┴'.repeat(mid - 2);
 			out += '┼';
 			out += '┴'.repeat(max_trace_col - mid - 1);
 			out += '┼';
-			out += '╯';
-			out += '\n';
+			out += '╯\n';
 
+			// legend
 			out += '0 ms'.padStart(max_time_length + 2 + 4); // .[0 ms
 			out += mid_str.padStart(mid + mid_str_anchor - 4); // 0 ms
 			out += t_dur_str.padStart(
@@ -100,10 +100,8 @@ export function exporter(max_cols = 120) {
 					t_dur_str.length,
 			);
 
-			out += '\n';
-
 			// trailer
-			out += '\n';
+			out += '\n\n';
 			let t_dur_str_seg = format(t_dur / trace_cols);
 			let t_max_len = Math.max(t_dur_str_seg.length, t_dur_str.length);
 			out += tmp = `one └┘ unit is less than: ${t_dur_str_seg}\n`;
