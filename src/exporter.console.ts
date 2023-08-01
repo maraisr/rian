@@ -11,8 +11,6 @@ export function exporter(max_cols = 120) {
 
 			if (!spans.length) return;
 
-			let out = '';
-
 			let tmp, i;
 
 			let max_time = 0;
@@ -42,6 +40,10 @@ export function exporter(max_cols = 120) {
 			let mid = Math.floor(trace_cols / 2);
 			let mid_str = format(t_dur / 2);
 			let mid_str_anchor = Math.floor(mid_str.length / 2);
+
+			// RENDER
+
+			let out = '';
 
 			// spans top border
 			out += '╭'.padStart(max_time_col);
