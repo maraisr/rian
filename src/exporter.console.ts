@@ -3,19 +3,19 @@ import type * as rian from 'rian';
 export function exporter(max_cols = 120) {
 	return function (trace: rian.Trace) {
 		for (let scope of trace.scopeSpans) {
-			let spans = Array.from(scope.spans);
+			let spans = scope.spans;
 
-			const [max_time, min_time] = spans.reduce(
-				(col, span) => {
-					col[0] = Math.max(col[0], span.end || span.start);
-					col[1] = Math.min(col[1], span.start);
-					return col;
-				},
-				[Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER] as [
-					max_time: number,
-					min_time: number,
-				],
-			);
+			if (!spans.length) return;
+
+			let tmp, i;
+
+			let max_time = 0;
+			let min_time = spans[0].start;
+
+			for (i = 0; (tmp = scope.spans[i++]); ) {
+				max_time = Math.max(max_time, tmp.end ?? tmp.start);
+				min_time = Math.min(min_time, tmp.start);
+			}
 
 			let dur = max_time - min_time;
 
