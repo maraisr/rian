@@ -79,6 +79,7 @@
   "devDependencies": {
     "@marais/prettier": "0.0.4",
     "@marais/tsconfig": "0.0.4",
+    "@types/node": "20.4.5",
     "bundt": "2.0.0-next.5",
     "nanospy": "1.0.0",
     "prettier": "3.0.0",
