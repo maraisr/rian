@@ -67,7 +67,6 @@
     "bench": "node -r tsm bench/index.ts",
     "build": "bundt --minify",
     "format": "prettier --write \"{*,{src,test}/**/*,examples/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
-    "pretest": "pnpm run build",
     "test": "uvu src \".test.ts$\" -r tsm",
     "typecheck": "tsc --noEmit"
   },
