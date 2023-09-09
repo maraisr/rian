@@ -39,5 +39,5 @@ jobs:
       - run: bun install
       - run: oxlint .
       - run: bun run build
-      - run: bun run test
       - run: bun run typecheck
+      - run: npm run test
