@@ -148,7 +148,7 @@ tracer('correctly parents tracers', async () => {
 	one(() => {
 		rian.span('child 1')(() => {
 			two(() => {
-				rian.span('child 2')(() => {});
+				rian.span('child 2')(async () => {});
 			});
 		});
 
@@ -183,7 +183,7 @@ tracer('can be called again', async () => {
 		rian.span('child 1')(() => {
 			two(() => {
 				one(() => {
-					rian.span('child 2')(() => {});
+					rian.span('child 2')(async () => {});
 				});
 			});
 		});
