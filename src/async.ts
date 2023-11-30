@@ -33,7 +33,7 @@ export function currentSpan() {
 
 export function span(name: string, parent_id?: Traceparent | string) {
 	const context = resourceStore.getStore();
-	if (!context) throw Error('TODO');
+	if (!context) throw Error('no current tracer');
 
 	const api = context[0];
 	const scope = api.scope;
