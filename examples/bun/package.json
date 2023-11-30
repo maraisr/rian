@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "bun-types": "1.0.14"
+  },
+  "dependencies": {
+    "rian": "^0.3.7"
+  }
+}
