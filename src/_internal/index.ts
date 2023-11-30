@@ -40,8 +40,9 @@ export async function report(exporter: Exporter) {
 		spans.push(span);
 
 		if (wait_promises.has(scope)) {
-			ps.push(...wait_promises.get(scope)!);
-			wait_promises.delete(scope);
+			const pss = wait_promises.get(scope)!;
+			ps.push(...pss);
+			pss.clear();
 		}
 	}
 

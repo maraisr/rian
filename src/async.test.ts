@@ -250,5 +250,23 @@ tracer('.span should nest', async () => {
 	assert.is(spans[3].parent, spans[2].id);
 });
 
+tracer('tracer is called twice', async () => {
+	const t = rian.tracer('my-tracer');
+
+	t(async () => {
+		rian.span('span 1')(async () => {});
+	});
+
+	let spans = await rian.report(scope_spans);
+
+	t(async () => {
+		rian.span('span 2')(async () => {});
+	});
+
+	spans.push(...(await rian.report(scope_spans)));
+
+	assert.is(spans.length, 2);
+});
+
 test.run();
 tracer.run();
