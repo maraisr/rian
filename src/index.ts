@@ -1,12 +1,14 @@
 import type { CallableScope, Options, Span, Tracer } from 'rian';
 import { measure } from 'rian/utils';
-import { make, parse, SAMPLED_FLAG, type Traceparent } from 'tctx';
-import { defaultSampler, span_buffer, wait_promises } from './_internal';
+import { span_buffer, wait_promises } from './_internal';
+
+import { type Traceparent } from 'tctx';
+import * as tctx from 'tctx';
 
 export { report, configure } from './_internal';
 
 export function tracer(name: string, options?: Options): Tracer {
-	const sampler = options?.sampler ?? defaultSampler;
+	const should_sample = options?.sampler ?? true;
 	const clock = options?.clock ?? Date;
 
 	const scope = { name };
@@ -18,30 +20,22 @@ export function tracer(name: string, options?: Options): Tracer {
 		name: string,
 		parent_id?: Traceparent | string,
 	): CallableScope => {
-		const parent =
-			parent_id != null
-				? typeof parent_id === 'string'
-					? parse(parent_id)
-					: parent_id
-				: undefined;
-		const id = parent ? parent.child() : make();
+		// ---
+		const parent = (typeof parent_id === 'string' ? tctx.parse(parent_id) : parent_id);
+		const id = parent?.child() || tctx.make();
 
-		const should_sample =
-			typeof sampler !== 'boolean' ? sampler(name, id, scope) : sampler;
-
-		if (should_sample) id.flags |= SAMPLED_FLAG;
-		else id.flags &= ~SAMPLED_FLAG;
+		const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(name, id, scope);
+		!is_sampling ? tctx.unsample(id) : tctx.sample(id);
 
 		const span_obj: Span = {
-			id,
-			parent,
+			id, parent, name,
 			start: clock.now(),
-			name,
 			events: [],
 			context: {},
 		};
 
-		should_sample && span_buffer.add([span_obj, scope]);
+		is_sampling && span_buffer.add([span_obj, scope]);
+		// ---
 
 		const $: CallableScope = (cb: any) => measure($, cb);
 

@@ -1,17 +1,13 @@
 import * as async_hooks from 'node:async_hooks';
 
-import type {
-	CallableScope,
-	ClockLike,
-	Options,
-	Sampler,
-	Scope,
-	Span,
-} from 'rian';
+import type { CallableScope, ClockLike, Options, Sampler, Scope, Span } from 'rian';
 import type { Tracer } from 'rian/async';
 import { measure } from 'rian/utils';
-import { make, parse, SAMPLED_FLAG, type Traceparent } from 'tctx';
-import { defaultSampler, span_buffer, wait_promises } from './_internal';
+
+import { type Traceparent } from 'tctx';
+import * as tctx from 'tctx';
+
+import { span_buffer, wait_promises } from './_internal';
 
 export { configure, report } from './_internal';
 
@@ -38,33 +34,23 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	const api = context[0];
 	const scope = api.scope;
 	const current_span = context[1];
-	const sampler = api.sampler;
+	const should_sample = api.sampler;
 
 	// ---
-	const parent =
-		parent_id != null
-			? typeof parent_id === 'string'
-				? parse(parent_id)
-				: parent_id
-			: current_span?.traceparent;
-	const id = parent ? parent.child() : make();
+	const parent = (typeof parent_id === 'string' ? tctx.parse(parent_id) : (parent_id || current_span?.traceparent));
+	const id = parent?.child() || tctx.make();
 
-	const should_sample =
-		typeof sampler !== 'boolean' ? sampler(name, id, scope) : sampler;
-
-	if (should_sample) id.flags |= SAMPLED_FLAG;
-	else id.flags &= ~SAMPLED_FLAG;
+	const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(name, id, scope);
+	!is_sampling ? tctx.unsample(id) : tctx.sample(id);
 
 	const span_obj: Span = {
-		id,
-		parent,
+		id, parent, name,
 		start: api.clock.now(),
-		name,
 		events: [],
 		context: {},
 	};
 
-	should_sample && span_buffer.add([span_obj, scope]);
+	is_sampling && span_buffer.add([span_obj, scope]);
 	// ---
 
 	const $: CallableScope = (cb: any) =>
@@ -102,7 +88,7 @@ export function tracer<T extends () => any>(
 	name: string,
 	options?: Options,
 ): Tracer<T> {
-	const sampler = options?.sampler ?? defaultSampler;
+	const sampler = options?.sampler ?? true;
 
 	const scope = { name };
 

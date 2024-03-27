@@ -1,7 +1,6 @@
 // 🚨 WARNING THIS FILE WILL DUPLICATE ITSELF WITH EACH ENTRYPOINT
 
 import type { Resource, Context, Exporter, ScopedSpans, Span } from 'rian';
-import { is_sampled, type Traceparent } from 'tctx';
 
 // ---
 
@@ -54,9 +53,4 @@ export async function report(exporter: Exporter) {
 		resource,
 		scopeSpans: scopes.values(),
 	});
-}
-
-/*#__INLINE__*/
-export function defaultSampler(_name: string, id: Traceparent) {
-	return is_sampled(id);
 }

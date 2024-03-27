@@ -65,7 +65,7 @@
   ],
   "scripts": {
     "bench": "node -r tsm bench/index.ts",
-    "build": "bundt --minify",
+    "build": "bundt",
     "format": "prettier --write \"{*,{src,test}/**/*,examples/*/**,bench/*,.github/**/*}.+(ts|js|json|yml|md)\"",
     "test": "uvu src \".test.ts$\" -r tsm",
     "typecheck": "tsc --noEmit"
@@ -73,7 +73,7 @@
   "prettier": "@marais/prettier",
   "dependencies": {
     "flattie": "^1.1.0",
-    "tctx": "^0.0.13"
+    "tctx": "^0.1.0"
   },
   "devDependencies": {
     "@marais/prettier": "0.0.4",
