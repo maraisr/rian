@@ -4,8 +4,8 @@ import type { CallableScope, ClockLike, Options, Sampler, Scope, Span } from 'ri
 import type { Tracer } from 'rian/async';
 import { measure } from 'rian/utils';
 
-import { type Traceparent } from 'tctx';
-import * as tctx from 'tctx';
+import { type Traceparent } from 'tctx/traceparent';
+import * as traceparent from 'tctx/traceparent';
 
 import { span_buffer, wait_promises } from './_internal';
 
@@ -37,12 +37,12 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	const should_sample = api.sampler;
 
 	// ---
-	const parent = (typeof parent_id === 'string' ? tctx.parse(parent_id) : (parent_id || current_span?.traceparent));
-	const id = parent?.child() || tctx.make();
+	const parent = (typeof parent_id === 'string' ? traceparent.parse(parent_id) : (parent_id || current_span?.traceparent));
+	const id = parent?.child() || traceparent.make();
 
 	const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(id.parent_id, parent, name, scope);
-	if (is_sampling) tctx.sample(id);
-	else tctx.unsample(id);
+	if (is_sampling) traceparent.sample(id);
+	else traceparent.unsample(id);
 
 	const span_obj: Span = {
 		id, parent, name,

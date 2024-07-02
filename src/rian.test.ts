@@ -1,5 +1,5 @@
 import { spy, spyOn } from 'nanospy';
-import { is_sampled } from 'tctx';
+import { is_sampled } from 'tctx/traceparent';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
