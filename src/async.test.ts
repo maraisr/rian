@@ -3,7 +3,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { suite, test } from 'uvu';
 import * as assert from 'uvu/assert';
 
-import { make } from 'tctx';
+import { make } from 'tctx/traceparent';
 
 import type { Exporter } from 'rian';
 import * as rian from 'rian/async';
