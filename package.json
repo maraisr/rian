@@ -72,7 +72,7 @@
   },
   "prettier": "@marais/prettier",
   "dependencies": {
-    "flattie": "^1.1.0",
+    "flattie": "^1.1.1",
     "tctx": "^0.1.0"
   },
   "devDependencies": {
