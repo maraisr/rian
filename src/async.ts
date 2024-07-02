@@ -12,7 +12,7 @@ import { span_buffer, wait_promises } from './_internal';
 export { configure, report } from './_internal';
 
 type API = {
-	sampler: Sampler | boolean;
+	sampler: typeof Sampler | boolean;
 	scope: { name: string };
 	clock: ClockLike;
 };
@@ -40,8 +40,9 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	const parent = (typeof parent_id === 'string' ? tctx.parse(parent_id) : (parent_id || current_span?.traceparent));
 	const id = parent?.child() || tctx.make();
 
-	const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(name, id, scope);
-	!is_sampling ? tctx.unsample(id) : tctx.sample(id);
+	const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(id.parent_id, parent, name, scope);
+	if (is_sampling) tctx.sample(id);
+	else tctx.unsample(id);
 
 	const span_obj: Span = {
 		id, parent, name,

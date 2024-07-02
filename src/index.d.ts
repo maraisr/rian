@@ -27,7 +27,7 @@ export type Options = {
 	/**
 	 * @borrows {@link Sampler}
 	 */
-	sampler?: Sampler | boolean;
+	sampler?: typeof Sampler | boolean;
 
 	clock?: ClockLike;
 };
@@ -47,20 +47,24 @@ export type Context = {
  * Return true if the span should be sampled, and reported to the {@link Exporter}.
  * Return false if the span should not be sampled, and not reported to the {@link Exporter}.
  */
-export type Sampler = (
+export function Sampler(
+	/**
+	 * The id of the new span looking for a sampling decision.
+ 	*/
+	id: string,
+	/**
+	 * The parent id of the new span looking for a sampling decision.
+	 */
+	parent: Traceparent | undefined,
 	/**
 	 * The name of the span.
 	 */
 	name: string,
 	/**
-	 * The traceparent id of the span.
-	 */
-	id: Traceparent,
-	/**
 	 * The tracer this span belongs to.
 	 */
 	tracer: { readonly name: string },
-) => boolean;
+): boolean;
 
 // --- spans
 

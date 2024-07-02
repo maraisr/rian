@@ -24,8 +24,9 @@ export function tracer(name: string, options?: Options): Tracer {
 		const parent = (typeof parent_id === 'string' ? tctx.parse(parent_id) : parent_id);
 		const id = parent?.child() || tctx.make();
 
-		const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(name, id, scope);
-		!is_sampling ? tctx.unsample(id) : tctx.sample(id);
+		const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(id.parent_id, parent, name, scope);
+		if (is_sampling) tctx.sample(id);
+		else tctx.unsample(id);
 
 		const span_obj: Span = {
 			id, parent, name,
