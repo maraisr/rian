@@ -2,6 +2,7 @@
   "extends": "@marais/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
+    "moduleResolution": "bundler",
     "paths": {
       "rian": ["src/index.d.ts"],
       "rian/*": ["src/*.d.ts"]
