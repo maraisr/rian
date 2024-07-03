@@ -12,7 +12,7 @@ import { span_buffer, wait_promises } from './_internal';
 export { configure, report } from './_internal';
 
 type API = {
-	sampler: typeof Sampler | boolean;
+	sampler: Sampler | boolean;
 	scope: { name: string };
 	clock: ClockLike;
 };
