@@ -1,12 +1,25 @@
-import type { CallableScope, Options, Span, Tracer } from 'rian';
-import { measure } from 'rian/utils';
-import { span_buffer, wait_promises } from './_internal';
+// TODO: Name TBD
 
-import { type Traceparent } from 'tctx/traceparent';
-import * as traceparent from 'tctx/traceparent';
-
-export { report, configure } from './_internal';
-
+/**
+ * TODO: write jsdoc
+ * 
+ * A tracer is a logical unit in your application. This alleviates the need to pass around a tracer instance.
+ *
+ * All spans produced by a tracer will all collect into a single span collection that is given to {@link report}.
+ *
+ * @example
+ *
+ * ```ts
+ * // file: server.ts
+ * const trace = tracer('server');
+ *
+ * // file: orm.ts
+ * const trace = tracer('orm');
+ *
+ * // file: api.ts
+ * const trace = tracer('api');
+ * ```
+ */
 export function tracer(name: string, options?: Options): Tracer {
 	const should_sample = options?.sampler ?? true;
 	const clock = options?.clock ?? Date;
