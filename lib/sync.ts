@@ -1,5 +1,13 @@
 // TODO: Name TBD
 
+import type { Traceparent } from 'tctx/traceparent';
+import * as traceparent from 'tctx/traceparent';
+
+import { span_buffer, wait_promises } from './_internal.ts';
+
+import type { NewSpanFn, Options, Span, SpanBuilder } from './mod.ts';
+import { measure } from './utils.ts';
+
 /**
  * TODO: write jsdoc
  * 
@@ -20,21 +28,21 @@
  * const trace = tracer('api');
  * ```
  */
-export function tracer(name: string, options?: Options): Tracer {
+export function tracer(name: string, options?: Options): { span: NewSpanFn } {
 	const should_sample = options?.sampler ?? true;
 	const clock = options?.clock ?? Date;
 
 	const scope = { name };
 
-	const ps: Set<Promise<any>> = new Set();
+	const ps: Set<Promise<unknown>> = new Set();
 	wait_promises.set(scope, ps);
 
 	const span = (
 		name: string,
-		parent_id?: Traceparent | string,
-	): CallableScope => {
+		parent_id?: Traceparent | null |  string,
+	): SpanBuilder => {
 		// ---
-		const parent = (typeof parent_id === 'string' ? traceparent.parse(parent_id) : parent_id);
+		const parent = (typeof parent_id === 'string' ? traceparent.parse(parent_id) : parent_id) ?? undefined;
 		const id = parent?.child() || traceparent.make();
 
 		const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(id.parent_id, parent, name, scope);
@@ -51,16 +59,18 @@ export function tracer(name: string, options?: Options): Tracer {
 		is_sampling && span_buffer.add([span_obj, scope]);
 		// ---
 
-		const $: CallableScope = (cb: any) => measure($, cb);
+		const $: SpanBuilder = (cb) => measure($, cb);
 
 		$.traceparent = id;
 		$.span = (name, p_id) => span(name, p_id || id);
 		$.set_context = (ctx) => {
 			if (typeof ctx === 'function')
+                // @ts-expect-error
 				return void (span_obj.context = ctx(span_obj.context));
 			return void Object.assign(span_obj.context, ctx);
 		};
 		$.add_event = (name, attributes) => {
+            // @ts-expect-error
 			span_obj.events.push({
 				name,
 				timestamp: clock.now(),
@@ -68,6 +78,7 @@ export function tracer(name: string, options?: Options): Tracer {
 			});
 		};
 		$.end = () => {
+            // @ts-expect-error
 			if (span_obj.end == null) span_obj.end = clock.now();
 		};
 
