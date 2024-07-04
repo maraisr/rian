@@ -50,7 +50,7 @@ export type Context = {
 export type Sampler = (
 	/**
 	 * The id of the new span looking for a sampling decision.
- 	*/
+	 */
 	id: string,
 	/**
 	 * The parent id of the new span looking for a sampling decision.
@@ -104,7 +104,7 @@ export type Span = {
 	id: Traceparent;
 
 	/**
-	 * Is the id of rhe parent if this is not the parent {@link Span}.
+	 * Is the id of the parent if this is not the parent {@link Span}.
 	 *
 	 * @see {@link Span.id}
 	 */
