@@ -23,34 +23,30 @@ export const wait_promises = new WeakMap<{ name: string }, Set<Promise<any>>>();
 export async function report(exporter: Exporter) {
 	const ps = [];
 	const scopes = new Map<{ name: string }, ScopedSpans>();
+	const scopeSpans: Array<ScopedSpans> = [];
 
 	for (let [span, scope] of span_buffer) {
-		let spans: Span[];
-		if (scopes.has(scope)) {
-			// @ts-expect-error
-			spans = scopes.get(scope)!.spans;
-		} else {
-			scopes.set(scope, {
-				scope,
-				spans: (spans = []),
-			});
+		let scope_spans = scopes.get(scope);
+
+		if (scope_spans == null) {
+			scope_spans = { scope, spans: [] };
+			scopeSpans.push(scope_spans);
+			scopes.set(scope, scope_spans);
+
+			// If we are in here, we have not seen this scope yet, so also enque all of its wait_promises
+			if (wait_promises.has(scope)) {
+				const pss = wait_promises.get(scope)!;
+				ps.push(...pss);
+				pss.clear();
+			}
 		}
 
-		spans.push(span);
-
-		if (wait_promises.has(scope)) {
-			const pss = wait_promises.get(scope)!;
-			ps.push(...pss);
-			pss.clear();
-		}
+		(scope_spans.spans as Span[]).push(span);
 	}
-
-	span_buffer.clear();
 
 	if (ps.length) await Promise.all(ps);
 
-	return exporter({
-		resource,
-		scopeSpans: scopes.values(),
-	});
+	span_buffer.clear();
+
+	return exporter({ resource, scopeSpans });
 }

@@ -15,7 +15,7 @@ type Resource = {
 
 export type Trace = {
 	resource: Resource;
-	scopeSpans: IterableIterator<ScopedSpans>;
+	scopeSpans: ReadonlyArray<ScopedSpans>;
 };
 
 export type ScopedSpans = {
