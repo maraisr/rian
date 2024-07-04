@@ -1,6 +1,13 @@
 import * as async_hooks from 'node:async_hooks';
 
-import type { CallableScope, ClockLike, Options, Sampler, Scope, Span } from 'rian';
+import type {
+	CallableScope,
+	ClockLike,
+	Options,
+	Sampler,
+	Scope,
+	Span,
+} from 'rian';
 import type { Tracer } from 'rian/async';
 import { measure } from 'rian/utils';
 
@@ -37,13 +44,20 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	const should_sample = api.sampler;
 
 	// ---
-	const parent = (typeof parent_id === 'string' ? traceparent.parse(parent_id) : (parent_id || current_span?.traceparent));
+	const parent =
+		typeof parent_id === 'string'
+			? traceparent.parse(parent_id)
+			: parent_id || current_span?.traceparent;
 	const id = parent?.child() || traceparent.make();
 
-	const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(id.parent_id, parent, name, scope);
+	const is_sampling =
+		typeof should_sample == 'boolean'
+			? should_sample
+			: should_sample(id.parent_id, parent, name, scope);
 	if (is_sampling) traceparent.sample(id);
 	else traceparent.unsample(id);
 
+	// prettier-ignore
 	const span_obj: Span = {
 		id, parent, name,
 		start: api.clock.now(),

@@ -239,9 +239,9 @@ sampler('should allow a sampler', async () => {
 		sampler: () => should_sample,
 	});
 
-	tracer.span('not sampled')(() => { });
+	tracer.span('not sampled')(() => {});
 	should_sample = true;
-	tracer.span('sampled')(() => { });
+	tracer.span('sampled')(() => {});
 
 	const exporter = spy<rian.Exporter>(returns);
 	const scopedSpans: rian.ScopedSpans[] = await rian.report(exporter);
@@ -257,23 +257,23 @@ sampler('allow a sampler to make a decision from its parent', async () => {
 	const S: rian.Sampler = (_id, parentId) => {
 		if (!parentId) return no_parent_sample;
 		return traceparent.is_sampled(parentId);
-	}
+	};
 
 	const tracer = rian.tracer('test', { sampler: S });
 
 	tracer.span('sampled#1')((s) => {
 		no_parent_sample = false;
-		s.span('sampled#1.1')(() => { })
+		s.span('sampled#1.1')(() => {});
 	});
 
 	no_parent_sample = false;
 	tracer.span('not sampled#1')((s) => {
-		s.span('not sampled#1.1')(() => { })
+		s.span('not sampled#1.1')(() => {});
 	});
 
 	no_parent_sample = true;
 	tracer.span('sampled#2')((s) => {
-		s.span('sampled#2.1')(() => { })
+		s.span('sampled#2.1')(() => {});
 	});
 
 	no_parent_sample = false;
@@ -283,12 +283,10 @@ sampler('allow a sampler to make a decision from its parent', async () => {
 
 	assert.equal(scopedSpans.length, 1);
 	assert.equal(scopedSpans.at(0)!.spans.length, 4);
-	assert.equal(scopedSpans.at(0)!.spans.map(s => s.name), [
-		'sampled#1',
-		'sampled#1.1',
-		'sampled#2',
-		'sampled#2.1',
-	]);
+	assert.equal(
+		scopedSpans.at(0)!.spans.map((s) => s.name),
+		['sampled#1', 'sampled#1.1', 'sampled#2', 'sampled#2.1'],
+	);
 });
 
 test.run();

@@ -21,13 +21,20 @@ export function tracer(name: string, options?: Options): Tracer {
 		parent_id?: Traceparent | string,
 	): CallableScope => {
 		// ---
-		const parent = (typeof parent_id === 'string' ? traceparent.parse(parent_id) : parent_id);
+		const parent =
+			typeof parent_id === 'string'
+				? traceparent.parse(parent_id)
+				: parent_id;
 		const id = parent?.child() || traceparent.make();
 
-		const is_sampling = typeof should_sample == 'boolean' ? should_sample : should_sample(id.parent_id, parent, name, scope);
+		const is_sampling =
+			typeof should_sample == 'boolean'
+				? should_sample
+				: should_sample(id.parent_id, parent, name, scope);
 		if (is_sampling) traceparent.sample(id);
 		else traceparent.unsample(id);
 
+		// prettier-ignore
 		const span_obj: Span = {
 			id, parent, name,
 			start: clock.now(),
