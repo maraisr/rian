@@ -1,4 +1,4 @@
-import type { Scope } from 'rian';
+import type { SpanBuilder } from 'rian';
 
 /**
  * With a passed function, `measure` will run the function and once finishes, will end the span.
@@ -19,7 +19,7 @@ import type { Scope } from 'rian';
  * const data = await measure(scope, () => get_data('foo', 'bar'));
  * ```
  */
-export function measure<Fn extends (scope: Scope) => any>(
-	scope: Scope,
+export function measure<Fn extends (span: SpanBuilder) => any>(
+	span: SpanBuilder,
 	fn: Fn,
 ): ReturnType<Fn>;

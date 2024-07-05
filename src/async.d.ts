@@ -1,4 +1,4 @@
-import type { CallableScope, Options, Scope } from 'rian';
+import type { CallableSpanBuilder, Options, SpanBuilder } from 'rian';
 import type { Traceparent } from 'tctx';
 
 export { report, configure } from 'rian';
@@ -21,7 +21,7 @@ export { report, configure } from 'rian';
  * });
  * ```
  */
-export function currentSpan(): Scope;
+export function currentSpan(): SpanBuilder;
 
 /**
  * Creates a new span for the currently active tracer.
@@ -38,7 +38,7 @@ export function currentSpan(): Scope;
 export function span(
 	name: string,
 	parent_id?: Traceparent | string,
-): CallableScope;
+): CallableSpanBuilder;
 
 export type Tracer<T> = (cb: T) => ReturnType<T>;
 

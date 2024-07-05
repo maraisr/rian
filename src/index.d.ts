@@ -32,7 +32,7 @@ export type Options = {
 	clock?: ClockLike;
 };
 
-export type Tracer = Pick<Scope, 'span'>;
+export type Tracer = Pick<SpanBuilder, 'span'>;
 
 /**
  * @borrows {@link Span.context}
@@ -113,7 +113,7 @@ export type Span = {
 	/**
 	 * The time represented as a UNIX epoch timestamp in milliseconds when this span was created.
 	 * Typically, via
-	 * {@link Scope.span|scope.span()}.
+	 * {@link SpanBuilder.span|SpanBuilder.span()}.
 	 */
 	start: number;
 
@@ -152,7 +152,7 @@ export type Span = {
 
 // --- scopes
 
-export type Scope = {
+export type SpanBuilder = {
 	/**
 	 * A W3C traceparent. One can .toString() this if you want to cross a network.
 	 */
@@ -167,7 +167,7 @@ export type Scope = {
 		 */
 		name: string,
 		parent_id?: Traceparent | string,
-	): CallableScope;
+	): CallableSpanBuilder;
 
 	/**
 	 * Allows the span's context to be set. Passing an object will be `Object.assign`ed into the
@@ -190,8 +190,10 @@ export type Scope = {
 	end(): void;
 };
 
-export type CallableScope = Scope & {
-	<Fn extends (scope: Omit<Scope, 'end'>) => any>(cb: Fn): ReturnType<Fn>;
+export type CallableSpanBuilder = SpanBuilder & {
+	<Fn extends (span: Omit<SpanBuilder, 'end'>) => any>(
+		cb: Fn,
+	): ReturnType<Fn>;
 };
 
 // --- main api

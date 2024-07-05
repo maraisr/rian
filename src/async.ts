@@ -1,11 +1,11 @@
 import * as async_hooks from 'node:async_hooks';
 
 import type {
-	CallableScope,
+	CallableSpanBuilder,
 	ClockLike,
 	Options,
 	Sampler,
-	Scope,
+	SpanBuilder,
 	Span,
 } from 'rian';
 import type { Tracer } from 'rian/async';
@@ -25,7 +25,7 @@ type API = {
 };
 
 const resourceStore = new async_hooks.AsyncLocalStorage<
-	[API, Scope | null] | null
+	[API, SpanBuilder | null] | null
 >();
 
 export function currentSpan() {
@@ -68,7 +68,7 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	is_sampling && span_buffer.add([span_obj, scope]);
 	// ---
 
-	const $: CallableScope = (cb: any) =>
+	const $: CallableSpanBuilder = (cb: any) =>
 		resourceStore.run([api, $], measure, $, cb);
 
 	$.traceparent = id;

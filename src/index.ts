@@ -1,4 +1,4 @@
-import type { CallableScope, Options, Span, Tracer } from 'rian';
+import type { CallableSpanBuilder, Options, Span, Tracer } from 'rian';
 import { measure } from 'rian/utils';
 import { span_buffer, wait_promises } from './_internal';
 
@@ -19,7 +19,7 @@ export function tracer(name: string, options?: Options): Tracer {
 	const span = (
 		name: string,
 		parent_id?: Traceparent | string,
-	): CallableScope => {
+	): CallableSpanBuilder => {
 		// ---
 		const parent =
 			typeof parent_id === 'string'
@@ -45,7 +45,7 @@ export function tracer(name: string, options?: Options): Tracer {
 		is_sampling && span_buffer.add([span_obj, scope]);
 		// ---
 
-		const $: CallableScope = (cb: any) => measure($, cb);
+		const $: CallableSpanBuilder = (cb: any) => measure($, cb);
 
 		$.traceparent = id;
 		$.span = (name, p_id) => span(name, p_id || id);
