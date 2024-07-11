@@ -19,8 +19,12 @@ export type Trace = {
 };
 
 export type ScopedSpans = {
-	readonly scope: { readonly name: string };
+	readonly scope: Scope;
 	readonly spans: ReadonlyArray<Readonly<Span>>;
+};
+
+export type Scope = {
+	readonly name: string;
 };
 
 export type Options = {
@@ -63,7 +67,7 @@ export type Sampler = (
 	/**
 	 * The tracer this span belongs to.
 	 */
-	tracer: { readonly name: string },
+	tracer: Scope,
 ) => boolean;
 
 // --- spans

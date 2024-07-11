@@ -1,6 +1,13 @@
 // 🚨 WARNING THIS FILE WILL DUPLICATE ITSELF WITH EACH ENTRYPOINT
 
-import type { Resource, Context, Exporter, ScopedSpans, Span } from 'rian';
+import type {
+	Resource,
+	Context,
+	Exporter,
+	ScopedSpans,
+	Span,
+	Scope,
+} from 'rian';
 
 // ---
 
@@ -17,12 +24,12 @@ export function configure(name: string, attributes: Context = {}) {
 
 // ---
 
-export const span_buffer = new Set<[Span, { name: string }]>();
-export const wait_promises = new WeakMap<{ name: string }, Set<Promise<any>>>();
+export const span_buffer = new Set<[Span, Scope]>();
+export const wait_promises = new WeakMap<Scope, Set<Promise<any>>>();
 
 export async function report(exporter: Exporter) {
 	const ps = [];
-	const scopes = new Map<{ name: string }, ScopedSpans>();
+	const scopes = new Map<Scope, ScopedSpans>();
 	const scopeSpans: Array<ScopedSpans> = [];
 
 	for (let [span, scope] of span_buffer) {

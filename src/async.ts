@@ -7,6 +7,7 @@ import type {
 	Sampler,
 	SpanBuilder,
 	Span,
+	Scope,
 } from 'rian';
 import type { Tracer } from 'rian/async';
 import { measure } from 'rian/utils';
@@ -20,7 +21,7 @@ export { configure, report } from './_internal';
 
 type API = {
 	sampler: Sampler | boolean;
-	scope: { name: string };
+	scope: Scope;
 	clock: ClockLike;
 };
 
