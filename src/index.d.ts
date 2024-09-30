@@ -36,6 +36,16 @@ export type Options = {
 	clock?: ClockLike;
 };
 
+/**
+ * Provinding a clock allows you to control the time of the span.
+ */
+export type ClockLike = {
+	/**
+	 * Must return the number of milliseconds since the epoch.
+	 */
+	now(): number;
+};
+
 export type Tracer = Pick<SpanBuilder, 'span'>;
 
 /**
@@ -200,30 +210,6 @@ export type CallableSpanBuilder = SpanBuilder & {
 	): ReturnType<Fn>;
 };
 
-// --- main api
-
-/**
- * A tracer is a logical unit in your application. This alleviates the need to pass around a tracer instance.
- *
- * All spans produced by a tracer will all collect into a single span collection that is given to {@link report}.
- *
- * @example
- *
- * ```ts
- * // file: server.ts
- * const trace = tracer('server');
- *
- * // file: orm.ts
- * const trace = tracer('orm');
- *
- * // file: api.ts
- * const trace = tracer('api');
- * ```
- */
-export function tracer(name: string, options?: Options): Tracer;
-
-// -- general api
-
 /**
  * Awaits all active promises, and then calls the {@link Options.exporter|exporter}. Passing all collected spans.
  */
@@ -246,13 +232,3 @@ export function report<T extends Exporter>(exporter: T): Promise<ReturnType<T>>;
  * ```
  */
 export function configure(name: string, attributes?: Context): void;
-
-/**
- * Provinding a clock allows you to control the time of the span.
- */
-export type ClockLike = {
-	/**
-	 * Must return the number of milliseconds since the epoch.
-	 */
-	now(): number;
-};

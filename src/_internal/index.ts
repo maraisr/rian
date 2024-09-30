@@ -9,6 +9,9 @@ import type {
 	Scope,
 } from 'rian';
 
+export const span_buffer = new Set<[Span, Scope]>();
+export const wait_promises = new WeakMap<Scope, Set<Promise<any>>>();
+
 // ---
 
 let resource = {} as Resource;
@@ -23,9 +26,6 @@ export function configure(name: string, attributes: Context = {}) {
 }
 
 // ---
-
-export const span_buffer = new Set<[Span, Scope]>();
-export const wait_promises = new WeakMap<Scope, Set<Promise<any>>>();
 
 export async function report(exporter: Exporter) {
 	const ps = [];
