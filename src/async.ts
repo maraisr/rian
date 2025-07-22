@@ -46,7 +46,7 @@ export function span(name: string, parent_id?: Traceparent | string) {
 	// ---
 	const parent =
 		typeof parent_id === 'string'
-			? traceparent.parse(parent_id)
+			? traceparent.parse(parent_id) || undefined
 			: parent_id || current_span?.traceparent;
 	const id = parent?.child() || traceparent.make();
 

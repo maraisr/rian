@@ -5,7 +5,6 @@ import * as assert from 'uvu/assert';
 
 import * as rian from 'rian';
 import * as utils from 'rian/utils';
-import { traceparent } from 'tctx';
 
 const noop = () => {};
 
@@ -256,7 +255,7 @@ sampler('allow a sampler to make a decision from its parent', async () => {
 
 	const S: rian.Sampler = (_id, parentId) => {
 		if (!parentId) return no_parent_sample;
-		return traceparent.is_sampled(parentId);
+		return is_sampled(parentId);
 	};
 
 	const tracer = rian.tracer('test', { sampler: S });

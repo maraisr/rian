@@ -1,5 +1,5 @@
 import type { CallableSpanBuilder, Options, SpanBuilder } from 'rian';
-import type { Traceparent } from 'tctx';
+import type { Traceparent } from 'tctx/traceparent';
 
 export { report, configure } from 'rian';
 

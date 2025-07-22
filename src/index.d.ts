@@ -1,4 +1,4 @@
-import type { Traceparent } from 'tctx';
+import type { Traceparent } from 'tctx/traceparent';
 
 // --- tracer
 

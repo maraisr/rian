@@ -23,7 +23,7 @@ export function tracer(name: string, options?: Options): Tracer {
 		// ---
 		const parent =
 			typeof parent_id === 'string'
-				? traceparent.parse(parent_id)
+				? traceparent.parse(parent_id) || undefined
 				: parent_id;
 		const id = parent?.child() || traceparent.make();
 

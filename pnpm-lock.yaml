@@ -12,8 +12,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       tctx:
-        specifier: ^0.2.3
-        version: 0.2.4
+        specifier: ^0.2.5
+        version: 0.2.5
     devDependencies:
       '@marais/prettier':
         specifier: 0.0.4
@@ -402,8 +402,8 @@ packages:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
 
-  tctx@0.2.4:
-    resolution: {integrity: sha512-tI7nUFLHQLRwQutJ+TTs1/hwufFJh6pBCDlxMH2hnNFPPv6ZIeiEfzQRjfAyJpv/I8URdf94n3iPxE6HPIGarA==}
+  tctx@0.2.5:
+    resolution: {integrity: sha512-OcvkrT1k+E2FNyJLJYuV66lOffCDtjxraggsrNKI0erFlF/cj/jq0bScxDY8bHldyMe97hKJNQwHfdKUMZmOqg==}
 
   terser@5.43.1:
     resolution: {integrity: sha512-+6erLbBm0+LROX2sPXlUYx/ux5PyE9K/a92Wrt6oA+WDAoFTdpHE5tCYCI5PNzq2y8df4rA+QgHLJuR4jNymsg==}
@@ -676,7 +676,7 @@ snapshots:
 
   source-map@0.6.1: {}
 
-  tctx@0.2.4:
+  tctx@0.2.5:
     dependencies:
       '@lukeed/csprng': 1.1.0
 
