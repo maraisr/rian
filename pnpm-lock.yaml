@@ -22,8 +22,8 @@ importers:
         specifier: 0.0.4
         version: 0.0.4
       '@types/node':
-        specifier: 20.4.5
-        version: 20.4.5
+        specifier: 24.0.15
+        version: 24.0.15
       bundt:
         specifier: 2.0.0-next.5
         version: 2.0.0-next.5
@@ -31,14 +31,14 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       prettier:
-        specifier: 3.0.0
-        version: 3.0.0
+        specifier: 3.6.2
+        version: 3.6.2
       tsm:
         specifier: 2.3.0
         version: 2.3.0
       typescript:
-        specifier: 5.1.6
-        version: 5.1.6
+        specifier: 5.8.3
+        version: 5.8.3
       uvu:
         specifier: 0.5.4
         version: 0.5.4
@@ -89,8 +89,8 @@ packages:
   '@marais/tsconfig@0.0.4':
     resolution: {integrity: sha512-b6KCal22xP6E8wgl52rxdf8MXuffI4oJ9aTosucX4aVb97yl01wU0PzGF67oMA/i9KdzLa0rjQ0zVdZ+1pvVAg==}
 
-  '@types/node@20.4.5':
-    resolution: {integrity: sha512-rt40Nk13II9JwQBdeYqmbn2Q6IVTA5uPhvSO+JVqdXw/6/4glI6oR9ezty/A9Hg5u7JH4OmYmuQ+XvjKm0Datg==}
+  '@types/node@24.0.15':
+    resolution: {integrity: sha512-oaeTSbCef7U/z7rDeJA138xpG3NuKc64/rZ2qmUFkFJmnMsAPaluIifqyWd8hSSMxyP9oie3dLAqYPblag9KgA==}
 
   acorn@8.15.0:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
@@ -382,8 +382,8 @@ packages:
     resolution: {integrity: sha512-wvmmALNstRRhLhy7RV11NCRY2k1zxstImiju4VyyKNNRIKDVjyBtmEd/Q4G82/3dN4VSTe+0PRR3DUAASSbEEQ==}
     engines: {node: ^8.0.0 || ^10.0.0 || ^12.0.0 || ^14.0.0 || ^16.0.0 || ^18.0.0 || >=20.0.0}
 
-  prettier@3.0.0:
-    resolution: {integrity: sha512-zBf5eHpwHOGPC47h0zrPyNn+eAEIdEzfywMoYn2XPi0P44Zp0tSq64rq0xAREh4auw2cJZHo9QUob+NqCQky4g==}
+  prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -415,10 +415,13 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
 
-  typescript@5.1.6:
-    resolution: {integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==}
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  undici-types@7.8.0:
+    resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
 
   uvu@0.5.4:
     resolution: {integrity: sha512-x1CyUjcP9VKaNPhjeB3FIc/jqgLsz2Q9LFhRzUTu/jnaaHILEGNuE0XckQonl8ISLcwyk9I2EZvWlYsQnwxqvQ==}
@@ -461,7 +464,9 @@ snapshots:
 
   '@marais/tsconfig@0.0.4': {}
 
-  '@types/node@20.4.5': {}
+  '@types/node@24.0.15':
+    dependencies:
+      undici-types: 7.8.0
 
   acorn@8.15.0: {}
 
@@ -656,7 +661,7 @@ snapshots:
 
   nanospy@1.0.0: {}
 
-  prettier@3.0.0: {}
+  prettier@3.6.2: {}
 
   rewrite-imports@2.0.3: {}
 
@@ -686,7 +691,9 @@ snapshots:
     dependencies:
       esbuild: 0.15.18
 
-  typescript@5.1.6: {}
+  typescript@5.8.3: {}
+
+  undici-types@7.8.0: {}
 
   uvu@0.5.4:
     dependencies:
