@@ -11,33 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [16, 18, 20]
+        node: [20, 22, 24]
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
+
+      - name: (env) setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
 
       - name: (env) setup node v${{ matrix.node }}
-        uses: actions/setup-node@main
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          check-latest: true
+          cache: pnpm
 
-      - name: (env) setup bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: 1.0.0
-
-      - name: (env) cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.bun/install/cache
-          key: ${{ runner.os }}-${{ matrix.node }}-${{ hashFiles('**/package.json') }}
-          restore-keys: ${{ runner.os }}-${{ matrix.node }}-
-
-      - name: (env) globals
-        run: bun add -g oxlint
-
-      - run: bun install
-      - run: oxlint .
-      - run: bun run build
-      - run: bun run typecheck
-      - run: npm run test
+      - run: pnpm install --ignore-scripts
+      - run: pnpm run build
+      - run: pnpm run test
+      - run: pnpm run typecheck
