@@ -17,7 +17,7 @@
   ],
   "repository": "maraisr/rian",
   "license": "MIT",
-  "author": "Marais Rossow <me@marais.dev> (https://marais.io)",
+  "author": "Marais Rossouw <me@marais.dev> (https://marais.io)",
   "sideEffects": false,
   "exports": {
     ".": {
